@@ -1,0 +1,43 @@
+syntax = "proto2";
+package BasicTypes;
+
+import "google/protobuf/any.proto";
+
+message Message {
+  required uint64 id = 1;
+  required google.protobuf.Any value = 2;
+}
+
+message ImageValue {
+    required bytes data = 1;
+    required int32 height = 2;
+    required int32 width = 3;
+};
+
+message StringValue {
+  required string value = 1;
+}
+
+message BooleanValue {
+  required bool value = 1;
+}
+
+message IntValue {
+  required int64 value = 1;
+}
+
+message FloatValue {
+  required double value = 1;
+}
+
+message CameraValue {
+  required string url = 1;
+}
+
+message TupleValue {
+  repeated google.protobuf.Any items = 1;
+}
+
+message ListValue {
+  repeated google.protobuf.Any items = 1;
+}
