@@ -6,6 +6,11 @@ from pyblocks.proto.serializer import *
 from collections import namedtuple
 Event = namedtuple("Event", ["source_id", "event"])
 
+class Message:
+    def __init__(self, id=None, value=None):
+        self.id = id
+        self.value = value
+
 class NodeBase:
     def __init__(self):
         self._worker = None
@@ -111,12 +116,13 @@ class NodeBase:
             msg = self._sub_socket.recv()
             index = msg.find(b" ")
             source_id, event = msg[:index].decode("utf8").split("|")
-            message = basictypes_pb2.Message()
-            message.ParseFromString(msg[index+1:])
+            binary_msg = basictypes_pb2.Message()
+            binary_msg.ParseFromString(msg[index+1:])
 
-            msg_id, msg_value = ProtobufSerializer().deserialize_message(message)
+            msg_id, msg_value = ProtobufSerializer().deserialize_message(binary_msg)
+            message = Message(msg_id, msg_value)
             handler_name = self._event2handler[Event(source_id=source_id, event=event)]
-            self._handlers[handler_name](msg_id, msg_value)
+            self._handlers[handler_name](message)
 
         logging.debug("Node {name}: Finished processing events".format(name=self.id()))
 
