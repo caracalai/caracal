@@ -71,12 +71,12 @@ class NodeBase:
 
     def generate_event(self, event, value, msg_id=None):
         if not event in self._events:
-            logging.warning("Node {name}: undefined event".format(name=self.id()))
+            logging.warning("Node {name}: Couldn't generate event. Error: undefined event '{event}'".format(name=self.id(), event=event))
             return
         if msg_id is None:
             msg_id = self._message_id()
         msg = ProtobufSerializer().serialize_message(msg_id, value)
-        logging.warning("Node {name}:send event".format(name=self.id()))
+        logging.debug("Node {name}:send event".format(name=self.id()))
         prefix = "{id}|{event} ".format(id=self.id(), event=event).encode("utf8")
         self._pub_socket.send(prefix + msg.SerializeToString(), zmq.DONTWAIT)
 
