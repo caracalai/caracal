@@ -1,8 +1,6 @@
 class Image:
-    def __init__(self, data, height, width):
-        self.width = width
-        self.height = height
-        self.data = data
+    def __init__(self, image):
+        self.image = image
 
 
 class Camera:

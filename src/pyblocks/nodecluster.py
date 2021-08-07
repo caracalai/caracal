@@ -7,7 +7,7 @@ class NodeCluster:
         self._server_node = None
         self._nodes = []
 
-    def start(self, server_endpoint, server_port):
+    def start(self, server_endpoint="", server_port=""):
         if self._name == self._config["server-fabric"]:
             self._server_node = NodeServer(self._config, server_port)
             self._server_node.start()
@@ -24,7 +24,8 @@ class NodeCluster:
             self._nodes.append(node)
 
     def wait(self):
-        self._server_node.wait()
+        if not self._server_node is None:
+            self._server_node.wait()
         for node in self._nodes:
             node.wait()
 
