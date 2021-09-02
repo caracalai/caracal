@@ -24,7 +24,7 @@ BroutonBlocks helps to develop AI-powered software faster.
 It contains
  - Canva, No-Code platform that helps to set up the architecture of projects visually.
  - Library of predefined blocks which can be used in your project
- - SDKs for development of custom blocks in C++/Python/Node.js
+ - SDKs for development of custom blocks in <a href="https://github.com/BroutonBlocks/bblocks-cpp">C++</a>, <a href="https://github.com/BroutonBlocks/bblocks-python">Python</a> and <a href="https://github.com/BroutonBlocks/bblocks-node">Node.js</a>.
  - Community of fractional developers, which can assist you with the development of custom blocks if it will be required
 
 
