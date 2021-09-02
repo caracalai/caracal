@@ -5,6 +5,8 @@
 </p>
 <p align="center"><b>No-Code instruments to make AI-powered products prototyping and development faster.</b></p>
 
+Made with :heart: by founders of <a href="https://broutonlab.com">BroutonLab</a>.
+
 <p align="center">
   <a href="">Docs</a>
   |
@@ -28,7 +30,7 @@ It contains
 
 ## Installing from PyPI
 ### Windows, MAC OS and Linux
-Evidently is available as a PyPI package. To install it using pip package manager, run:
+BroutonBlocks is available as a PyPI package. To install it using pip package manager, run:
 ```sh
 $ pip install -r https://github.com/BroutonBlocks/bblocks-python.git
 ```
