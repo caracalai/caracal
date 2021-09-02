@@ -3,7 +3,7 @@
 <p align="center">
 <img align="center" src="https://broutonblocks.com/img/blocks3.35b077cf.png" alt="Program in BroutonBlocks" width="400"/>
 </p>
-<p align="center"><b>No Code instruments to make AI-powered products prototyping and development faster.</b></p>
+<p align="center"><b>No-Code instruments to make AI-powered products prototyping and development faster.</b></p>
 
 <p align="center">
   <a href="">Docs</a>
@@ -30,7 +30,7 @@ It contains
 ### Windows, MAC OS and Linux
 Evidently is available as a PyPI package. To install it using pip package manager, run:
 ```sh
-$ pip install broutonblocks
+$ pip install -r https://github.com/BroutonBlocks/bblocks-python.git
 ```
 
 ## Getting started
