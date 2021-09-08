@@ -73,7 +73,7 @@ class ProtobufSerializer:
         if isinstance(value, basictypes.Image):
             result = basictypes_pb2.ImageValue()
             result.data = np.ndarray.tobytes(value.image)
-            height, width, _ = value.image.shape
+            width, height, _ = value.image.shape
             result.width = width
             result.height = height
             return result
