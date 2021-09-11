@@ -1,4 +1,4 @@
-from pyblocks.nodeserver import NodeServer
+from bblocks.execution.nodeserver import NodeServer
 
 class NodeCluster:
     def __init__(self, name, config):

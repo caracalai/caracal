@@ -1,7 +1,8 @@
 import zmq, json
 import threading
 import logging
-from pyblocks.proto.serializer import *
+from bblocks.execution.proto.serializer import *
+from bblocks.execution.proto.basictypes_pb2 import *
 
 from collections import namedtuple
 Event = namedtuple("Event", ["source_id", "event"])

@@ -1,6 +1,7 @@
 [build-system]
 requires = [
     "setuptools>=42",
-    "wheel"
+    "wheel",
+    "antlr4-python3-runtime"
 ]
 build-backend = "setuptools.build_meta"

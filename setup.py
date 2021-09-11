@@ -4,7 +4,7 @@ with open("README.md", 'r') as f:
     long_description = f.read()
 
 setuptools.setup(
-    name='pyblocks',
+    name='bblocks',
     version='0.0.1',
     long_description=long_description,
     author='BroutonBlocks team',
