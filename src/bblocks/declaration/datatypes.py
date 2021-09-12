@@ -85,7 +85,7 @@ class FloatType(ObjectType):
         super().__init__()
 
     def contains_value(self, value):
-        return isinstance(value, (float))
+        return isinstance(value, (float, int))
 
     @property
     def name(self):

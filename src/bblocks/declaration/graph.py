@@ -1,5 +1,7 @@
 from bblocks.declaration import *
 from bblocks.declaration.nodetype import *
+from bblocks.proto import protoserializer
+import base64
 
 import uuid
 import json
@@ -57,25 +59,25 @@ class Node:
         if not name in self._type.properties.keys():
             raise RuntimeError("Couldn't set property")
 
-        prop_type = self._type._properties[name]
+        prop_type = self._type._properties[name].type
         if not prop_type.contains_value(value):
             raise RuntimeError("Couldn't set property")
 
-        if isinstance(prop_type, DataSourceType):
-            if not self.graph.contains_node(value):
-                raise RuntimeError("Couldn't set property")
+        # if isinstance(prop_type, DataSourceType):
+        #     if not self.graph.contains_node(value):
+        #         raise RuntimeError("Couldn't set property")
+        #
+        #     if not isinstance(self.graph.node(value).type, TableDataSourceNode):
+        #         raise RuntimeError("Couldn't set property")
+        #
+        #
+        #     # TableDataSourceNode
+        #     sourceBasicType = self.graph.node(value).type.basicType
+        #     destBasicType = prop_type.basicType
+        #     if not destBasicType.contains(sourceBasicType):
+        #         raise RuntimeError("Couldn't set property")
 
-            if not isinstance(self.graph.node(value).type, TableDataSourceNode):
-                raise RuntimeError("Couldn't set property")
-
-
-            # TableDataSourceNode
-            sourceBasicType = self.graph.node(value).type.basicType
-            destBasicType = prop_type.basicType
-            if not destBasicType.contains(sourceBasicType):
-                raise RuntimeError("Couldn't set property")
-
-        self._property_values[name] = value
+        self._property_values[name] = protoserializer.ProtoSerializer().serialize_value(value)
 
 
 class Edge:
@@ -101,9 +103,17 @@ class Graph:
         result["edges"] = []
 
         for n in self.nodes.values():
+            properties = {}
+            for prop_name, info in n.type.properties.items():
+                prop_value = info.default_value
+                if prop_name in n.property_values:
+                    prop_value = n.property_values[prop_name]
+                if prop_value != None:
+                    properties[prop_name] = base64.b64encode(prop_value.SerializeToString()).decode('ascii')
             result["nodes"][n.id] = {
                 "type": {
                     "name": n.type.name,
+                    "properties": properties,
                     "fabric": n.fabric
                 }
             }
