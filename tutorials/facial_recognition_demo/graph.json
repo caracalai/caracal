@@ -1,0 +1,40 @@
+{
+  "server-fabric": "executor-service",
+  "nodes": {
+    "DragAndDropImageWebView_c2f4ff90-ee19-442f-889f-926b808a3a15": {
+      "type": {
+        "name": "DragAndDropImageWebView",
+        "properties": {},
+        "fabric": "ui-service"
+      }
+    },
+    "ShowDetectedFaceWebView_9d6f8549-c8b3-4e26-bb9f-6f0f96e2b446": {
+      "type": {
+        "name": "ShowDetectedFaceWebView",
+        "properties": {},
+        "fabric": "ui-service"
+      }
+    },
+    "FaceDetection_2f0bd684-bb2a-4e66-94e7-7d77d9ecb245": {
+      "type": {
+        "name": "FaceDetection",
+        "properties": {},
+        "fabric": "executor-service"
+      }
+    }
+  },
+  "edges": [
+    {
+      "source": "DragAndDropImageWebView_c2f4ff90-ee19-442f-889f-926b808a3a15",
+      "event": "image_dropped",
+      "destination": "FaceDetection_2f0bd684-bb2a-4e66-94e7-7d77d9ecb245",
+      "handler": "image"
+    },
+    {
+      "source": "FaceDetection_2f0bd684-bb2a-4e66-94e7-7d77d9ecb245",
+      "event": "result",
+      "destination": "ShowDetectedFaceWebView_9d6f8549-c8b3-4e26-bb9f-6f0f96e2b446",
+      "handler": "processed_image"
+    }
+  ]
+}

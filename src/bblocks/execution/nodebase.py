@@ -1,8 +1,8 @@
 import zmq, json
 import threading
 import logging
-from bblocks.execution.proto.serializer import *
-from bblocks.execution.proto.basictypes_pb2 import *
+from bblocks.proto.protoserializer import *
+from bblocks.proto.basictypes_pb2 import *
 
 from collections import namedtuple
 Event = namedtuple("Event", ["source_id", "event"])
@@ -76,7 +76,7 @@ class NodeBase:
             return
         if msg_id is None:
             msg_id = self._message_id()
-        msg = ProtobufSerializer().serialize_message(msg_id, value)
+        msg = ProtoSerializer().serialize_message(msg_id, value)
         logging.debug("Node {name}:send event".format(name=self.id()))
         prefix = "{id}|{event} ".format(id=self.id(), event=event).encode("utf8")
         self._pub_socket.send(prefix + msg.SerializeToString(), zmq.DONTWAIT)
@@ -120,7 +120,7 @@ class NodeBase:
             binary_msg = basictypes_pb2.Message()
             binary_msg.ParseFromString(msg[index+1:])
 
-            msg_id, msg_value = ProtobufSerializer().deserialize_message(binary_msg)
+            msg_id, msg_value = ProtoSerializer().deserialize_message(binary_msg)
             message = Message(msg_id, msg_value)
             handler_name = self._event2handler[Event(source_id=source_id, event=event)]
             self._handlers[handler_name](message)

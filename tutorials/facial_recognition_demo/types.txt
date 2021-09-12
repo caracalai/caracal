@@ -1,0 +1,13 @@
+node DragAndDropImageWebView:
+    events:
+        image_dropped(img: Image)
+
+node ShowDetectedFaceWebView:
+    handlers:
+        processed_image(img: Image, rects: list(tuple(int, int, int, int)))
+
+node FaceDetection:
+    handlers:
+        image(img: Image)
+    events:
+        result(img: Image, rects: list(tuple(int, int, int, int)))

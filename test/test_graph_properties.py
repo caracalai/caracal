@@ -20,8 +20,7 @@ class CheckGraphProperties(unittest.TestCase):
 
             graph = Graph()
             myNode = graph.addNode(MyNodeType)
-            myNode.setProperty("threshold", 20)
+            myNode.setProperty("threshold", 0.5)
             graph.serializeForExecutor()
         except RuntimeError:
             self.fail("test_graph_properties01")
-

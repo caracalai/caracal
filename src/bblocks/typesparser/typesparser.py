@@ -76,7 +76,9 @@ class TypesParser:
         for argument in func_arguments_tree.children[::2]:
             arg_names.append(argument.children[0].getText().lower())
             arg_types.append(self._handle_block_type(argument.children[2]))
-        return datatypes.TupleType(arg_types, arg_names)
+        result = datatypes.TupleType(*arg_types)
+        result.names = arg_names
+        return result
 
     def _handle_literal(self, literal_tree):
         if literal_tree.symbol.type == BlockTypesParser.BlockTypesParser.STRING_LITERAL:

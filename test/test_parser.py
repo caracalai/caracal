@@ -8,7 +8,8 @@ class CheckGraphExecution(unittest.TestCase):
             """
             node NodeType:
                 handlers:
-                    value(val:int)                           
+                    //value(val:int)
+                    value2(a: tuple(int, int))                       
             """)
         node_types = {node.name: node for node in node_types}
         self.assertTrue("NodeType" in node_types)

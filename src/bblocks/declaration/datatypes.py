@@ -209,10 +209,17 @@ class TableDataSourceType(DataSourceType):
         return "TableDataSourceType({basicType})".format(basicType=self.basicType.name)
 
 class TupleType(ObjectType):
-    def __init__(self, types, names=None):
+    def __init__(self, *types):
         super().__init__()
-        self._types = types
-        self._names = names
+        self._types = list(types)
+
+    @property
+    def names(self):
+        return self._names
+
+    @names.setter
+    def names(self, nms):
+        self._names = nms
 
     @property
     def typeCount(self):
