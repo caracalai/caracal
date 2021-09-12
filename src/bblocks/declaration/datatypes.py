@@ -228,6 +228,10 @@ class TupleType(ObjectType):
     def type(self, index):
         return self._types[index]
 
+    @property
+    def types(self):
+        return self._types
+
     def createFrom(input_tuple, index, newType):
         types = [copy.deepcopy(type) for type in input_tuple._types]
         types[index] = copy.deepcopy(newType)

@@ -118,13 +118,20 @@ class TypesParser:
     def _handle_all_event_sections(self, block_type_definition_tree):
         events_section_list = list(filter(lambda x: isinstance(x, BlockTypesParser.BlockTypesParser.Events_sectionContext), block_type_definition_tree.children[3:]))
         event_list = list(itertools.chain(*[prop.children[2].children for prop in events_section_list]))
-        return {event.children[0].getText(): self._handle_func_arguments(event.children[2]) for event in event_list}
+        return dict(self._handle_event(event) for event in event_list)
 
     def _handle_all_handler_sections(self, block_type_definition_tree):
         result = {}
         handlers_section_list = list(filter(lambda x: isinstance(x, BlockTypesParser.BlockTypesParser.Handlers_sectionContext), block_type_definition_tree.children[3:]))
         handler_list = list(itertools.chain(*[item.children[2].children for item in handlers_section_list if not item.children[2].children is None]))
         return dict(self._handle_handler(handler) for handler in handler_list)
+
+    def _handle_event(self, event_tree):
+        #return {event.children[0].getText(): self._handle_func_arguments(event.children[2]) for event in event_list}
+
+        name = event_tree.children[0].children[0].getText()
+        tp = self._handle_func_arguments(event_tree.children[2])
+        return name, nodetype.EventInfo(tp)
 
     def _handle_handler(self, handler_tree):
         name = handler_tree.children[0].children[0].getText()

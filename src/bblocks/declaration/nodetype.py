@@ -24,14 +24,32 @@ class PropertyInfo:
             result += " [can be optional]"
         return result
 
-class HandlerInfo:
-    def __init__(self, tp, single):
+class MethodInfo:
+    def __init__(self, tp):
         self._type = tp
-        self._single = single
 
     @property
     def type(self):
         return self._type
+
+    @property
+    def agument_names(self):
+        return self._type.names
+
+    @property
+    def agument_types(self):
+        return self._type.types
+
+
+class EventInfo(MethodInfo):
+    def __str__(self):
+        result = "{type}".format(type=self.type)
+        return result
+
+class HandlerInfo(MethodInfo):
+    def __init__(self, tp, single):
+        super(HandlerInfo, self).__init__(tp)
+        self._single = single
 
     @property
     def single(self):
