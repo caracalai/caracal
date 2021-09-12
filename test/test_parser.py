@@ -15,6 +15,7 @@ class CheckGraphExecution(unittest.TestCase):
 
     def test_second(self):
         parser = typesparser.TypesParser()
-        self.assertRaises(typesparser.TypesParseError, parser.parse, "abc")
-    
+        self.assertRaises(typesparser.TypesParseError, parser.parse, "wrong program")
+
+
 

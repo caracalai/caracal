@@ -1,5 +1,29 @@
 from bblocks.declaration.datatypes import *
 
+class PropertyInfo:
+    def __init__(self, tp, is_optional, default_value=None):
+        self._type = tp
+        self._is_optional = is_optional
+        self._default_value = default_value
+
+    @property
+    def type(self):
+        return self._type
+
+    @property
+    def default_value(self):
+        return self._default_value
+
+    @property
+    def is_optional(self):
+        return self._is_optional
+
+    def __str__(self):
+        result = "{type}".format(type=self.type)
+        if self.is_optional == False:
+            result += " [can be optional]"
+        return result
+
 class HandlerInfo:
     def __init__(self, tp, single):
         self._type = tp

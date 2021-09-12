@@ -161,6 +161,24 @@ class BlockTypesListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by BlockTypesParser#prop_initialization.
+    def enterProp_initialization(self, ctx:BlockTypesParser.Prop_initializationContext):
+        pass
+
+    # Exit a parse tree produced by BlockTypesParser#prop_initialization.
+    def exitProp_initialization(self, ctx:BlockTypesParser.Prop_initializationContext):
+        pass
+
+
+    # Enter a parse tree produced by BlockTypesParser#prop_name.
+    def enterProp_name(self, ctx:BlockTypesParser.Prop_nameContext):
+        pass
+
+    # Exit a parse tree produced by BlockTypesParser#prop_name.
+    def exitProp_name(self, ctx:BlockTypesParser.Prop_nameContext):
+        pass
+
+
     # Enter a parse tree produced by BlockTypesParser#event.
     def enterEvent(self, ctx:BlockTypesParser.EventContext):
         pass

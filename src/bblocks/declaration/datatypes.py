@@ -80,6 +80,17 @@ class NumberType(ObjectType):
         return "NumberType"
 
 
+class FloatType(ObjectType):
+    def __init__(self):
+        super().__init__()
+
+    def contains_value(self, value):
+        return isinstance(value, (float))
+
+    @property
+    def name(self):
+        return "FloatType"
+
 class IntType(ObjectType):
     def __init__(self):
         super().__init__()

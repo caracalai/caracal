@@ -4,8 +4,9 @@ from antlr4 import CommonTokenStream
 from bblocks.typesparser import BlockTypesLexer, BlockTypesParser
 from bblocks.declaration import nodetype
 from bblocks.declaration import attributes, datatypes
+from bblocks.proto import basictypes_pb2
 from antlr4.error.ErrorStrategy import *
-
+from bblocks.typesparser import txtserializer
 
 
 class TypesParseError(Exception):
@@ -47,15 +48,20 @@ class TypesParser:
 
         scalar_types = {
             "object": datatypes.ObjectType,
-            "videostream": datatypes.VideoStreamType,
-            "image": datatypes.ImageType,
-            "string": datatypes.StringType,
-            "rect": datatypes.RectType,
-            "number": datatypes.NumberType,
+
+            # basic types
             "int": datatypes.IntType,
+            "float": datatypes.FloatType,
             "boolean": datatypes.BooleanType,
+            "string": datatypes.StringType,
+
+            # collections
             "tuple": datatypes.TupleType,
             "list": datatypes.ListType,
+
+            "videostream": datatypes.VideoStreamType,
+            "image": datatypes.ImageType,
+            "rect": datatypes.RectType,
             "void": datatypes.VoidType
         }
 
@@ -72,16 +78,51 @@ class TypesParser:
             arg_types.append(self._handle_block_type(argument.children[2]))
         return datatypes.TupleType(arg_types, arg_names)
 
+    def _handle_literal(self, literal_tree):
+        if literal_tree.symbol.type == BlockTypesParser.BlockTypesParser.STRING_LITERAL:
+            result = basictypes_pb2.StringValue()
+            result.value = literal_tree.getText()[1:-1]
+            return result
+        if literal_tree.symbol.type == BlockTypesParser.BlockTypesParser.FLOAT:
+            result = basictypes_pb2.FloatValue()
+            result.value = float(literal_tree.getText())
+            return result
+        if literal_tree.symbol.type == BlockTypesParser.BlockTypesParser.INTEGER:
+            result = basictypes_pb2.IntValue()
+            result.value = int(literal_tree.getText())
+            return result
+        raise TypesParseError("Could not parse literal")
 
-    def _handle_properties_section(self, tree):
-        properties = list(filter(lambda x: isinstance(x, BlockTypesParser.BlockTypesParser.Properties_sectionContext), tree.children[3:]))
-        properties = list(itertools.chain(*[prop.children[2].children for prop in properties]))
-        return {prop.children[0].getText(): self._handle_block_type(prop.children[2]) for prop in properties}
+    def _handle_property(self, property_tree):
+        name_subtree = property_tree.children[0].children
+        name = name_subtree[0].getText()
+        is_optional = len(name_subtree) > 1 and name_subtree[1].symbol.type == BlockTypesParser.BlockTypesParser.QUESTION_MARK
+
+        property_type = self._handle_block_type(property_tree.children[2])
+        if len(property_tree.children) > 3:
+            prop_initialization_tree = property_tree.children[3]
+            prop_initialization_value_tree = prop_initialization_tree.children[1]
+            value = self._handle_literal(prop_initialization_value_tree)
+        else:
+            value = None
+        return name, nodetype.PropertyInfo(property_type, is_optional, value)
+
+    def _handle_all_properties_section(self, tree):
+        result = {}
+        properties_section_list = list(filter(lambda x: isinstance(x, BlockTypesParser.BlockTypesParser.Properties_sectionContext), tree.children[3:]))
+        property_list = list(itertools.chain(*[item.children[2].children for item in properties_section_list if not item.children[2].children is None]))
+        return dict(self._handle_property(property) for property in property_list)
 
     def _handle_all_event_sections(self, block_type_definition_tree):
         events_section_list = list(filter(lambda x: isinstance(x, BlockTypesParser.BlockTypesParser.Events_sectionContext), block_type_definition_tree.children[3:]))
         event_list = list(itertools.chain(*[prop.children[2].children for prop in events_section_list]))
         return {event.children[0].getText(): self._handle_func_arguments(event.children[2]) for event in event_list}
+
+    def _handle_all_handler_sections(self, block_type_definition_tree):
+        result = {}
+        handlers_section_list = list(filter(lambda x: isinstance(x, BlockTypesParser.BlockTypesParser.Handlers_sectionContext), block_type_definition_tree.children[3:]))
+        handler_list = list(itertools.chain(*[item.children[2].children for item in handlers_section_list if not item.children[2].children is None]))
+        return dict(self._handle_handler(handler) for handler in handler_list)
 
     def _handle_handler(self, handler_tree):
         name = handler_tree.children[0].children[0].getText()
@@ -89,11 +130,6 @@ class TypesParser:
         tp = self._handle_func_arguments(handler_tree.children[2])
         return name, nodetype.HandlerInfo(tp, single)
 
-    def _handle_all_handler_sections(self, block_type_definition_tree):
-        result = {}
-        handlers_section_list = list(filter(lambda x: isinstance(x, BlockTypesParser.BlockTypesParser.Handlers_sectionContext), block_type_definition_tree.children[3:]))
-        handler_list = list(itertools.chain(*[item.children[2].children for item in handlers_section_list if not item.children[2].children is None]))
-        return dict(self._handle_handler(handler) for handler in handler_list)
 
     def _handle_typenodes(self, types_tree):
         result = []
@@ -117,7 +153,7 @@ class TypesParser:
                     attrs.append(attribute)
             item._attributes = attrs
             item._name = typenode_child.children[2].getText()
-            item._properties = self._handle_properties_section(typenode_child)
+            item._properties = self._handle_all_properties_section(typenode_child)
             item._events = self._handle_all_event_sections(typenode_child)
             item._handlers = self._handle_all_handler_sections(typenode_child)
             result.append(item)

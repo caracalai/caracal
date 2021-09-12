@@ -37,3 +37,8 @@ $ pip install -r https://github.com/BroutonBlocks/bblocks-python.git
 
 ## Getting started
 
+## Tests running
+
+```
+python -m unittest discover test
+```

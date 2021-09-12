@@ -35,7 +35,12 @@ events: event*;
 predicates_section: PREDICATES COLON predicates;
 predicates: pred*;
 
-prop: ident COLON block_type
+prop: prop_name COLON block_type prop_initialization?
+    ;
+
+prop_initialization: LPAREN (FLOAT | INTEGER | STRING_LITERAL) RPAREN;
+
+prop_name: ident QUESTION_MARK?
     ;
 
 event: ident LPAREN func_arguments RPAREN
@@ -84,6 +89,8 @@ COLON
 
 DOT : '.' ;
 
+
+QUESTION_MARK: '?';
 PLUS: '+' ;
 
 LPAREN: '(' ;
@@ -125,14 +132,20 @@ PREDICATES
 
 STRING_LITERAL : '"' (~('"' | '\\' | '\r' | '\n') | '\\' ('"' | '\\'))* '"';
 
-IDENT
-   : ('a' .. 'z' | 'A' .. 'Z') ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*
-   ;
-
 INTEGER
    :  '0'
    | '1' .. '9' ('0' .. '9')*
    ;
+
+FLOAT
+   : ('0' .. '9') + ('.' ('0' .. '9') + )?
+   ;
+
+IDENT
+   : ('a' .. 'z' | 'A' .. 'Z') ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*
+   ;
+
+
 
 BLOCKCOMMENT
     :   '/*' .*? '*/' -> skip

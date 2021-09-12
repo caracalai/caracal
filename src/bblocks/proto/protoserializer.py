@@ -3,7 +3,7 @@ import bblocks.execution.basictypes as basictypes
 from google.protobuf.any_pb2 import Any
 import numpy as np
 
-class ProtobufSerializer:
+class ProtoSerializer:
     def ProtobufSerializer(self):
         pass
 

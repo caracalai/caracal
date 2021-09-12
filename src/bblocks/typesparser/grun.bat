@@ -1,1 +1,1 @@
-java org.antlr.v4.Tool -Dlanguage=Python3 -o ./src/typesparser ./BlockTypes.g4
+java org.antlr.v4.Tool -Dlanguage=Python3 -o . ./BlockTypes.g4
