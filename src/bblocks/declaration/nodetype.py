@@ -33,11 +33,11 @@ class MethodInfo:
         return self._type
 
     @property
-    def agument_names(self):
+    def argument_names(self):
         return self._type.names
 
     @property
-    def agument_types(self):
+    def argument_types(self):
         return self._type.types
 
 

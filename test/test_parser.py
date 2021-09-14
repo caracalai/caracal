@@ -17,15 +17,15 @@ class CheckGraphExecution(unittest.TestCase):
 
         self.assertTrue("NodeType" in node_types)
         handler = node_types["NodeType"].handlers["value"]
-        self.assertTrue(len(handler.agument_names) == 1, "Handler contains value")
-        self.assertTrue(len(handler.agument_names) == len(handler.agument_types))
-        self.assertTrue(handler.agument_names[0] == "val")
+        self.assertTrue(len(handler.argument_names) == 1, "Handler contains value")
+        self.assertTrue(len(handler.argument_names) == len(handler.argument_types))
+        self.assertTrue(handler.argument_names[0] == "val")
 
         event = node_types["NodeType"].events["event1"]
-        self.assertTrue(len(event.agument_names) == 2, "Event contains value")
-        self.assertTrue(len(event.agument_names) == len(event.agument_types))
-        self.assertTrue(event.agument_names[0] == "a")
-        self.assertTrue(event.agument_names[1] == "b")
+        self.assertTrue(len(event.argument_names) == 2, "Event contains value")
+        self.assertTrue(len(event.argument_names) == len(event.argument_types))
+        self.assertTrue(event.argument_names[0] == "a")
+        self.assertTrue(event.argument_names[1] == "b")
 
     def test_second(self):
         parser = typesparser.TypesParser()
