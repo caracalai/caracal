@@ -27,7 +27,7 @@ BroutonBlocks contains
 ### Windows, MAC OS and Linux
 BroutonBlocks is available as a PyPI package. To install it using pip package manager, run:
 ```sh
-$ pip install -r https://github.com/BroutonBlocks/bblocks-python.git
+$ pip install git+https://github.com/BroutonBlocks/bblocks-python.git
 ```
 
 ## Getting started
