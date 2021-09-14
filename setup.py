@@ -16,5 +16,11 @@ setuptools.setup(
     author_email='hello@broutonblocks.com',
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
+    install_requires=[
+        'pyzmq',
+        'protobuf',
+        'antlr4-python3-runtime',
+        'numpy',
+    ],
     python_requires=">=3.6",
 )
