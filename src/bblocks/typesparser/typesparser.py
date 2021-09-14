@@ -6,7 +6,6 @@ from bblocks.declaration import nodetype
 from bblocks.declaration import attributes, datatypes
 from bblocks.proto import basictypes_pb2
 from antlr4.error.ErrorStrategy import *
-from bblocks.typesparser import txtserializer
 
 
 class TypesParseError(Exception):
@@ -59,6 +58,7 @@ class TypesParser:
             "tuple": datatypes.TupleType,
             "list": datatypes.ListType,
 
+            "binaryfile": datatypes.BinaryFileType,
             "videostream": datatypes.VideoStreamType,
             "image": datatypes.ImageType,
             "rect": datatypes.RectType,

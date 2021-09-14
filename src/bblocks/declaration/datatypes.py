@@ -135,6 +135,14 @@ class ImageType(ObjectType):
         return "ImageType"
 
 
+class BinaryFileType(ObjectType):
+    def __init__(self):
+        super().__init__()
+
+    @property
+    def name(self):
+        return "BinaryFileType"
+
 class VideoStreamType(ObjectType):
     def __init__(self):
         super(VideoStreamType, self).__init__()

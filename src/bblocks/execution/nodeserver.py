@@ -4,14 +4,14 @@ import zmq,  threading
 import logging
 
 class NodeServer:
-    def __init__(self, config, port):
+    def __init__(self, config, port = None):
         self._context = zmq.Context()
         self._socket = self._context.socket(zmq.REP)
-        if port > 0:
+        if port is not None:
             self._socket.bind("tcp://127.0.0.1:{port}".format(port=port))
             self._socket_port = port
         else:
-            self._socket_port = self._socket.bind("tcp://127.0.0.1")
+            self._socket_port = self._socket.bind_to_random_port("tcp://127.0.0.1")
         self._config = config
         self._stopped = False
         self._initialized_nodes = set()
@@ -30,8 +30,8 @@ class NodeServer:
 
     def wait_for_finished(self):
         self.stop()
+        self._context.destroy()
         self._worker.join()
-        self._socket.close()
         self._stopped = False
 
     def stopped(self):
@@ -77,52 +77,65 @@ class NodeServer:
             sock.send(json.dumps(node_config).encode("utf8"))
             sock.close()
 
+    def _finish_nodes(self):
+        for id, node in self._config["nodes"].items():
+            sock = self._context.socket(zmq.REQ)
+            sock.connect(node["service_endpoint"])
+            sock.send(json.dumps({"id": id, "finish": "true"}).encode("utf8"))
+            sock.close()
+
     def _start_nodes(self):
         for id, node in self._config["nodes"].items():
             sock = self._context.socket(zmq.REQ)
             sock.connect(node["service_endpoint"])
-            sock.send(json.dumps({"id": id, "start":"true"}).encode("utf8"))
+            sock.send(json.dumps({"id": id, "start": "true"}).encode("utf8"))
 
     def _execute(self):
         logging.debug("NodeServer: starting execution...")
         while not self.stopped():
-            msg = self._socket.recv()
-            if self.stopped():
-                break
+            try:
+                msg = self._socket.recv()
+                if self.stopped():
+                    break
 
-            request = json.loads(msg)
-            if not "command" in request:
-                logging.debug("NodeServer: Failed request")
-                self._socket.send(json.dumps({"success": "false"}).encode("utf8"))
-                continue
+                request = json.loads(msg)
+                if not "command" in request:
+                    logging.debug("NodeServer: Failed request")
+                    self._socket.send(json.dumps({"success": "false"}).encode("utf8"))
+                    continue
 
-            cmd = request["command"]
-            if cmd == "register":
-                id = request["id"]
-                logging.debug("NodeServer: Registration of {}".format(id))
+                cmd = request["command"]
+                if cmd == "register":
+                    id = request["id"]
+                    logging.debug("NodeServer: Registration of {}".format(id))
 
-                self._config["nodes"][id]["publisher_endpoint"] = request["publisher_endpoint"]
-                self._config["nodes"][id]["service_endpoint"] = request["service_endpoint"]
-                self._socket.send(json.dumps({"success": "true"}).encode("utf8"))
+                    self._config["nodes"][id]["publisher_endpoint"] = request["publisher_endpoint"]
+                    self._config["nodes"][id]["service_endpoint"] = request["service_endpoint"]
+                    self._socket.send(json.dumps({"success": "true"}).encode("utf8"))
 
-                if self._all_nodes_are_registered():
-                    self._initialize_nodes()
-                continue
+                    if self._all_nodes_are_registered():
+                        self._initialize_nodes()
+                    continue
 
-            if cmd == "ready-to-work":
-                logging.debug("NodeServer: Node {} is ready to work".format(id))
+                if cmd == "ready-to-work":
+                    logging.debug("NodeServer: Node {} is ready to work".format(id))
 
-                self._socket.send(json.dumps({"success": "true"}).encode("utf8"))
-                self._initialized_nodes.add(request["id"])
-                graph_node_ids = set(self._config["nodes"].keys())
-                if graph_node_ids.issubset(self._initialized_nodes):
-                    logging.debug("NodeServer: all nodes are ready. Starting nodes")
-                    self._start_nodes()
-                continue
+                    self._socket.send(json.dumps({"success": "true"}).encode("utf8"))
+                    self._initialized_nodes.add(request["id"])
+                    graph_node_ids = set(self._config["nodes"].keys())
+                    if graph_node_ids.issubset(self._initialized_nodes):
+                        logging.debug("NodeServer: all nodes are ready. Starting nodes")
+                        self._finish_nodes()
+                    continue
 
-            if cmd == "generate-next-message-index":
-                self._socket.send(json.dumps({"index": self._next_msg_index}).encode("utf8"))
-                self._next_msg_index += 1
-                continue
-            logging.warning("NodeServer: undefined command {cmd}".format(cmd=cmd))
+                if cmd == "generate-next-message-index":
+                    self._socket.send(json.dumps({"index": self._next_msg_index}).encode("utf8"))
+                    self._next_msg_index += 1
+                    continue
+                if cmd == "finish":
+                    self._finish_nodes()
+                    continue
+                logging.warning("NodeServer: undefined command {cmd}".format(cmd=cmd))
+            except:
+                logging.debug("Socked is closed")
         logging.debug("NodeServer: Finished execution...")

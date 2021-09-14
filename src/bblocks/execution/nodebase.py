@@ -54,6 +54,7 @@ class NodeBase:
         self._worker.join()
 
     def wait_for_finished(self):
+        self.context.destroy()
         if self._worker is not None:
             self._worker.join()
 
@@ -109,21 +110,36 @@ class NodeBase:
         sock.send(request.encode("utf8"))
         sock.close()
 
+    def send_finish_signal(self):
+        sock = self.context.socket(zmq.REQ)
+        sock.connect(self._server_endpoint)
+        sock.send(json.dumps({"command": "finish"}).encode("utf8"))
+
+    def _process_events_from_server(self):
+        while True:
+            msg = self._service_socket.recv()
+            config = json.loads(msg)
+            self._service_socket.send(json.dumps({"success": True}).encode("utf8"))
+
+
     def _process_events(self):
         if len(self._event2handler) == 0:
             return
         while not self.stopped():
-            logging.debug("Node {name}: waiting for the next event...".format(name=self.id()))
-            msg = self._sub_socket.recv()
-            index = msg.find(b" ")
-            source_id, event = msg[:index].decode("utf8").split("|")
-            binary_msg = basictypes_pb2.Message()
-            binary_msg.ParseFromString(msg[index+1:])
+            try:
+                logging.debug("Node {name}: waiting for the next event...".format(name=self.id()))
+                msg = self._sub_socket.recv()
+                index = msg.find(b" ")
+                source_id, event = msg[:index].decode("utf8").split("|")
+                binary_msg = basictypes_pb2.Message()
+                binary_msg.ParseFromString(msg[index+1:])
 
-            msg_id, msg_value = ProtoSerializer().deserialize_message(binary_msg)
-            message = Message(msg_id, msg_value)
-            handler_name = self._event2handler[Event(source_id=source_id, event=event)]
-            self._handlers[handler_name](message)
+                msg_id, msg_value = ProtoSerializer().deserialize_message(binary_msg)
+                message = Message(msg_id, msg_value)
+                handler_name = self._event2handler[Event(source_id=source_id, event=event)]
+                self._handlers[handler_name](message)
+            except:
+                pass
 
         logging.debug("Node {name}: Finished processing events".format(name=self.id()))
 
@@ -157,7 +173,6 @@ class NodeBase:
             "id": self.id()
         }))
         answer = self._wait_answer_from_server()
-
         self._events_processor = threading.Thread(target=self._process_events)
         self._events_processor.start()
 
