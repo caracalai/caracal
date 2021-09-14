@@ -6,6 +6,9 @@ import base64
 import uuid
 import json
 
+from bblocks.proto.protoserializer import ProtoSerializer
+
+
 class Node:
     def __init__(self, node_type, values):
         self._type = node_type
@@ -109,7 +112,9 @@ class Graph:
                 if prop_name in n.property_values:
                     prop_value = n.property_values[prop_name]
                 if prop_value != None:
-                    properties[prop_name] = base64.b64encode(prop_value.SerializeToString()).decode('ascii')
+                    properties[prop_name] = base64.b64encode(
+                        ProtoSerializer().serialize_message(0, prop_value).SerializeToString()
+                    ).decode('ascii')
             result["nodes"][n.id] = {
                 "type": {
                     "name": n.type.name,

@@ -82,17 +82,11 @@ class TypesParser:
 
     def _handle_literal(self, literal_tree):
         if literal_tree.symbol.type == BlockTypesParser.BlockTypesParser.STRING_LITERAL:
-            result = basictypes_pb2.StringValue()
-            result.value = literal_tree.getText()[1:-1]
-            return result
+            return literal_tree.getText()[1:-1]
         if literal_tree.symbol.type == BlockTypesParser.BlockTypesParser.FLOAT:
-            result = basictypes_pb2.FloatValue()
-            result.value = float(literal_tree.getText())
-            return result
+            return float(literal_tree.getText())
         if literal_tree.symbol.type == BlockTypesParser.BlockTypesParser.INTEGER:
-            result = basictypes_pb2.IntValue()
-            result.value = int(literal_tree.getText())
-            return result
+            return int(literal_tree.getText())
         raise TypesParseError("Could not parse literal")
 
     def _handle_property(self, property_tree):

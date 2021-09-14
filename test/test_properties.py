@@ -1,10 +1,13 @@
 import unittest
+
 from bblocks.typesparser import typesparser
+
 
 class CheckProperties(unittest.TestCase):
     def __init__(self, methodName='runTest'):
         super(CheckProperties, self).__init__(methodName)
         self._program = """
+                @section(name="abc", count=12)
                 node MyNode:
                     properties:
                         threshold?: float(0.8) // default value
@@ -13,6 +16,11 @@ class CheckProperties(unittest.TestCase):
                         string_param: string
                         image_param: image
                         list_param: list(string)
+                    handlers:
+                        value(val:int)
+                        value2(a: tuple(int, int))
+                    events:                       
+                        event1(a: int, b: float)
                 """
     def test_properties_parsing(self):
         try:
