@@ -1,9 +1,15 @@
-import time
-from collections import deque
-from bblocks.typesparser import typesparser
 from bblocks.execution.nodebase import *
 from bblocks.execution.nodecluster import *
 from bblocks.declaration.graph import *
+from collections import deque
+
+import unittest
+from bblocks.typesparser import typesparser
+import logging, time
+from test.test_execution.resultreceiver import ResultReceiver
+
+localhost = "tcp://127.0.0.1"
+delay = 0.0
 
 class GeneratorA(NodeBase):
     def __init__(self):
@@ -12,10 +18,14 @@ class GeneratorA(NodeBase):
 
     def run(self):
         index = 0
+        counter = 0
         while not self.stopped():
-            time.sleep(1)
+            time.sleep(delay)
             self.generate_event("value", index)
             index += 1
+            counter += 1
+            if counter == 100:
+                break
 
 class GeneratorB(NodeBase):
     def __init__(self):
@@ -24,26 +34,30 @@ class GeneratorB(NodeBase):
 
     def run(self):
         index = 0
+        counter = 0
         while not self.stopped():
-            time.sleep(1)
             self.generate_event("value", index)
-            index += 1
+            index += 2
+            counter += 1
+            if counter == 100:
+                break
+
 
 class Summator(NodeBase):
     def __init__(self):
         super().__init__()
+        self.counter = 0
         self.register_handler("first", self.on_first)
         self.register_handler("second", self.on_second)
         self._firstQueue = deque()
         self._secondQueue = deque()
+        self.results = []
 
     def on_first(self, msg):
-        print("on_first: Received {value}".format(value=msg.value))
         self._firstQueue.append(msg.value)
         self._process_queues()
 
     def on_second(self, msg):
-        print("on_second: Received {value}".format(value=msg.value))
         self._secondQueue.append(msg.value)
         self._process_queues()
 
@@ -55,7 +69,13 @@ class Summator(NodeBase):
             second = self._secondQueue[0]
             self._secondQueue.popleft()
 
-            print(first + second)
+            self.results.append(first * second)
+            self.counter += 1
+            if self.counter == 100:
+                sock = self.context.socket(zmq.REQ)
+                sock.connect(result_receiver.endpoint)
+                sock.send_string(json.dumps({"results": self.results}))
+                break
 
 
 class MyNodeCluster(NodeCluster):
@@ -110,18 +130,23 @@ def create_graph():
 import logging
 
 
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
+class CheckGraphExecution(unittest.TestCase):
+    def test_first(self):
+        global result_receiver
 
-    try:
+        result_receiver = ResultReceiver(localhost)
+        logging.basicConfig(level=logging.CRITICAL)
+
         graph = create_graph()
         config = json.loads(graph.serializeForExecutor())
 
         server_endpoint = 'tcp://127.0.0.1:2000'
-        server_port = 2000
-
         myFabric = MyNodeCluster("python-service", config)
-        myFabric.start(server_endpoint, server_port)
-        myFabric.wait()
-    except typesparser.TypesParseError as e:
-        print (e.originalError)
+        myFabric.start(server_endpoint)
+
+        msg = result_receiver.wait_results()
+        self.assertTrue("results" in msg)
+        for i in range(10):
+            self.assertEqual(i * (i*2), msg["results"][i])
+        myFabric.wait_for_finished()
+

@@ -1,11 +1,17 @@
-import time
-from collections import deque
-from bblocks.typesparser import typesparser
 from bblocks.execution.nodebase import *
 from bblocks.execution.nodecluster import *
-from bblocks.declaration.graph import Graph
-import logging
+from bblocks.declaration.graph import *
+from collections import deque
 
+import unittest
+from bblocks.typesparser import typesparser
+import logging, time
+from test.test_execution.resultreceiver import ResultReceiver
+
+localhost = "tcp://127.0.0.1"
+delay = 0.0
+test_count = 10
+list_size = 5
 
 class InitialList(NodeBase):
     def __init__(self):
@@ -13,8 +19,8 @@ class InitialList(NodeBase):
         self.register_event("values")
 
     def run(self):
-        for i in range(10):
-            self.generate_event("values", [i, i+1, i+2, i+3, i+4])
+        for i in range(test_count):
+            self.generate_event("values", [i+k for k in range(list_size)])
 
 
 class Exp(NodeBase):
@@ -24,7 +30,6 @@ class Exp(NodeBase):
         self.register_handler("value", self.on_value)
 
     def on_value(self, msg):
-        time.sleep(0.1) # long operation
         self.generate_event("result", msg.value**2, msg_id=msg.id)
 
 
@@ -36,6 +41,8 @@ class Map(NodeBase):
         self.register_event("map_value")
         self.register_event("result")
         self._requests = {}
+        self._results = []
+        self.counter = 0
 
 
     def on_initial_values(self, msg):
@@ -46,10 +53,19 @@ class Map(NodeBase):
     def on_processed_value(self, msg):
         self._requests[msg.id]["result"].append(msg.value)
         if len(self._requests[msg.id]["result"]) == self._requests[msg.id]["size"]:
-            print(self._requests[msg.id]["result"])
+            self.counter += 1
+            self._results.append(self._requests[msg.id]["result"])
+
             self._result = []
             self._list_size = 0
             del self._requests[msg.id]
+
+            if self.counter == test_count:
+                sock = self.context.socket(zmq.REQ)
+                sock.connect(result_receiver.endpoint)
+                sock.send_string(json.dumps({"results": self._results}))
+
+
 
 
 class MyNodeCluster(NodeCluster):
@@ -85,6 +101,7 @@ types = \
     """
 
 
+
 def create_graph():
     parser = typesparser.TypesParser()
     node_types = parser.parse(types)
@@ -103,15 +120,24 @@ def create_graph():
         v.fabric = "python-service"
     return graph
 
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.CRITICAL)
 
-    graph = create_graph()
-    config = json.loads(graph.serializeForExecutor())
+class CheckGraphExecution(unittest.TestCase):
+    def test_first(self):
+        global result_receiver
 
-    server_endpoint = 'tcp://127.0.0.1:2000'
-    server_port = 2000
+        result_receiver = ResultReceiver(localhost)
+        logging.basicConfig(level=logging.CRITICAL)
 
-    myFabric = MyNodeCluster("python-service", config)
-    myFabric.start(server_endpoint, server_port)
-    myFabric.wait()
+        graph = create_graph()
+        config = json.loads(graph.serializeForExecutor())
+
+        server_endpoint = 'tcp://127.0.0.1:2000'
+        myFabric = MyNodeCluster("python-service", config)
+        myFabric.start(server_endpoint)
+
+        msg = result_receiver.wait_results()
+        self.assertTrue("results" in msg)
+        for i in range(test_count):
+            for k in range(list_size):
+                self.assertEqual(msg["results"][i][k], (i + k)**2)
+        myFabric.wait_for_finished()

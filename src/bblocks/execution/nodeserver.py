@@ -1,6 +1,5 @@
 import json
-
-import zmq,  threading
+import zmq, threading
 import logging
 
 class NodeServer:
