@@ -138,8 +138,8 @@ class NodeBase:
                 message = Message(msg_id, msg_value)
                 handler_name = self._event2handler[Event(source_id=source_id, event=event)]
                 self._handlers[handler_name](message)
-            except:
-                pass
+            except Exception as e:
+                logging.CRITICAL("Node {name}: Error in processing event. {err}".format(name=self.id(), err=e))
 
         logging.debug("Node {name}: Finished processing events".format(name=self.id()))
 
