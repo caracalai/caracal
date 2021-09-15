@@ -7,6 +7,10 @@
 antlr4-python3-runtime==4.9.2
     # via bblocks (setup.py)
 numpy==1.21.2
+    # via
+    #   bblocks (setup.py)
+    #   opencv-python
+opencv-python==4.5.3.56
     # via bblocks (setup.py)
 protobuf==3.17.3
     # via bblocks (setup.py)
