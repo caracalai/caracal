@@ -80,7 +80,7 @@ class Node:
         #     if not destBasicType.contains(sourceBasicType):
         #         raise RuntimeError("Couldn't set property")
 
-        self._property_values[name] = protoserializer.ProtoSerializer().serialize_value(value)
+        self._property_values[name] = value
 
 
 class Edge:

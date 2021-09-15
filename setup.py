@@ -21,6 +21,7 @@ setuptools.setup(
         'protobuf',
         'antlr4-python3-runtime',
         'numpy',
+        'opencv-python'
     ],
     python_requires=">=3.6",
 )
