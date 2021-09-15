@@ -75,6 +75,7 @@ class Summator(NodeBase):
                 sock = self.context.socket(zmq.REQ)
                 sock.connect(result_receiver.endpoint)
                 sock.send_string(json.dumps({"results": self.results}))
+                sock.close()
                 break
 
 
@@ -135,7 +136,7 @@ class CheckGraphExecution(unittest.TestCase):
         global result_receiver
 
         result_receiver = ResultReceiver(localhost)
-        logging.basicConfig(level=logging.CRITICAL)
+        logging.basicConfig(level=logging.DEBUG)
 
         graph = create_graph()
         config = json.loads(graph.serializeForExecutor())

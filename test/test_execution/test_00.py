@@ -34,6 +34,7 @@ class Receiver(NodeBase):
             sock = self.context.socket(zmq.REQ)
             sock.connect(result_receiver.endpoint)
             sock.send_string(json.dumps({"results": self.results}))
+            sock.close()
 
 
 class MyNodeCluster(NodeCluster):

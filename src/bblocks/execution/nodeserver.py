@@ -29,7 +29,13 @@ class NodeServer:
 
     def wait_for_finished(self):
         self.stop()
-        self._context.destroy()
+        for socket in [self._socket]:
+            try:
+                socket.close()
+            except Exception as e:
+                print('Trying to close down socket: {} resulted in error: {}'.format(socket, e))
+
+        self._context.term()
         self._worker.join()
         self._stopped = False
 
@@ -88,6 +94,7 @@ class NodeServer:
             sock = self._context.socket(zmq.REQ)
             sock.connect(node["service_endpoint"])
             sock.send(json.dumps({"id": id, "start": "true"}).encode("utf8"))
+            sock.close()
 
     def _execute(self):
         logging.debug("NodeServer: starting execution...")

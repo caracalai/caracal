@@ -54,7 +54,13 @@ class NodeBase:
         self._worker.join()
 
     def wait_for_finished(self):
-        self.context.destroy()
+        for socket in [self._sub_socket, self._pub_socket, self._service_socket]:
+            try:
+                socket.close()
+            except Exception as e:
+                print('Trying to close down socket: {} resulted in error: {}'.format(socket, e))
+
+        self.context.term()
         if self._worker is not None:
             self._worker.join()
 
@@ -69,6 +75,7 @@ class NodeBase:
         sock.connect(self._server_endpoint)
         sock.send(json.dumps({"command": "generate-next-message-index"}).encode("utf8"))
         msg = json.loads(sock.recv())
+        sock.close()
         return int(msg["index"])
 
     def generate_event(self, event, value, msg_id=None):
@@ -110,17 +117,11 @@ class NodeBase:
         sock.send(request.encode("utf8"))
         sock.close()
 
-    def send_finish_signal(self):
-        sock = self.context.socket(zmq.REQ)
-        sock.connect(self._server_endpoint)
-        sock.send(json.dumps({"command": "finish"}).encode("utf8"))
-
     def _process_events_from_server(self):
         while True:
             msg = self._service_socket.recv()
             config = json.loads(msg)
             self._service_socket.send(json.dumps({"success": True}).encode("utf8"))
-
 
     def _process_events(self):
         if len(self._event2handler) == 0:
@@ -139,7 +140,7 @@ class NodeBase:
                 handler_name = self._event2handler[Event(source_id=source_id, event=event)]
                 self._handlers[handler_name](message)
             except Exception as e:
-                logging.CRITICAL("Node {name}: Error in processing event. {err}".format(name=self.id(), err=e))
+                break
 
         logging.debug("Node {name}: Finished processing events".format(name=self.id()))
 

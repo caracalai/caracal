@@ -26,8 +26,8 @@ class InitialList(NodeBase):
 class Exp(NodeBase):
     def __init__(self):
         super().__init__()
-        self.register_event("result")
         self.register_handler("value", self.on_value)
+        self.register_event("result")
 
     def on_value(self, msg):
         self.generate_event("result", msg.value**2, msg_id=msg.id)
@@ -64,7 +64,7 @@ class Map(NodeBase):
                 sock = self.context.socket(zmq.REQ)
                 sock.connect(result_receiver.endpoint)
                 sock.send_string(json.dumps({"results": self._results}))
-
+                sock.close()
 
 
 
