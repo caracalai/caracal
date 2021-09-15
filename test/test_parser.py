@@ -9,6 +9,7 @@ class CheckGraphExecution(unittest.TestCase):
             node NodeType:
                 handlers:
                     value(val:int)
+                    processFile(file:BinaryFile)
                     value2(a: tuple(int, int))
                 events:                       
                     event1(a: int, b: float)
@@ -30,6 +31,3 @@ class CheckGraphExecution(unittest.TestCase):
     def test_second(self):
         parser = typesparser.TypesParser()
         self.assertRaises(typesparser.TypesParseError, parser.parse, "wrong program")
-
-
-

@@ -7,7 +7,7 @@ class NodeCluster:
         self._server_node = None
         self._nodes = []
 
-    def start(self, server_endpoint="", server_port=""):
+    def start(self, server_endpoint="", server_port=None):
         if self._name == self._config["server-fabric"]:
             self._server_node = NodeServer(self._config, server_port)
             self._server_node.start()
@@ -29,10 +29,14 @@ class NodeCluster:
         for node in self._nodes:
             node.wait()
 
+
     def wait_for_finished(self):
-        self._server_node.wait_for_finished()
+        for node in self._nodes:
+            node.stop()
         for node in self._nodes:
             node.wait_for_finished()
+        self._server_node.wait_for_finished()
+
 
     def create_node(self, name):
         raise RuntimeError("Undefined method")

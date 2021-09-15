@@ -3,6 +3,8 @@ requires = [
     "setuptools>=42",
     "wheel",
     "antlr4-python3-runtime",
-    "pyzmq"
+    "pyzmq",
+    "protobuf",
+    "numpy"
 ]
 build-backend = "setuptools.build_meta"

@@ -10,7 +10,7 @@ class CheckProperties(unittest.TestCase):
                 @section(name="abc", count=12)
                 node MyNode:
                     properties:
-                        threshold?: float(0.8) // default value
+                        threshold?: float(0.8) // optional property with default value
                         border_width: int(10)
                         opt_param?: int  // optional parameter without default value
                         string_param: string

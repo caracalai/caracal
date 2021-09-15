@@ -178,7 +178,7 @@ class Graph:
         while True:
             specialized = False
             for edge in all_edges:
-                source_type = types_info[edge.source_node_id]["events"][edge.event_name]
+                source_type = types_info[edge.source_node_id]["events"][edge.event_name].type
                 dest_type = types_info[edge.dest_node_id]["handlers"][edge.handler_name]
                 intersected_type = source_type.intersect(dest_type)
                 if intersected_type == None:
@@ -225,7 +225,6 @@ class Graph:
         node.graph = self
         self._nodes[node.id] = node
         return node
-
 
     def removeNode(self, node_id):
         if node_id in self._nodes:
