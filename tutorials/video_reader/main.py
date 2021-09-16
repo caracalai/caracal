@@ -18,7 +18,7 @@ import time, tqdm
 class ReadVideoFile(NodeBase):
     def __init__(self):
         super().__init__()
-        self.register_event("next_frame")
+        self.register_event("next_batch")
         self.register_event("frame_count")
 
     def run(self):
@@ -30,17 +30,26 @@ class ReadVideoFile(NodeBase):
         start = time.time()
         frame_cnt = 0
 
+        batch_size = 100
+        batch = []
         pbar = tqdm.tqdm()
         while cap.isOpened():
             ret, frame = cap.read()
             pbar.update(1)
             if ret == True:
-                self.generate_event("next_frame",  basictypes.Image(frame))
-                frame_cnt += 1
-                if frame_cnt == 100:
-                    break
+                batch.append(basictypes.Image(frame))
+                if len(batch) == batch_size:
+                    self.generate_event("next_batch", batch)
+                    frame_cnt += len(batch)
+                    batch = []
+                    if frame_cnt > 200:
+                        break
             else:
                 break
+        if len(batch) == batch_size:
+            self.generate_event("next_batch", batch)
+            frame_cnt += len(batch)
+            batch = []
         cap.release()
         end = time.time()
         self.generate_event("frame_count", frame_cnt)
@@ -50,37 +59,46 @@ class ReadVideoFile(NodeBase):
 class AddBorder(NodeBase):
     def __init__(self):
         super().__init__()
-        self.register_handler("process", self.process_image)
-        self.register_event("result")
+        self.register_handler("process_batch", self.process_batch)
+        self.register_event("result_batch")
 
-    def process_image(self, msg):
-        image = msg.value.image
-        row, col = image.shape[:2]
-        bottom = image[row - 2:row, 0:col]
-        mean = cv2.mean(bottom)[0]
+    def process_batch(self, msg):
+        images = msg.value
+        result = []
+        for image in images:
+            image = image.image
+            row, col = image.shape[:2]
+            bottom = image[row - 2:row, 0:col]
+            mean = cv2.mean(bottom)[0]
 
-        bordersize = 300
-        border = cv2.copyMakeBorder(
-            image,
-            top=bordersize,
-            bottom=bordersize,
-            left=bordersize,
-            right=bordersize,
-            borderType=cv2.BORDER_CONSTANT,
-            value=[mean, mean, mean]
-        )
-        self.generate_event("result", basictypes.Image(border), msg.id)
+            bordersize = 30
+            border = cv2.copyMakeBorder(
+                image,
+                top=bordersize,
+                bottom=bordersize,
+                left=bordersize,
+                right=bordersize,
+                borderType=cv2.BORDER_CONSTANT,
+                value=[165, 36, 34]
+            )
+            result.append(basictypes.Image(border))
+        self.generate_event("result_batch", result, msg.id)
 
 
 class CreateBundleFromStream(NodeBase):
     def __init__(self):
         super().__init__()
+        self.register_handler("add_batch", self.add_batch)
         self.register_handler("add", self.add)
         self.register_handler("set_bundle_size", self.set_bundle_size)
         self.register_event("next_bundle")
 
         self._objects = []
         self._counters = []
+
+    def add_batch(self, msg):
+        self._objects.extend(msg.value)
+        self._check()
 
     def add(self, msg):
         self._objects.append(msg.value)
@@ -134,17 +152,18 @@ types = \
     """
     node ReadVideoFile:
         events:
-            next_frame(img: image)
+            next_batch(imgs: list(image))
             frame_count(cnt: int)
 
     node AddBorder:
         handlers:
-            process(img:Image)
+            process_batch(imgs:list(Image))
         events:
-            result(img:Image)
+            result_batch(imgs:list(Image))
 
     node CreateBundleFromStream:
         handlers:
+            add_batch(items: list(object))
             add(item: object)
             set_bundle_size(count: int)
         events:
@@ -169,9 +188,9 @@ def create_graph():
     CreateBundleFromStream = graph.addNode(node_types["CreateBundleFromStream"])
     CreateVideoFile = graph.addNode(node_types["CreateVideoFile"])
 
-    graph.connect(ReadVideoFile, "next_frame", AddBorder, "process")
+    graph.connect(ReadVideoFile, "next_batch", AddBorder, "process_batch")
     graph.connect(ReadVideoFile, "frame_count", CreateBundleFromStream, "set_bundle_size")
-    graph.connect(AddBorder, "result", CreateBundleFromStream, "add")
+    graph.connect(AddBorder, "result_batch", CreateBundleFromStream, "add_batch")
     graph.connect(CreateBundleFromStream, "next_bundle", CreateVideoFile, "process")
     graph.server_fabric = "python-service"
     for k, v in graph.nodes.items():
