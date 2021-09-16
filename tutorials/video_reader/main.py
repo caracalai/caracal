@@ -1,19 +1,17 @@
 from bblocks.execution.nodebase import *
 from bblocks.execution.nodecluster import *
 from bblocks.declaration.graph import *
-from collections import deque
 import cv2
 import sys
-import unittest
 from bblocks.typesparser import typesparser
-import logging, time
+import logging
 from test.test_execution.resultreceiver import ResultReceiver
 
 localhost = "tcp://127.0.0.1"
 delay = 0.0
 test_count = 10
 list_size = 5
-import time, tqdm
+import time
 
 class ReadVideoFile(NodeBase):
     def __init__(self):
@@ -32,18 +30,17 @@ class ReadVideoFile(NodeBase):
 
         batch_size = 100
         batch = []
-        pbar = tqdm.tqdm()
+
         while cap.isOpened():
             ret, frame = cap.read()
-            pbar.update(1)
             if ret == True:
                 batch.append(basictypes.Image(frame))
                 if len(batch) == batch_size:
                     self.generate_event("next_batch", batch)
                     frame_cnt += len(batch)
                     batch = []
-                    if frame_cnt > 200:
-                        break
+                    # if frame_cnt > 200:
+                    #     break
             else:
                 break
         if len(batch) == batch_size:
@@ -53,7 +50,8 @@ class ReadVideoFile(NodeBase):
         cap.release()
         end = time.time()
         self.generate_event("frame_count", frame_cnt)
-        print(end - start)
+        print("finished")
+
 
 
 class AddBorder(NodeBase):
@@ -127,11 +125,17 @@ class CreateVideoFile(NodeBase):
         if len(frames) == 0:
             return
         frame_shape = frames[0].image.shape
-        video = cv2.VideoWriter(output_filepath, -1, 25, (frame_shape[1], frame_shape[0]))
+        fourcc = cv2.VideoWriter_fourcc('M', 'P', '4', 'V')
+        video = cv2.VideoWriter(output_filepath, fourcc, 25, (frame_shape[1], frame_shape[0]))
         for frame in frames:
             video.write(frame.image)
 
         video.release()
+
+        sock = self.context.socket(zmq.REQ)
+        sock.connect(result_receiver.endpoint)
+        sock.send_string(json.dumps({"results": ""}))
+        sock.close()
         print("saved video")
 
 
@@ -197,11 +201,13 @@ def create_graph():
         v.fabric = "python-service"
     return graph
 
-
+#import tracemalloctracemalloc.start(10)
 if __name__ == "__main__":
     global result_receiver
     global video_filepath
     global output_filepath
+
+    result_receiver = ResultReceiver(localhost)
 
     video_filepath = sys.argv[1]
     output_filepath = sys.argv[2]
@@ -214,4 +220,6 @@ if __name__ == "__main__":
     server_endpoint = 'tcp://127.0.0.1:2000'
     myFabric = MyNodeCluster("python-service", config)
     myFabric.start(server_endpoint)
-    myFabric.wait()
+    #myFabric.wait()
+    msg = result_receiver.wait_results()
+    myFabric.wait_for_finished()

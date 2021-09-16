@@ -136,7 +136,7 @@ class CheckGraphExecution(unittest.TestCase):
         global result_receiver
 
         result_receiver = ResultReceiver(localhost)
-        logging.basicConfig(level=logging.DEBUG)
+        logging.basicConfig(level=logging.CRITICAL)
 
         graph = create_graph()
         config = json.loads(graph.serializeForExecutor())
