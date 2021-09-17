@@ -10,59 +10,21 @@ from bblocks.proto.protoserializer import ProtoSerializer
 
 
 class Node:
-    def __init__(self, node_type, values):
-        self._type = node_type
+    def __init__(self, node_value, values):
+        self.node_value = node_value
         self._values = values
-        self._id = "{t}_{id}".format(t=node_type.name, id=str(uuid.uuid4()))
-        self._graph = None
-        self._location = (-1, -1)
-        self._property_values = {}
-        self._fabric = ""
+        self.id = "{t}_{id}".format(t="<undefined_name>", id=str(uuid.uuid4()))
+        self.graph = None
+        self.location = (-1, -1)
+        self.property_values = {}
+        self.fabric = ""
 
-    @property
-    def property_values(self):
-        return self._property_values
-
-
-    @property
-    def type(self):
-        return self._type
-
-    @property
-    def fabric(self):
-        return self._fabric
-
-    @fabric.setter
-    def fabric(self, value):
-        self._fabric = value
-
-    @property
-    def id(self):
-        return self._id
-
-    @property
-    def location(self):
-        return self._location
-
-    @location.setter
-    def location(self, value):
-        assert type(value) == tuple and len(value) == 2
-        self._location = value
-
-    @property
-    def graph(self):
-        return self._graph
-
-
-    @graph.setter
-    def graph(self, value):
-        self._graph = value
 
     def setProperty(self, name, value):
-        if not name in self._type.properties.keys():
+        if not name in self.node_value.properties.keys():
             raise RuntimeError("Couldn't set property")
 
-        prop_type = self._type._properties[name].type
+        prop_type = self.node_value._properties[name].type
         if not prop_type.contains_value(value):
             raise RuntimeError("Couldn't set property")
 
@@ -156,11 +118,13 @@ class Graph:
         edge = Edge(source_node_id, event_name, dest_node_id, handler_name)
         all_edges = self._edges + [edge]
 
-        if event_name not in self.node(edge.source_node_id).type.events:
-            return False, "Node {node} doesn't have event {event}".format(node=self.node(edge.source_node_id).type.name, event=event_name)
 
-        if handler_name not in self.node(edge.dest_node_id).type.handlers:
-            return False, "Node {node} doesn't have handler {handler}".format(node=self.node(edge.dest_node_id).type.name, handler=handler_name)
+        a = self.node(edge.source_node_id).node_value
+        if event_name not in self.node(edge.source_node_id).node_value._events:
+            return False, "Node {node} doesn't have event {event}".format(node=self.node(edge.source_node_id).node_value.name, event=event_name)
+
+        if handler_name not in self.node(edge.dest_node_id).node_value.handlers:
+            return False, "Node {node} doesn't have handler {handler}".format(node=self.node(edge.dest_node_id).node_value.name, handler=handler_name)
 
         types_info = {}
         for _, node in self._nodes.items():
@@ -219,8 +183,8 @@ class Graph:
         self._edges.append(edge)
         return edge
 
-    def addNode(self, node_type):
-        node = Node(node_type, None)
+    def addNode(self, node_value):
+        node = Node(node_value, None)
 
         node.graph = self
         self._nodes[node.id] = node

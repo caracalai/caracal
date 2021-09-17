@@ -9,10 +9,11 @@ from bblocks.declaration.nodetype import *
 class VideoProcessor(Node):
     def __init__(self):
         super().__init__()
-        self.processedFrame = Event(bbtypes.Image, info=MetaInfo(name="processedFrame", description="Description"))
-        self.processedBatch = Event(bbtypes.List(bbtypes.Image()))
+        self.name = "VideoProcessor"
+        self.processed_frame = Event("processedFrame", bbtypes.Image, MetaInfo(description="Description"))
+        self.processed_batch = Event("processedBatch", bbtypes.List(bbtypes.Image()))
 
-    @handler("processFrame", bbtypes.Image(), info=MetaInfo())
+    @handler("processFrame", bbtypes.Image())
     def process_frame(self, msg):
         pass
 
@@ -20,11 +21,9 @@ class VideoProcessor(Node):
     def process_batch(self, msg):
         pass
 
-    def info(self):
-        return MetaInfo(name="VideoProcessor",
-                        namespace="misha.blocks",
-                        version="1.0.0", synopsis="",
-                        description="Description of Node")
+    @staticmethod
+    def info():
+        return MetaInfo(category="Neural Networks", version="1.0", synopsis="", description="Description of Node")
 
 
 class FaceDetector(Node):
@@ -32,19 +31,18 @@ class FaceDetector(Node):
         super().__init__()
         self.threshold = Property(bbtypes.Int(), default_value=0.7, optional=True)
 
-    @handler("onProcessFrame", bbtypes.Image(), receives_multiple=True)
+    @handler("onProcessFrame", bbtypes.Image(), False, MetaInfo())
     def on_process_frame(self, msg):
-        print(self.threshold.value * 10)
         pass
+
 
 if __name__ == "__main__":
     with bblocks.execution.session.Session() as session:
         processor = VideoProcessor()
         detector = FaceDetector()
+
         detector.threshold.value = 1
-        print(detector.threshold.value * 10 / 5)
-        print(detector.threshold.value * 10)
-        session.connect(processor.processedBatch, detector.on_process_frame)
+        session.connect(processor.processed_batch, detector.on_process_frame)
         session.run()
 #
 # # Case when the graph is executed from different scripts

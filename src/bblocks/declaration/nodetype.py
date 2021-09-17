@@ -1,22 +1,50 @@
-import functools
+class Handler:
+    def __init__(self, name, type, receives_multiple, info, function):
+        self.name = name
+        self.type = type
+        self.receives_multiple = receives_multiple
+        self.info = info
+        self.function = function
 
-from bblocks.declaration.datatypes import *
+    def __call__(self, *args):
+        pass
 
 
-def handler(name, type, receives_multiple=False, info=None):
-    @functools.wraps
-    def handler_instance(func):
-        def wrapper(self, msg):
-            func(msg)
+def handler(name, type, receives_multiple=False, info=None, function=None):
+    if function:
+        return Handler(function)
+    else:
+        def wrapper(func):
+            return Handler(name, type, receives_multiple, info, func)
+        return wrapper
 
-    return handler_instance
+
+# def handler(node, name, type, receives_multiple=False, info=None):
+#     class HandlerInstance:
+#         def __init__(self, func):
+#     @functools.wraps
+#     def handler_instance(func):
+#         def wrapper(self, msg):
+#             self.func(msg)
+#         return wrapper
+#     return handler_instance
+
+
+# def handler(node, name, type, receives_multiple=False, info=None):
+#     @functools.wraps
+#     def handler_instance(func):
+#         def wrapper(self, msg):
+#             self.func(msg)
+#         return wrapper
+#     return handler_instance
+
 
 class Property:
     def __init__(self, tp, optional, default_value=None):
         self._type = tp
         self._is_optional = optional
         self._default_value = default_value
-        self.value = self.default_value
+        self.value = default_value
         self.parent = None
 
     def set_value(self, value):
@@ -38,7 +66,8 @@ class Property:
         return str(self.value)
 
 class MethodInfo:
-    def __init__(self, tp, info=None):
+    def __init__(self, name, tp, info=None):
+        self.name = name
         self._type = tp
         self.parent = None
 

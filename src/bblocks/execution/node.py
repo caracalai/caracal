@@ -8,6 +8,8 @@ import inspect
 
 from collections import namedtuple
 _Event = namedtuple("_Event", ["source_id", "event"])
+from bblocks.declaration.nodetype import Handler, Event
+import bblocks.execution.session as session
 
 class Message:
     def __init__(self, id=None, value=None):
@@ -26,25 +28,28 @@ class Node:
         self._server_endpoint = ""
         self._handlers = {}
         self._events = set()
+        self._session = session.current_session
+        self._session.add(self)
 
     def __setattr__(self, name, value):
         if isinstance(value, Property):
             value.parent = self
-        # print(hasattr(self, name))
-        # if hasattr(self, name) and isinstance(getattr(self, name), Property):
-        #     getattr(self, name).parent(self)
+        if isinstance(value, Event):
+            value.parent = self
+            self._events.add(value.name)
         super().__setattr__(name, value)
 
-    def __getattribute__(self, item):
-        # methods = inspect.getmembers(self, predicate=inspect.ismethod)
-        # for name, m in methods:
-        #     if name == item:
-        #         print(m)
 
+    def __getattribute__(self, item):
         result = super().__getattribute__(item)
+        if isinstance(result, Handler):
+            result.parent = self
         # if isinstance(result, Event):
-        #     return (self, result)
+        #     result.parent = self
         return result
+
+    def events(self):
+        pass
 
     def set_id(self, id):
         self._id = id
