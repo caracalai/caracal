@@ -3,16 +3,18 @@ import threading
 import logging
 from bblocks.proto.protoserializer import *
 from bblocks.proto.basictypes_pb2 import *
+from bblocks.declaration.nodetype import *
+import inspect
 
 from collections import namedtuple
-Event = namedtuple("Event", ["source_id", "event"])
+_Event = namedtuple("_Event", ["source_id", "event"])
 
 class Message:
     def __init__(self, id=None, value=None):
         self.id = id
         self.value = value
 
-class NodeBase:
+class Node:
     def __init__(self):
         self._worker = None
         self._stopped = False
@@ -24,6 +26,25 @@ class NodeBase:
         self._server_endpoint = ""
         self._handlers = {}
         self._events = set()
+
+    def __setattr__(self, name, value):
+        if isinstance(value, Property):
+            value.parent = self
+        # print(hasattr(self, name))
+        # if hasattr(self, name) and isinstance(getattr(self, name), Property):
+        #     getattr(self, name).parent(self)
+        super().__setattr__(name, value)
+
+    def __getattribute__(self, item):
+        # methods = inspect.getmembers(self, predicate=inspect.ismethod)
+        # for name, m in methods:
+        #     if name == item:
+        #         print(m)
+
+        result = super().__getattribute__(item)
+        # if isinstance(result, Event):
+        #     return (self, result)
+        return result
 
     def set_id(self, id):
         self._id = id
@@ -104,7 +125,7 @@ class NodeBase:
                 id=self.id(), addr=input_node["publisher_endpoint"]))
 
             for edge in input_node["edges"]:
-                self._event2handler[Event(event=edge["event"], source_id=input_node["id"])] = edge["handler"]
+                self._event2handler[_Event(event=edge["event"], source_id=input_node["id"])] = edge["handler"]
                 topic = "{source_id}|{event}".format(
                     source_id=input_node["id"], event=edge["event"])
                 self._sub_socket.set(zmq.SUBSCRIBE, topic.encode("utf8"))
@@ -137,7 +158,7 @@ class NodeBase:
 
                 msg_id, msg_value = ProtoSerializer().deserialize_message(binary_msg)
                 message = Message(msg_id, msg_value)
-                handler_name = self._event2handler[Event(source_id=source_id, event=event)]
+                handler_name = self._event2handler[_Event(source_id=source_id, event=event)]
                 self._handlers[handler_name](message)
             except Exception as e:
                 break

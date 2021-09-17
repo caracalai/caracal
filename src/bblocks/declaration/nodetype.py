@@ -1,17 +1,33 @@
+import functools
+
 from bblocks.declaration.datatypes import *
 
-class PropertyInfo:
-    def __init__(self, tp, is_optional, default_value=None):
+
+def handler(name, type, receives_multiple=False, info=None):
+    @functools.wraps
+    def handler_instance(func):
+        def wrapper(self, msg):
+            func(msg)
+
+    return handler_instance
+
+class Property:
+    def __init__(self, tp, optional, default_value=None):
         self._type = tp
-        self._is_optional = is_optional
+        self._is_optional = optional
         self._default_value = default_value
+        self.value = self.default_value
+        self.parent = None
+
+    def set_value(self, value):
+        self.value = value
 
     @property
     def type(self):
         return self._type
 
     @property
-    def default_value(self):
+    def default_value123(self):
         return self._default_value
 
     @property
@@ -19,14 +35,12 @@ class PropertyInfo:
         return self._is_optional
 
     def __str__(self):
-        result = "{type}".format(type=self.type)
-        if self.is_optional == False:
-            result += " [can be optional]"
-        return result
+        return str(self.value)
 
 class MethodInfo:
-    def __init__(self, tp):
+    def __init__(self, tp, info=None):
         self._type = tp
+        self.parent = None
 
     @property
     def type(self):
@@ -41,7 +55,7 @@ class MethodInfo:
         return self._type.types
 
 
-class EventInfo(MethodInfo):
+class Event(MethodInfo):
     def __str__(self):
         result = "{type}".format(type=self.type)
         return result

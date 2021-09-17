@@ -1,4 +1,4 @@
-from bblocks.execution.nodebase import *
+from bblocks.execution.node import *
 from bblocks.declaration.graph import *
 
 class ResultReceiver:

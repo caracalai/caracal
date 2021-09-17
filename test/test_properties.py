@@ -38,9 +38,9 @@ class CheckProperties(unittest.TestCase):
             self.assertTrue(len(node_types) == 1, "Incorrect number of node types")
             myNode = node_types["MyNode"]
             self.assertTrue(len(myNode.properties) == 6, "Incorrect number of properties")
-            self.assertTrue(myNode.properties["threshold"].is_optional, "Threshold should be optional")
+            self.assertTrue(myNode.properties["threshold"].optional, "Threshold should be optional")
             self.assertTrue(myNode.properties["threshold"].default_value != None, "threshold should contain default value")
-            self.assertTrue(myNode.properties["border_width"].is_optional == False, "border_width should not be optional")
+            self.assertTrue(myNode.properties["border_width"].optional == False, "border_width should not be optional")
             self.assertTrue(myNode.properties["string_param"].default_value == None, "string_param should not contain default value")
 
 

@@ -1,4 +1,4 @@
-from bblocks.execution.nodebase import *
+from bblocks.execution.node import *
 from bblocks.execution.nodecluster import *
 from bblocks.declaration.graph import *
 from collections import deque
@@ -13,7 +13,7 @@ delay = 0.0
 test_count = 10
 list_size = 5
 
-class InitialList(NodeBase):
+class InitialList(Node):
     def __init__(self):
         super().__init__()
         self.register_event("values")
@@ -23,7 +23,7 @@ class InitialList(NodeBase):
             self.generate_event("values", [i+k for k in range(list_size)])
 
 
-class Exp(NodeBase):
+class Exp(Node):
     def __init__(self):
         super().__init__()
         self.register_handler("value", self.on_value)
@@ -33,7 +33,7 @@ class Exp(NodeBase):
         self.generate_event("result", msg.value**2, msg_id=msg.id)
 
 
-class Map(NodeBase):
+class Map(Node):
     def __init__(self):
         super().__init__()
         self.register_handler("initial_values", self.on_initial_values)

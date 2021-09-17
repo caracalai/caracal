@@ -1,4 +1,4 @@
-from bblocks.execution.nodebase import *
+from bblocks.execution.node import *
 from bblocks.execution.nodecluster import *
 from bblocks.declaration.graph import *
 import cv2
@@ -13,7 +13,7 @@ test_count = 10
 list_size = 5
 import time
 
-class ReadVideoFile(NodeBase):
+class ReadVideoFile(Node):
     def __init__(self):
         super().__init__()
         self.register_event("next_batch")
@@ -54,7 +54,7 @@ class ReadVideoFile(NodeBase):
 
 
 
-class AddBorder(NodeBase):
+class AddBorder(Node):
     def __init__(self):
         super().__init__()
         self.register_handler("process_batch", self.process_batch)
@@ -83,7 +83,7 @@ class AddBorder(NodeBase):
         self.generate_event("result_batch", result, msg.id)
 
 
-class CreateBundleFromStream(NodeBase):
+class CreateBundleFromStream(Node):
     def __init__(self):
         super().__init__()
         self.register_handler("add_batch", self.add_batch)
@@ -115,7 +115,7 @@ class CreateBundleFromStream(NodeBase):
             self._counters.pop(0)
             self.generate_event("next_bundle", bundle)
 
-class CreateVideoFile(NodeBase):
+class CreateVideoFile(Node):
     def __init__(self):
         super().__init__()
         self.register_handler("process", self.process)

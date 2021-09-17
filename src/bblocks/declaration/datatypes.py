@@ -29,9 +29,9 @@ class TypeBase:
             return copy.deepcopy(other)
         assert self.is_composite == False
 
-        if type(self) == ObjectType:
+        if type(self) == Object:
             return copy.deepcopy(other)
-        if type(other) == ObjectType:
+        if type(other) == Object:
             return copy.deepcopy(self)
 
         if other.is_composite:
@@ -39,14 +39,14 @@ class TypeBase:
         return None
 
 
-class ObjectType(TypeBase):
+class Object(TypeBase):
     def __init__(self):
         super().__init__()
 
     def contains(self, other) -> bool:
-        if type(self) == ObjectType:
+        if type(self) == Object:
             return True
-        if type(self) is not ObjectType and type(other) is not ObjectType:
+        if type(self) is not Object and type(other) is not Object:
             if type(other) == type(self):
                 return True
         raise Exception("{}.contains({}): Method is not implemented".format(self.name, other.name))
@@ -57,7 +57,7 @@ class ObjectType(TypeBase):
 
 
 
-class VoidType(ObjectType):
+class Void(Object):
     def __init__(self):
         super().__init__()
 
@@ -68,7 +68,7 @@ class VoidType(ObjectType):
     def name(self):
         return "VoidType"
 
-class NumberType(ObjectType):
+class Number(Object):
     def __init__(self):
         super().__init__()
 
@@ -80,7 +80,7 @@ class NumberType(ObjectType):
         return "NumberType"
 
 
-class FloatType(ObjectType):
+class Float(Object):
     def __init__(self):
         super().__init__()
 
@@ -91,7 +91,7 @@ class FloatType(ObjectType):
     def name(self):
         return "FloatType"
 
-class IntType(ObjectType):
+class Int(Object):
     def __init__(self):
         super().__init__()
 
@@ -102,7 +102,7 @@ class IntType(ObjectType):
     def name(self):
         return "IntegerType"
 
-class BooleanType(ObjectType):
+class Boolean(Object):
     def __init__(self):
         super().__init__()
 
@@ -114,7 +114,7 @@ class BooleanType(ObjectType):
         return "BooleanType"
 
 
-class StringType(ObjectType):
+class String(Object):
     def __init__(self):
         super().__init__()
 
@@ -126,7 +126,7 @@ class StringType(ObjectType):
         return "StringType"
 
 
-class ImageType(ObjectType):
+class Image(Object):
     def __init__(self):
         super().__init__()
 
@@ -135,7 +135,7 @@ class ImageType(ObjectType):
         return "ImageType"
 
 
-class BinaryFileType(ObjectType):
+class BinaryArray(Object):
     def __init__(self):
         super().__init__()
 
@@ -143,16 +143,16 @@ class BinaryFileType(ObjectType):
     def name(self):
         return "BinaryFileType"
 
-class VideoStreamType(ObjectType):
+class VideoStream(Object):
     def __init__(self):
-        super(VideoStreamType, self).__init__()
+        super(VideoStream, self).__init__()
 
     @property
     def name(self):
         return "VideoStreamType"
 
 
-class RectType(ObjectType):
+class Rect(Object):
     def __init__(self):
         super().__init__()
 
@@ -160,8 +160,8 @@ class RectType(ObjectType):
     def name(self):
         return "RectType"
 
-class ListType(ObjectType):
-    def __init__(self, basicType: ObjectType):
+class List(Object):
+    def __init__(self, basicType: Object):
         super().__init__()
         self.basicType_ = basicType
 
@@ -179,7 +179,7 @@ class ListType(ObjectType):
         return "ListType({basicType})".format(basicType=self.basicType.name)
 
 
-class DataSourceType(ObjectType):
+class DataSource(Object):
     def __init__(self):
         super().__init__()
 
@@ -191,7 +191,7 @@ class DataSourceType(ObjectType):
         return "DataSourceType"
 
 
-class TableDataSourceType(DataSourceType):
+class TableDataSource(DataSource):
     def __init__(self, basicType):
         super().__init__()
         self._basicType = basicType
@@ -205,18 +205,18 @@ class TableDataSourceType(DataSourceType):
         return True
 
     def intersect(self, other):
-        if type(other) != TableDataSourceType:
+        if type(other) != TableDataSource:
             return False
         basicTypeIntersection = other.basicType.intersect(self.basicType)
         if basicTypeIntersection == None:
             return None
-        return TableDataSourceType(basicTypeIntersection)
+        return TableDataSource(basicTypeIntersection)
 
     @property
     def name(self):
         return "TableDataSourceType({basicType})".format(basicType=self.basicType.name)
 
-class TupleType(ObjectType):
+class Tuple(Object):
     def __init__(self, *types):
         super().__init__()
         self._types = list(types)
@@ -243,7 +243,7 @@ class TupleType(ObjectType):
     def createFrom(input_tuple, index, newType):
         types = [copy.deepcopy(type) for type in input_tuple._types]
         types[index] = copy.deepcopy(newType)
-        return TupleType(types)
+        return Tuple(types)
 
     def contains_value(self, value):
         if not type(value) is tuple:
@@ -263,7 +263,7 @@ class TupleType(ObjectType):
 
 
     def intersect(self, other):
-        if type(other) == ObjectType:
+        if type(other) == Object:
             return other.intersect(self)
         if type(other) != type(self):
             return None
@@ -281,4 +281,4 @@ class TupleType(ObjectType):
                 return None
             result.append(val)
 
-        return TupleType(*result)
+        return Tuple(*result)

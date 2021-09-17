@@ -1,4 +1,4 @@
-from bblocks.execution.nodebase import *
+from bblocks.execution.node import *
 from bblocks.execution.nodecluster import *
 from bblocks.declaration.graph import *
 
@@ -9,7 +9,7 @@ from test.test_execution.resultreceiver import ResultReceiver
 
 localhost = "tcp://127.0.0.1"
 
-class Generator(NodeBase):
+class Generator(Node):
     def __init__(self):
         super().__init__()
         self.register_event("value")
@@ -20,7 +20,7 @@ class Generator(NodeBase):
             self.generate_event("value", i)
 
 
-class Receiver(NodeBase):
+class Receiver(Node):
     def __init__(self):
         super().__init__()
         self.counter = 0

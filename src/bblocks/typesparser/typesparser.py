@@ -46,23 +46,23 @@ class TypesParser:
         typelist = [self._handle_block_type(item) for item in block_type_tree.children[2::2]]
 
         scalar_types = {
-            "object": datatypes.ObjectType,
+            "object": datatypes.Object,
 
             # basic types
-            "int": datatypes.IntType,
-            "float": datatypes.FloatType,
-            "boolean": datatypes.BooleanType,
-            "string": datatypes.StringType,
+            "int": datatypes.Int,
+            "float": datatypes.Float,
+            "boolean": datatypes.Boolean,
+            "string": datatypes.String,
 
             # collections
-            "tuple": datatypes.TupleType,
-            "list": datatypes.ListType,
+            "tuple": datatypes.Tuple,
+            "list": datatypes.List,
 
-            "binaryfile": datatypes.BinaryFileType,
-            "videostream": datatypes.VideoStreamType,
-            "image": datatypes.ImageType,
-            "rect": datatypes.RectType,
-            "void": datatypes.VoidType
+            "binaryfile": datatypes.BinaryArray,
+            "videostream": datatypes.VideoStream,
+            "image": datatypes.Image,
+            "rect": datatypes.Rect,
+            "void": datatypes.Void
         }
 
         for name, tp in scalar_types.items():
@@ -76,7 +76,7 @@ class TypesParser:
         for argument in func_arguments_tree.children[::2]:
             arg_names.append(argument.children[0].getText().lower())
             arg_types.append(self._handle_block_type(argument.children[2]))
-        result = datatypes.TupleType(*arg_types)
+        result = datatypes.Tuple(*arg_types)
         result.names = arg_names
         return result
 
@@ -101,7 +101,7 @@ class TypesParser:
             value = self._handle_literal(prop_initialization_value_tree)
         else:
             value = None
-        return name, nodetype.PropertyInfo(property_type, is_optional, value)
+        return name, nodetype.Property(property_type, is_optional, value)
 
     def _handle_all_properties_section(self, tree):
         result = {}
@@ -125,7 +125,7 @@ class TypesParser:
 
         name = event_tree.children[0].children[0].getText()
         tp = self._handle_func_arguments(event_tree.children[2])
-        return name, nodetype.EventInfo(tp)
+        return name, nodetype.Event(tp)
 
     def _handle_handler(self, handler_tree):
         name = handler_tree.children[0].children[0].getText()

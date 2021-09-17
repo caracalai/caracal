@@ -1,11 +1,11 @@
 import logging
-from bblocks.execution.nodebase import *
+from bblocks.execution.node import *
 from bblocks.execution.basictypes import *
 from bblocks.execution.nodecluster import *
 from bblocks.declaration import *
 import cv2
 
-class DragAndDropImageWebView(NodeBase):
+class DragAndDropImageWebView(Node):
     def __init__(self):
         super().__init__()
         self.register_event("image_dropped")
@@ -15,7 +15,7 @@ class DragAndDropImageWebView(NodeBase):
         self.generate_event("image_dropped", Image(image))
 
 
-class ShowDetectedFaceWebView(NodeBase):
+class ShowDetectedFaceWebView(Node):
     def __init__(self):
         super().__init__()
         self.register_handler("processed_image", self.on_processed_image)

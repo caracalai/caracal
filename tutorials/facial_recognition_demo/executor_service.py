@@ -1,10 +1,10 @@
-from bblocks.execution.nodebase import *
+from bblocks.execution.node import *
 from bblocks.execution.nodecluster import *
 from bblocks.execution.basictypes import *
 from bblocks.declaration import *
 import cv2
 
-class FaceDetection(NodeBase):
+class FaceDetection(Node):
     def __init__(self):
         super().__init__()
         self.register_handler("image", self.on_image)

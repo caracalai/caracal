@@ -1,4 +1,4 @@
-from bblocks.execution.nodebase import *
+from bblocks.execution.node import *
 from bblocks.execution.nodecluster import *
 from bblocks.declaration.graph import *
 from collections import deque
@@ -11,7 +11,7 @@ from test.test_execution.resultreceiver import ResultReceiver
 localhost = "tcp://127.0.0.1"
 delay = 0.0
 
-class GeneratorA(NodeBase):
+class GeneratorA(Node):
     def __init__(self):
         super().__init__()
         self.register_event("value")
@@ -27,7 +27,7 @@ class GeneratorA(NodeBase):
             if counter == 100:
                 break
 
-class GeneratorB(NodeBase):
+class GeneratorB(Node):
     def __init__(self):
         super().__init__()
         self.register_event("value")
@@ -43,7 +43,7 @@ class GeneratorB(NodeBase):
                 break
 
 
-class Summator(NodeBase):
+class Summator(Node):
     def __init__(self):
         super().__init__()
         self.counter = 0
