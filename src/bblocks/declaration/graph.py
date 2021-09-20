@@ -2,7 +2,7 @@ from bblocks.declaration import *
 from bblocks.declaration.nodetype import *
 from bblocks.proto import protoserializer
 import base64
-
+import copy
 import uuid
 import json
 
@@ -55,7 +55,7 @@ class Edge:
 
 class Graph:
     def __init__(self):
-        self._nodes = {}
+        self.nodes = {}
         self._edges = []
         self.server_fabric = ""
 
@@ -96,19 +96,11 @@ class Graph:
 
         return json.dumps(result, indent=2)
 
-    @property
-    def nodes(self):
-        return self._nodes
-
-    @property
-    def edges(self):
-        return self._edges
-
     def node(self, id):
-        return self._nodes[id]
+        return self.nodes[id]
 
     def contains_node(self, id):
-        return id in self._nodes
+        return id in self.nodes
 
 
     def can_connect(self, source_node, event_name: str, dest_node: NodeType, handler_name: str):
@@ -120,22 +112,22 @@ class Graph:
 
 
         a = self.node(edge.source_node_id).node_value
-        if event_name not in self.node(edge.source_node_id).node_value._events:
+        if event_name not in self.node(edge.source_node_id).node_value.events:
             return False, "Node {node} doesn't have event {event}".format(node=self.node(edge.source_node_id).node_value.name, event=event_name)
 
         if handler_name not in self.node(edge.dest_node_id).node_value.handlers:
             return False, "Node {node} doesn't have handler {handler}".format(node=self.node(edge.dest_node_id).node_value.name, handler=handler_name)
 
         types_info = {}
-        for _, node in self._nodes.items():
+        for _, node in self.nodes.items():
             types_info[node.id] = {}
-            types_info[node.id]["events"] = copy.deepcopy(node.type.events)
+            types_info[node.id]["events"] = copy.deepcopy(node.node_value.events)
 
             types_info[node.id]["handlers"] = {}
-            for h, t in node.type.handlers.items():
+            for h, t in node.node_value.handlers.items():
                 types_info[node.id]["handlers"][h] = copy.deepcopy(t.type)
 
-        if dest_node.type.handlers[handler_name].single == True:
+        if not dest_node.node_value.handlers[handler_name].receives_multiple:
             if len(list(filter(lambda e: e.handler_name == handler_name and e.dest_node_id == dest_node_id, all_edges))) > 1:
                 return False, "Handler {handler} of node {node} can't have multiple inputs".format(handler=handler_name, node=dest_node_id)
 
@@ -147,9 +139,9 @@ class Graph:
                 intersected_type = source_type.intersect(dest_type)
                 if intersected_type == None:
                     return False, "Couldn't match types of {source_node}.{event} ('{source_class}') and {dest_node}.{handler} ('{dest_class}')" \
-                            .format(source_node=self.node(edge.source_node_id).type.name,
+                            .format(source_node=self.node(edge.source_node_id).node_value.name,
                                     event=edge.event_name,
-                                    dest_node=self.node(edge.dest_node_id).type.name,
+                                    dest_node=self.node(edge.dest_node_id).node_value.name,
                                     handler=edge.handler_name,
                                     source_class=source_type.name,
                                     dest_class=dest_type.name)
@@ -158,17 +150,17 @@ class Graph:
                 for node_id, connector_type, connector_name in [
                     (edge.source_node_id, "events", edge.event_name),
                     (edge.dest_node_id, "handlers", edge.handler_name)]:
-                    if not self._nodes[edge.dest_node_id].type.handlers[edge.handler_name].single:
+                    if self.nodes[edge.dest_node_id].node_value.handlers[edge.handler_name].receives_multiple:
                         continue
 
-                    if type(intersected_type) != type(types_info[node_id][connector_type][connector_name]):
-                        types_info[node_id][connector_type][connector_name] = intersected_type
-                        try:
-                            updated, refined_types = self._nodes[node_id].type.specializeTypes(types_info[node_id], self.node(node_id)._property_values)
-                            if updated == True:
-                                types_info[node_id] = refined_types
-                        except RuntimeError as e:
-                            return False, str(e)
+                    # if type(intersected_type) != type(types_info[node_id][connector_type][connector_name]):
+                    #     types_info[node_id][connector_type][connector_name] = intersected_type
+                    #     try:
+                    #         updated, refined_types = self._nodes[node_id].node_value.type.specializeTypes(types_info[node_id], self.node(node_id)._property_values)
+                    #         if updated == True:
+                    #             types_info[node_id] = refined_types
+                    #     except RuntimeError as e:
+                    #         return False, str(e)
 
             if specialized == False:
                 break
@@ -187,12 +179,12 @@ class Graph:
         node = Node(node_value, None)
 
         node.graph = self
-        self._nodes[node.id] = node
+        self.nodes[node.id] = node
         return node
 
     def removeNode(self, node_id):
-        if node_id in self._nodes:
-            del self._nodes[node_id]
+        if node_id in self.nodes:
+            del self.nodes[node_id]
             self._edges = list(filter(lambda e: e.source_node_id != node_id and e.dest_node_id != node_id, self.edges))
 
     def removeEdge(self, edge_id):

@@ -9,9 +9,8 @@ from bblocks.declaration.nodetype import *
 class VideoProcessor(Node):
     def __init__(self):
         super().__init__()
-        self.name = "VideoProcessor"
         self.processed_frame = Event("processedFrame", bbtypes.Image, MetaInfo(description="Description"))
-        self.processed_batch = Event("processedBatch", bbtypes.List(bbtypes.Image()))
+        self.processed_batch = Event("processedBatch", bbtypes.List(bbtypes.Int()))
 
     @handler("processFrame", bbtypes.Image())
     def process_frame(self, msg):
@@ -21,8 +20,11 @@ class VideoProcessor(Node):
     def process_batch(self, msg):
         pass
 
-    @staticmethod
-    def info():
+    def run(self):
+        print("run")
+        self.generate_event("processedBatch", [1, 2, 3])
+
+    def info(self):
         return MetaInfo(category="Neural Networks", version="1.0", synopsis="", description="Description of Node")
 
 
@@ -35,14 +37,20 @@ class FaceDetector(Node):
     def on_process_frame(self, msg):
         pass
 
+    @handler("onProcessBatch", bbtypes.List(bbtypes.Int()), False, MetaInfo())
+    def on_process_batch(self, msg):
+        pass
 
+import logging
 if __name__ == "__main__":
     with bblocks.execution.session.Session() as session:
+        logging.basicConfig(level=logging.DEBUG)
         processor = VideoProcessor()
         detector = FaceDetector()
 
         detector.threshold.value = 1
-        session.connect(processor.processed_batch, detector.on_process_frame)
+        session.connect(processor.processed_batch, detector.on_process_batch)
+
         session.run()
 #
 # # Case when the graph is executed from different scripts

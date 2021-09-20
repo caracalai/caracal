@@ -25,31 +25,33 @@ class Node:
         self._pub_socket = None
         self._service_socket = None
         self._event2handler = {}
-        self._server_endpoint = ""
-        self._handlers = {}
-        self._events = set()
+        self.port = ""
+        self.handlers = {}
+        self.events = {}
         self._session = session.current_session
         self._session.add(self)
+
+    @property
+    def name(self):
+        return self.__class__.__name__
 
     def __setattr__(self, name, value):
         if isinstance(value, Property):
             value.parent = self
         if isinstance(value, Event):
             value.parent = self
-            self._events.add(value.name)
+            self.events[value.name] = value
         super().__setattr__(name, value)
 
 
     def __getattribute__(self, item):
         result = super().__getattribute__(item)
         if isinstance(result, Handler):
+            self.handlers[result.name] = result
             result.parent = self
         # if isinstance(result, Event):
         #     result.parent = self
         return result
-
-    def events(self):
-        pass
 
     def set_id(self, id):
         self._id = id
@@ -58,7 +60,7 @@ class Node:
         return self._id
 
     def set_server_endpoint(self, server_endpoint):
-        self._server_endpoint = server_endpoint
+        self.port = server_endpoint
 
     def start(self):
         self._worker = threading.Thread(target=self._execute)
@@ -91,21 +93,25 @@ class Node:
             self._worker.join()
 
     def register_event(self, name):
-        self._events.add(name)
+        raise Exception("register_event")
 
     def register_handler(self, name, func):
-        self._handlers[name] = func
+        self.handlers[name] = func
+
+    @property
+    def server_endpoint(self):
+        return "tcp://127.0.0.1:{port}".format(port=self.port)
 
     def _message_id(self):
         sock = self.context.socket(zmq.REQ)
-        sock.connect(self._server_endpoint)
+        sock.connect(self.server_endpoint)
         sock.send(json.dumps({"command": "generate-next-message-index"}).encode("utf8"))
         msg = json.loads(sock.recv())
         sock.close()
         return int(msg["index"])
 
     def generate_event(self, event, value, msg_id=None):
-        if not event in self._events:
+        if not event in self.events.keys():
             logging.warning("Node {name}: Couldn't generate event. Error: undefined event '{event}'".format(name=self.id(), event=event))
             return
         if msg_id is None:
@@ -139,7 +145,7 @@ class Node:
 
     def _send_command(self, request):
         sock = self.context.socket(zmq.REQ)
-        sock.connect(self._server_endpoint)
+        sock.connect(self.server_endpoint)
         sock.send(request.encode("utf8"))
         sock.close()
 
@@ -164,7 +170,7 @@ class Node:
                 msg_id, msg_value = ProtoSerializer().deserialize_message(binary_msg)
                 message = Message(msg_id, msg_value)
                 handler_name = self._event2handler[_Event(source_id=source_id, event=event)]
-                self._handlers[handler_name](message)
+                self.handlers[handler_name](message)
             except Exception as e:
                 break
 
