@@ -5,9 +5,14 @@ class Handler:
         self.receives_multiple = receives_multiple
         self.info = info
         self.function = function
+        self.connected_events = []
+        self.parent = None
 
     def __call__(self, *args):
-        pass
+        self.function(self.parent, *args)
+
+    def connect(self, event):
+        self.connected_events.append(event)
 
 
 def handler(name, type, receives_multiple=False, info=None, function=None):
@@ -88,6 +93,21 @@ class Event(MethodInfo):
     def __str__(self):
         result = "{type}".format(type=self.type)
         return result
+
+    @property
+    def node_id(self):
+        return self.parent.id
+
+
+class ExternalEvent(Event):
+    def __init__(self, name, tp, node_id):
+        super(ExternalEvent, self).__init__(name, tp)
+        self._parent_node_id = node_id
+
+    @property
+    def node_id(self):
+        return self._parent_node_id
+
 
 class HandlerInfo(MethodInfo):
     def __init__(self, tp, single):

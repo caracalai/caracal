@@ -19,7 +19,6 @@ class Node:
         self.property_values = {}
         self.fabric = ""
 
-
     def setProperty(self, name, value):
         if not name in self.node_value.properties.keys():
             raise RuntimeError("Couldn't set property")
@@ -53,12 +52,12 @@ class Edge:
         self.dest_node_id = dest_node_id
         self.handler_name = handler_name
 
+
 class Graph:
     def __init__(self):
         self.nodes = {}
         self._edges = []
         self.server_fabric = ""
-
 
     def serializeForExecutor(self):
         result = {}
@@ -93,7 +92,6 @@ class Graph:
                 "handler": e.handler_name
             })
 
-
         return json.dumps(result, indent=2)
 
     def node(self, id):
@@ -102,7 +100,6 @@ class Graph:
     def contains_node(self, id):
         return id in self.nodes
 
-
     def can_connect(self, source_node, event_name: str, dest_node: NodeType, handler_name: str):
         source_node_id = source_node.id
         dest_node_id = dest_node.id
@@ -110,13 +107,14 @@ class Graph:
         edge = Edge(source_node_id, event_name, dest_node_id, handler_name)
         all_edges = self._edges + [edge]
 
-
         a = self.node(edge.source_node_id).node_value
         if event_name not in self.node(edge.source_node_id).node_value.events:
-            return False, "Node {node} doesn't have event {event}".format(node=self.node(edge.source_node_id).node_value.name, event=event_name)
+            return False, "Node {node} doesn't have event {event}".format(
+                node=self.node(edge.source_node_id).node_value.name, event=event_name)
 
         if handler_name not in self.node(edge.dest_node_id).node_value.handlers:
-            return False, "Node {node} doesn't have handler {handler}".format(node=self.node(edge.dest_node_id).node_value.name, handler=handler_name)
+            return False, "Node {node} doesn't have handler {handler}".format(
+                node=self.node(edge.dest_node_id).node_value.name, handler=handler_name)
 
         types_info = {}
         for _, node in self.nodes.items():
@@ -128,8 +126,10 @@ class Graph:
                 types_info[node.id]["handlers"][h] = copy.deepcopy(t.type)
 
         if not dest_node.node_value.handlers[handler_name].receives_multiple:
-            if len(list(filter(lambda e: e.handler_name == handler_name and e.dest_node_id == dest_node_id, all_edges))) > 1:
-                return False, "Handler {handler} of node {node} can't have multiple inputs".format(handler=handler_name, node=dest_node_id)
+            if len(list(filter(lambda e: e.handler_name == handler_name and e.dest_node_id == dest_node_id,
+                               all_edges))) > 1:
+                return False, "Handler {handler} of node {node} can't have multiple inputs".format(handler=handler_name,
+                                                                                                   node=dest_node_id)
 
         while True:
             specialized = False
@@ -139,13 +139,12 @@ class Graph:
                 intersected_type = source_type.intersect(dest_type)
                 if intersected_type == None:
                     return False, "Couldn't match types of {source_node}.{event} ('{source_class}') and {dest_node}.{handler} ('{dest_class}')" \
-                            .format(source_node=self.node(edge.source_node_id).node_value.name,
-                                    event=edge.event_name,
-                                    dest_node=self.node(edge.dest_node_id).node_value.name,
-                                    handler=edge.handler_name,
-                                    source_class=source_type.name,
-                                    dest_class=dest_type.name)
-
+                        .format(source_node=self.node(edge.source_node_id).node_value.name,
+                                event=edge.event_name,
+                                dest_node=self.node(edge.dest_node_id).node_value.name,
+                                handler=edge.handler_name,
+                                source_class=source_type.name,
+                                dest_class=dest_type.name)
 
                 for node_id, connector_type, connector_name in [
                     (edge.source_node_id, "events", edge.event_name),
@@ -189,4 +188,3 @@ class Graph:
 
     def removeEdge(self, edge_id):
         self._edges = list(filter(lambda e: e.id != edge_id, self.edges))
-

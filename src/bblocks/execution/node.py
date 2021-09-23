@@ -5,6 +5,7 @@ from bblocks.proto.protoserializer import *
 from bblocks.proto.basictypes_pb2 import *
 from bblocks.declaration.nodetype import *
 import inspect
+import uuid
 
 from collections import namedtuple
 _Event = namedtuple("_Event", ["source_id", "event"])
@@ -30,10 +31,25 @@ class Node:
         self.events = {}
         self._session = session.current_session
         self._session.add(self)
+        self.id = str(uuid.uuid1())
+        self.pub_port = None
+        self.service_port = None
+
+    @property
+    def type(self):
+        return None
 
     @property
     def name(self):
         return self.__class__.__name__
+
+    @property
+    def pub_endpoint(self):
+        return "tcp://127.0.0.1:{port}".format(self.pub_port)
+
+    @property
+    def service_endpoint(self):
+        return "tcp://127.0.0.1:{port}".format(self.service_port)
 
     def __setattr__(self, name, value):
         if isinstance(value, Property):
@@ -52,12 +68,6 @@ class Node:
         # if isinstance(result, Event):
         #     result.parent = self
         return result
-
-    def set_id(self, id):
-        self._id = id
-
-    def id(self):
-        return self._id
 
     def set_server_endpoint(self, server_endpoint):
         self.port = server_endpoint
@@ -100,7 +110,7 @@ class Node:
 
     @property
     def server_endpoint(self):
-        return "tcp://127.0.0.1:{port}".format(port=self.port)
+        return "tcp://127.0.0.1:{port}".format(port=self._session.server_port)
 
     def _message_id(self):
         sock = self.context.socket(zmq.REQ)
@@ -111,14 +121,15 @@ class Node:
         return int(msg["index"])
 
     def generate_event(self, event, value, msg_id=None):
+        event = event.name
         if not event in self.events.keys():
-            logging.warning("Node {name}: Couldn't generate event. Error: undefined event '{event}'".format(name=self.id(), event=event))
+            logging.warning("Node {name}: Couldn't generate event. Error: undefined event '{event}'".format(name=self.id, event=event))
             return
         if msg_id is None:
             msg_id = self._message_id()
         msg = ProtoSerializer().serialize_message(msg_id, value)
-        logging.debug("Node {name}:send event".format(name=self.id()))
-        prefix = "{id}|{event} ".format(id=self.id(), event=event).encode("utf8")
+        logging.debug("Node {name}:send event".format(name=self.id))
+        prefix = "{id}|{event} ".format(id=self.id, event=event).encode("utf8")
         self._pub_socket.send(prefix + msg.SerializeToString(), zmq.DONTWAIT)
 
     def _wait_answer_from_server(self):
@@ -130,18 +141,28 @@ class Node:
 
     def _initialize_listener(self, config):
         self._sub_socket = self.context.socket(zmq.SUB)
-        for input_node in config["input_nodes"]:
-            self._sub_socket.connect(input_node["publisher_endpoint"])
-            logging.debug("Node {id} subscriber listens: {addr}".format(
-                id=self.id(), addr=input_node["publisher_endpoint"]))
 
-            for edge in input_node["edges"]:
-                self._event2handler[_Event(event=edge["event"], source_id=input_node["id"])] = edge["handler"]
-                topic = "{source_id}|{event}".format(
-                    source_id=input_node["id"], event=edge["event"])
-                self._sub_socket.set(zmq.SUBSCRIBE, topic.encode("utf8"))
-                logging.debug("Node {id}: topic={topic}".format(
-                    id=self.id(), topic=topic))
+        input_node_ids = set()
+        for handler in self.handlers.values():
+            for event in handler.connected_events:
+                input_node_ids.add(event.node_id)
+
+        for input_node_id in input_node_ids:
+            if not input_node_id in config:
+                pass
+            self._sub_socket.connect(config[input_node_id]["publisher_endpoint"])
+            logging.debug("Node {id} subscriber listens: {addr}".format(
+                id=self.id, addr=config[input_node_id]["publisher_endpoint"]))
+
+            for handler in self.handlers.values():
+                for event in handler.connected_events:
+                    if event.node_id != input_node_id:
+                        continue
+                    self._event2handler[_Event(event=event.name, source_id=event.node_id)] = handler.name
+                    topic = "{source_id}|{event}".format(
+                        source_id=event.node_id, event=event.name)
+                    self._sub_socket.set(zmq.SUBSCRIBE, topic.encode("utf8"))
+                    logging.debug("Node {id}: topic={topic}".format(id=self.id, topic=topic))
 
     def _send_command(self, request):
         sock = self.context.socket(zmq.REQ)
@@ -160,7 +181,7 @@ class Node:
             return
         while not self.stopped():
             try:
-                logging.debug("Node {name}: waiting for the next event...".format(name=self.id()))
+                logging.debug("Node {name}: waiting for the next event...".format(name=self.id))
                 msg = self._sub_socket.recv()
                 index = msg.find(b" ")
                 source_id, event = msg[:index].decode("utf8").split("|")
@@ -172,38 +193,39 @@ class Node:
                 handler_name = self._event2handler[_Event(source_id=source_id, event=event)]
                 self.handlers[handler_name](message)
             except Exception as e:
+                logging.warning("Node {name}: Exception {e}".format(name=self.id, e=e))
                 break
 
-        logging.debug("Node {name}: Finished processing events".format(name=self.id()))
+        logging.debug("Node {name}: Finished processing events".format(name=self.id))
 
     def _execute(self):
         logging.debug("Execute started")
 
         # step0: publisher
         self._pub_socket = self.context.socket(zmq.PUB)
-        pub_port = self._pub_socket.bind_to_random_port("tcp://127.0.0.1")
-        logging.debug("Node {id}. Publisher connected to port={port}".format(id=self.id(), port=pub_port))
+        self.pub_port = self._pub_socket.bind_to_random_port("tcp://127.0.0.1")
+        logging.debug("Node {id}. Publisher connected to port={port}".format(id=self.id, port=self.pub_port))
 
         # step1: initialize node
         self.initialize()
 
         # step2: initialize service socket
         self._service_socket = self.context.socket(zmq.REP)
-        service_port = self._service_socket.bind_to_random_port("tcp://127.0.0.1")
-        logging.debug("Node {id}. Service connected to port={port}".format(id=self.id(), port=service_port))
+        self.service_port = self._service_socket.bind_to_random_port("tcp://127.0.0.1")
+        logging.debug("Node {id}. Service connected to port={port}".format(id=self.id, port=self.service_port))
 
         # step3: register socket on the server
         self._send_command(json.dumps({
             "command": "register",
-            "id": self.id(),
-            "publisher_endpoint": "tcp://127.0.0.1:{port}".format(port=pub_port),
-            "service_endpoint": "tcp://127.0.0.1:{port}".format(port=service_port)}, sort_keys=True))
+            "id": self.id,
+            "publisher_endpoint": "tcp://127.0.0.1:{port}".format(port=self.pub_port),
+            "service_endpoint": "tcp://127.0.0.1:{port}".format(port=self.service_port)}, sort_keys=True))
         answer = self._wait_answer_from_server()
 
         self._initialize_listener(answer)
         self._send_command(json.dumps({
             "command": "ready-to-work",
-            "id": self.id()
+            "id": self.id
         }))
         answer = self._wait_answer_from_server()
         self._events_processor = threading.Thread(target=self._process_events)
