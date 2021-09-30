@@ -1,161 +1,96 @@
-class Handler:
-    def __init__(self, name, type, receives_multiple, info, function):
+import pickle
+
+
+class ProgrammingLanguage:
+    Python = 0,
+    Cpp = 1,
+    NodeJs = 2
+
+class Attribute:
+    def __init__(self):
+        self.name = ""
+        self.values = {}
+
+    def serialize(self):
+        return {
+            "name": self.name
+        }
+
+class MetaInfo:
+    def __init__(self, **kwargs):
+        pass
+
+    def serialize(self):
+        return {}
+
+class PropertyDeclaration:
+    def __init__(self, data_type, optional, default_value=None):
+        self.data_type = data_type
+        self.is_optional = optional
+        self.default_value = default_value
+
+    def serialize(self):
+        return {
+            "data_type": self.data_type,
+            "is_optional": self.is_optional,
+            "default_value": self.default_value
+        }
+
+
+
+class MethodDeclaration:
+    def __init__(self, name, data_type, info=None):
         self.name = name
-        self.type = type
-        self.receives_multiple = receives_multiple
-        self.info = info
-        self.function = function
-        self.connected_events = []
-        self.parent = None
-
-    def __call__(self, *args):
-        self.function(self.parent, *args)
-
-    def connect(self, event):
-        self.connected_events.append(event)
-
-
-def handler(name, type, receives_multiple=False, info=None, function=None):
-    if function:
-        return Handler(function)
-    else:
-        def wrapper(func):
-            return Handler(name, type, receives_multiple, info, func)
-        return wrapper
-
-
-# def handler(node, name, type, receives_multiple=False, info=None):
-#     class HandlerInstance:
-#         def __init__(self, func):
-#     @functools.wraps
-#     def handler_instance(func):
-#         def wrapper(self, msg):
-#             self.func(msg)
-#         return wrapper
-#     return handler_instance
-
-
-# def handler(node, name, type, receives_multiple=False, info=None):
-#     @functools.wraps
-#     def handler_instance(func):
-#         def wrapper(self, msg):
-#             self.func(msg)
-#         return wrapper
-#     return handler_instance
-
-
-class Property:
-    def __init__(self, tp, optional, default_value=None):
-        self._type = tp
-        self._is_optional = optional
-        self._default_value = default_value
-        self.value = default_value
-        self.parent = None
-
-    def set_value(self, value):
-        self.value = value
-
-    @property
-    def type(self):
-        return self._type
-
-    @property
-    def default_value123(self):
-        return self._default_value
-
-    @property
-    def is_optional(self):
-        return self._is_optional
-
-    def __str__(self):
-        return str(self.value)
-
-class MethodInfo:
-    def __init__(self, name, tp, info=None):
-        self.name = name
-        self._type = tp
-        self.parent = None
-
-    @property
-    def type(self):
-        return self._type
+        self.data_type = data_type
 
     @property
     def argument_names(self):
-        return self._type.names
+        return self.data_type.names
 
     @property
     def argument_types(self):
-        return self._type.types
+        return self.data_type.types
+
+    def serialize(self):
+        return {
+            "name": self.name,
+            "data_type": self.data_type
+        }
 
 
-class Event(MethodInfo):
-    def __str__(self):
-        result = "{type}".format(type=self.type)
-        return result
-
-    @property
-    def node_id(self):
-        return self.parent.id
-
-
-class ExternalEvent(Event):
-    def __init__(self, name, tp, node_id):
-        super(ExternalEvent, self).__init__(name, tp)
-        self._parent_node_id = node_id
-
-    @property
-    def node_id(self):
-        return self._parent_node_id
-
-
-class HandlerInfo(MethodInfo):
-    def __init__(self, tp, single):
-        super(HandlerInfo, self).__init__(tp)
-        self._single = single
-
-    @property
-    def single(self):
-        return self._single
+class HandlerDeclaration(MethodDeclaration):
+    def __init__(self, name, data_type, receives_multiple, info=None):
+        super(HandlerDeclaration, self).__init__(name, data_type, info)
+        self.receives_multiple = receives_multiple
 
     def __str__(self):
-        result = "{type}".format(type=self.type)
+        result = "{type}".format(type=self.data_type)
         if self.single == False:
             result += " [can be multiple]"
         return result
 
 
-class NodeType:
+class EventDeclaration(MethodDeclaration):
+    def __str__(self):
+        result = "{type}".format(type=self.data_type)
+        return result
+
+    @property
+    def id(self):
+        return "property_{id}"
+
+
+class NodeTypeDeclaration:
     def __init__(self):
-        self._handlers = {}
-        self._events = {}
-        self._properties = {}
-        self._name = None
-        self._attributes = []
+        self.handlers = {}
+        self.events = {}
+        self.properties = {}
+        self.name = None
+        self.attributes = []
 
     @property
-    def attributes(self):
-        return self._attributes
-
-    @property
-    def handlers(self):
-        return self._handlers
-
-    @property
-    def events(self):
-        return self._events
-
-    @property
-    def properties(self):
-        return self._properties
-
-    def specializeTypes(self, types, propertyValues):
-        return False, None
-
-
-    @property
-    def name(self):
-        return self._name
+    def id(self):
+        return self.name
 
     def __str__(self):
         result = 'node {name}\n'.format(name=self.name)
@@ -169,3 +104,42 @@ class NodeType:
         for key, value in self.events.items():
             result += "\t\t{name}: {type}\n".format(name=key, type=value)
         return result
+
+
+    def serialize(self):
+        result = {}
+        result["name"] = self.name
+
+        handlers = {}
+        for item in self.handlers.values():
+            handlers[item.id] = item.serialize()
+        result["handlers"] = handlers
+
+        events = {}
+        for item in self.events.values():
+            events[item.id] = item.serialize()
+        result["handlers"] = events
+
+        properties = {}
+        for item in self.properties.values():
+            properties[item.id] = item.serialize()
+        result["handlers"] = properties
+
+        return result
+
+        # for n in self.nodes.values():
+        #     properties = {}
+        #     for prop_name, info in n.type.properties.items():
+        #         prop_value = info.default_value
+        #         if prop_name in n.property_values:
+        #             prop_value = n.property_values[prop_name]
+        #         if prop_value != None:
+        #             properties[prop_name] = base64.b64encode(
+        #                 ProtoSerializer().serialize_message(0, prop_value).SerializeToString()
+        #             ).decode('ascii')
+        #     result["nodes"][n.id] = {
+        #         "type": {
+        #             "name": n.type.name,
+        #             "properties": properties
+        #         }
+        #     }

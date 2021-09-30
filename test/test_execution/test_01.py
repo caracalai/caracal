@@ -1,6 +1,6 @@
 from bblocks.execution.node import *
 from bblocks.execution.nodecluster import *
-from bblocks.declaration.graph import *
+from bblocks.declaration.project import *
 from collections import deque
 
 import unittest
@@ -117,10 +117,10 @@ def create_graph():
     node_types = parser.parse(types)
     node_types = {node.name: node for node in node_types}
 
-    graph = Graph()
-    GeneratorA = graph.addNode(node_types["GeneratorA"])
-    GeneratorB = graph.addNode(node_types["GeneratorB"])
-    Summator = graph.addNode(node_types["Summator"])
+    graph = Project()
+    GeneratorA = graph.add_node(node_types["GeneratorA"])
+    GeneratorB = graph.add_node(node_types["GeneratorB"])
+    Summator = graph.add_node(node_types["Summator"])
 
     graph.connect(GeneratorA, "value", Summator, "first")
     graph.connect(GeneratorB, "value", Summator, "second")
@@ -139,7 +139,7 @@ class CheckGraphExecution(unittest.TestCase):
         logging.basicConfig(level=logging.CRITICAL)
 
         graph = create_graph()
-        config = json.loads(graph.serializeForExecutor())
+        config = json.loads(graph.serialize())
 
         server_endpoint = 'tcp://127.0.0.1:2000'
         myFabric = MyNodeCluster("python-service", config)

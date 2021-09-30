@@ -1,6 +1,5 @@
 from bblocks.execution.node import *
-from bblocks.execution.nodecluster import *
-from bblocks.declaration.graph import *
+from bblocks.declaration.project import *
 
 import unittest
 from bblocks.typesparser import typesparser
@@ -59,9 +58,9 @@ def create_graph():
         """)
     node_types = {node.name: node for node in node_types}
 
-    graph = Graph()
-    generator = graph.addNode(node_types["Generator"])
-    receiver = graph.addNode(node_types["Receiver"])
+    graph = Project()
+    generator = graph.add_node(node_types["Generator"])
+    receiver = graph.add_node(node_types["Receiver"])
 
     graph.connect(generator, "value", receiver, "value")
     graph.server_fabric = "python-service"
@@ -78,7 +77,7 @@ class CheckGraphExecution(unittest.TestCase):
         logging.basicConfig(level=logging.CRITICAL)
 
         graph = create_graph()
-        config = json.loads(graph.serializeForExecutor())
+        config = json.loads(graph.serialize())
 
         server_endpoint = 'tcp://127.0.0.1:2000'
         myFabric = MyNodeCluster("python-service", config)

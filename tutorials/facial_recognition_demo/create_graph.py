@@ -1,5 +1,5 @@
 from bblocks.typesparser import typesparser
-from bblocks.declaration.graph import *
+from bblocks.declaration.project import *
 import logging
 
 if __name__ == "__main__":
@@ -11,10 +11,10 @@ if __name__ == "__main__":
     node_types = parser.parse(types)
     node_types = {node.name: node for node in node_types}
 
-    graph = Graph()
-    DragAndDropImageWebView = graph.addNode(node_types["DragAndDropImageWebView"])
-    ShowDetectedFaceWebView = graph.addNode(node_types["ShowDetectedFaceWebView"])
-    FaceDetection = graph.addNode(node_types["FaceDetection"])
+    graph = Project()
+    DragAndDropImageWebView = graph.add_node(node_types["DragAndDropImageWebView"])
+    ShowDetectedFaceWebView = graph.add_node(node_types["ShowDetectedFaceWebView"])
+    FaceDetection = graph.add_node(node_types["FaceDetection"])
 
     graph.connect(DragAndDropImageWebView, "image_dropped", FaceDetection, "image")
     graph.connect(FaceDetection, "result", ShowDetectedFaceWebView, "processed_image")
@@ -25,6 +25,6 @@ if __name__ == "__main__":
     FaceDetection.fabric = "executor-service"
 
     with open("graph.json", "w") as f:
-        f.write(graph.serializeForExecutor())
+        f.write(graph.serialize())
 
 

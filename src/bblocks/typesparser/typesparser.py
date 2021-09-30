@@ -3,8 +3,7 @@ from antlr4.InputStream import InputStream
 from antlr4 import CommonTokenStream
 from bblocks.typesparser import BlockTypesLexer, BlockTypesParser
 from bblocks.declaration import nodetype
-from bblocks.declaration import attributes, datatypes
-from bblocks.proto import basictypes_pb2
+from bblocks.declaration import datatypes
 from antlr4.error.ErrorStrategy import *
 
 
@@ -101,7 +100,7 @@ class TypesParser:
             value = self._handle_literal(prop_initialization_value_tree)
         else:
             value = None
-        return name, nodetype.Property(property_type, is_optional, value)
+        return name, nodetype.PropertyDeclaration(property_type, is_optional, value)
 
     def _handle_all_properties_section(self, tree):
         result = {}
@@ -125,13 +124,13 @@ class TypesParser:
 
         name = event_tree.children[0].children[0].getText()
         tp = self._handle_func_arguments(event_tree.children[2])
-        return name, nodetype.Event(tp)
+        return name, nodetype.EventDeclaration(name, type)
 
     def _handle_handler(self, handler_tree):
         name = handler_tree.children[0].children[0].getText()
         single = len(handler_tree.children[0].children) == 1
         tp = self._handle_func_arguments(handler_tree.children[2])
-        return name, nodetype.HandlerInfo(tp, single)
+        return name, nodetype.HandlerDeclaration(tp, single, not single)
 
 
     def _handle_typenodes(self, types_tree):
@@ -139,7 +138,7 @@ class TypesParser:
         for typenode_child in types_tree.getChildren():
             if not isinstance(typenode_child, BlockTypesParser.BlockTypesParser.Block_type_definitionContext):
                 continue
-            item = nodetype.NodeType()
+            item = nodetype.NodeTypeDeclaration()
             attrs = []
             if not typenode_child.children[0].children is None:
                 for attr in typenode_child.children[0].children:
@@ -154,11 +153,11 @@ class TypesParser:
                             param_value = int(param_value.children[0].getText())
                         attribute.values[param_name] = param_value
                     attrs.append(attribute)
-            item._attributes = attrs
-            item._name = typenode_child.children[2].getText()
-            item._properties = self._handle_all_properties_section(typenode_child)
-            item._events = self._handle_all_event_sections(typenode_child)
-            item._handlers = self._handle_all_handler_sections(typenode_child)
+            item.attributes = attrs
+            item.name = typenode_child.children[2].getText()
+            item.properties = self._handle_all_properties_section(typenode_child)
+            item.events = self._handle_all_event_sections(typenode_child)
+            item.handlers = self._handle_all_handler_sections(typenode_child)
             result.append(item)
         return result
 
@@ -172,5 +171,8 @@ class TypesParser:
         self.tree_ = parser.block_types()
         if parser._errHandler._has_errors:
             raise TypesParseError("Could not parse input grammar")
-        return self._handle_typenodes(self.tree_)
+
+        result = self._handle_typenodes(self.tree_)
+        return dict({t.name: t for t in result})
+
 

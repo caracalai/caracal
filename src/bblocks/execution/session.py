@@ -1,7 +1,8 @@
-from bblocks.declaration.graph import *
+from bblocks.declaration.project import *
 from bblocks.execution.nodeserver import NodeServer
 
 current_session = None
+
 
 class Session:
     def __init__(self, serves_server=True, server_port=None):
@@ -9,8 +10,21 @@ class Session:
         self.server_port = server_port
         self.external_nodes = []
         self.nodes = []
-        self.subgraph = Graph()
+        self.subgraph = Project()
         self.server = None
+
+
+    def initialize(self, project_file, node_type_impls):
+        project = Project.deserialize(project_file)
+
+        reprs = {impl().type : impl  for impl in node_type_impls}
+
+        # for node in project.nodes:
+        #     for node_type_impl in node_type_impls:
+        #         if node.type == node_type_impl.type:
+        #             found = True
+        #             node_type_impl()
+
 
     def run(self):
         if self.serves_server:
@@ -39,15 +53,9 @@ class Session:
         current_session = None
 
     def find_node_by_value(self, value):
-        for id, node in self.subgraph.nodes.items():
-            if node.node_value == value:
+        for _, node in self.subgraph.nodes.items():
+            if node.type_id == value:
                 return node
         return None
-
-    #
-    # def connect(self, event, handler):
-    #     first_node = self.find_node_by_value(event.parent)
-    #     second_port = self.find_node_by_value(handler.parent)
-    #     self.subgraph.connect(first_node, event.name, second_port, handler.name)
 
 

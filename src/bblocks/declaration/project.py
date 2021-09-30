@@ -1,47 +1,49 @@
-from bblocks.declaration import *
-from bblocks.declaration.nodetype import *
-from bblocks.proto import protoserializer
 import base64
 import copy
 import uuid
 import json
-
+from bblocks.declaration.nodetype import *
 from bblocks.proto.protoserializer import ProtoSerializer
+import pickle
+
+class SessionInfo:
+    def __init__(self, name="default"):
+        self.name = name
 
 
 class Node:
-    def __init__(self, node_value, values):
-        self.node_value = node_value
-        self._values = values
-        self.id = "{t}_{id}".format(t="<undefined_name>", id=str(uuid.uuid4()))
-        self.graph = None
-        self.location = (-1, -1)
+    def __init__(self, project, type_id, session_id, name="undefined_name"):
+        self.type_id = type_id
         self.property_values = {}
-        self.fabric = ""
+        self.session_id = session_id
+        self.project = project
+        self.id = "{type_name}_{uuid}".format(type_name=self.type.name, uuid=str(uuid.uuid4()))
 
-    def setProperty(self, name, value):
-        if not name in self.node_value.properties.keys():
+    @property
+    def type(self):
+        return self.project.types[self.type_id]
+
+    @property
+    def session(self):
+        return self.project.sessions[self.session_id]
+
+    def set_property(self, name, value):
+        if not name in self.type.properties.keys():
             raise RuntimeError("Couldn't set property")
 
-        prop_type = self.node_value._properties[name].type
+        prop_type = self.type.properties[name].data_type
         if not prop_type.contains_value(value):
             raise RuntimeError("Couldn't set property")
 
-        # if isinstance(prop_type, DataSourceType):
-        #     if not self.graph.contains_node(value):
-        #         raise RuntimeError("Couldn't set property")
-        #
-        #     if not isinstance(self.graph.node(value).type, TableDataSourceNode):
-        #         raise RuntimeError("Couldn't set property")
-        #
-        #
-        #     # TableDataSourceNode
-        #     sourceBasicType = self.graph.node(value).type.basicType
-        #     destBasicType = prop_type.basicType
-        #     if not destBasicType.contains(sourceBasicType):
-        #         raise RuntimeError("Couldn't set property")
+        self.property_values[name] = value
 
-        self._property_values[name] = value
+    def serialize(self):
+        result = {}
+        result["type_id"] = self.type_id
+        result["session_id"] = self.session_id
+        result["property_values"] = 1/0
+        result["id"] = self.id
+        return result
 
 
 class Edge:
@@ -53,44 +55,48 @@ class Edge:
         self.handler_name = handler_name
 
 
-class Graph:
+class Project:
     def __init__(self):
-        self.nodes = {}
-        self._edges = []
-        self.server_fabric = ""
+        self.sessions = {}  # session-id -> SessionInfo
+        self.types = {}     # type-id -> TypeInfo
+        self.nodes = {}     # node-id -> NodeInfo
+        self.edges = []     # Edges
 
-    def serializeForExecutor(self):
+    def register_type(self, type):
+        self.types[type.id] = type
+
+    def remove_type(self, type):
+        raise NotImplemented()
+
+
+    @staticmethod
+    def deserialize(text):
+        return pickle.loads(base64.b64decode(text))
+
+    def serialize(self):
+        return base64.b64encode(pickle.dumps(self)).decode('ascii')
+
         result = {}
 
-        result["server-fabric"] = self.server_fabric
-        result["nodes"] = {}
-        result["edges"] = []
+        types = {}
+        for type in self.types.values():
+            types[type.id] = type.serialize()
+        result["types"] = types
 
-        for n in self.nodes.values():
-            properties = {}
-            for prop_name, info in n.type.properties.items():
-                prop_value = info.default_value
-                if prop_name in n.property_values:
-                    prop_value = n.property_values[prop_name]
-                if prop_value != None:
-                    properties[prop_name] = base64.b64encode(
-                        ProtoSerializer().serialize_message(0, prop_value).SerializeToString()
-                    ).decode('ascii')
-            result["nodes"][n.id] = {
-                "type": {
-                    "name": n.type.name,
-                    "properties": properties,
-                    "fabric": n.fabric
-                }
-            }
+        sessions = {}
+        for session in self.sessions.values():
+            session[session.id] = session.serialize()
+        result["sessions"] = sessions
 
-        for e in self.edges:
-            result["edges"].append({
-                "source": e.source_node_id,
-                "event": e.event_name,
-                "destination": e.dest_node_id,
-                "handler": e.handler_name
-            })
+        nodes = {}
+        for node in self.nodes:
+            nodes[node.id] = node.serialize()
+        result["nodes"] = nodes
+
+        edges = []
+        for edge in self.edges:
+            edges.append(node.serialize())
+        result["edges"] = edges
 
         return json.dumps(result, indent=2)
 
@@ -100,29 +106,29 @@ class Graph:
     def contains_node(self, id):
         return id in self.nodes
 
-    def can_connect(self, source_node, event_name: str, dest_node: NodeType, handler_name: str):
+    def can_connect(self, source_node, event_name: str, dest_node: NodeTypeDeclaration, handler_name: str):
         source_node_id = source_node.id
         dest_node_id = dest_node.id
 
         edge = Edge(source_node_id, event_name, dest_node_id, handler_name)
-        all_edges = self._edges + [edge]
+        all_edges = self.edges + [edge]
 
-        a = self.node(edge.source_node_id).node_value
-        if event_name not in self.node(edge.source_node_id).node_value.events:
+        a = self.node(edge.source_node_id).type
+        if event_name not in self.node(edge.source_node_id).type.events:
             return False, "Node {node} doesn't have event {event}".format(
-                node=self.node(edge.source_node_id).node_value.name, event=event_name)
+                node=self.node(edge.source_node_id).type.name, event=event_name)
 
-        if handler_name not in self.node(edge.dest_node_id).node_value.handlers:
+        if handler_name not in self.node(edge.dest_node_id).type.handlers:
             return False, "Node {node} doesn't have handler {handler}".format(
-                node=self.node(edge.dest_node_id).node_value.name, handler=handler_name)
+                node=self.node(edge.dest_node_id).type.name, handler=handler_name)
 
         types_info = {}
         for _, node in self.nodes.items():
             types_info[node.id] = {}
-            types_info[node.id]["events"] = copy.deepcopy(node.node_value.events)
+            types_info[node.id]["events"] = copy.deepcopy(node.type.events)
 
             types_info[node.id]["handlers"] = {}
-            for h, t in node.node_value.handlers.items():
+            for h, t in node.type.handlers.items():
                 types_info[node.id]["handlers"][h] = copy.deepcopy(t.type)
 
         if not dest_node.node_value.handlers[handler_name].receives_multiple:
@@ -139,9 +145,9 @@ class Graph:
                 intersected_type = source_type.intersect(dest_type)
                 if intersected_type == None:
                     return False, "Couldn't match types of {source_node}.{event} ('{source_class}') and {dest_node}.{handler} ('{dest_class}')" \
-                        .format(source_node=self.node(edge.source_node_id).node_value.name,
+                        .format(source_node=self.node(edge.source_node_id).type.name,
                                 event=edge.event_name,
-                                dest_node=self.node(edge.dest_node_id).node_value.name,
+                                dest_node=self.node(edge.dest_node_id).type.name,
                                 handler=edge.handler_name,
                                 source_class=source_type.name,
                                 dest_class=dest_type.name)
@@ -149,7 +155,7 @@ class Graph:
                 for node_id, connector_type, connector_name in [
                     (edge.source_node_id, "events", edge.event_name),
                     (edge.dest_node_id, "handlers", edge.handler_name)]:
-                    if self.nodes[edge.dest_node_id].node_value.handlers[edge.handler_name].receives_multiple:
+                    if self.nodes[edge.dest_node_id].type.handlers[edge.handler_name].receives_multiple:
                         continue
 
                     # if type(intersected_type) != type(types_info[node_id][connector_type][connector_name]):
@@ -171,20 +177,26 @@ class Graph:
             raise RuntimeError(msg)
 
         edge = Edge(source_node.id, event_name, dest_node.id, handler_name)
-        self._edges.append(edge)
+        self.edges.append(edge)
         return edge
 
-    def addNode(self, node_value):
-        node = Node(node_value, None)
+    def remove_connection(self, edge_id):
+        self.edges = list(filter(lambda e: e.id != edge_id, self.edges))
 
-        node.graph = self
+    def create_session(self, lang, name):
+        session = SessionInfo(lang, name)
+        self.sessions[session.id] = session
+
+    def remove_session(self, name):
+        raise NotImplemented()
+
+    def add_node(self, type, session):
+        node = Node(self, type.id, session)
         self.nodes[node.id] = node
         return node
 
-    def removeNode(self, node_id):
+    def remove_node(self, node_id):
         if node_id in self.nodes:
             del self.nodes[node_id]
-            self._edges = list(filter(lambda e: e.source_node_id != node_id and e.dest_node_id != node_id, self.edges))
+            self.edges = list(filter(lambda e: e.source_node_id != node_id and e.dest_node_id != node_id, self.edges))
 
-    def removeEdge(self, edge_id):
-        self._edges = list(filter(lambda e: e.id != edge_id, self.edges))

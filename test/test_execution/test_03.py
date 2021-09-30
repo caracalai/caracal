@@ -1,8 +1,7 @@
 import bblocks.execution.session
 
-from bblocks.execution.node import Node
-from bblocks.declaration.metainfo import MetaInfo
 import bblocks.declaration.datatypes as bbtypes
+from bblocks.execution.node import *
 from bblocks.declaration.nodetype import *
 import logging
 
@@ -15,7 +14,7 @@ class VideoProcessor(Node):
 
     def run(self):
         for i in range(10):
-            self.generate_event(self.processed_batch, [1, 2, 3])
+            self.fire(self.processed_batch, [1, 2, 3])
 
 
 class FaceDetector(Node):
@@ -63,6 +62,26 @@ def usecase_second():
             detector.processBatch.connect(processor_processed_batch)
             session.run()
 
-
 if __name__ == "__main__":
     usecase_first()
+
+"""
+session.uploadProject(<user-name>, <pass>, <project>)
+session.downloadProject(<user-name>, <pass>, <project>)
+
+"""
+
+# if __name__ == "__main__":
+#     # usecase_first
+#
+#     bblocks.serialize_to_file("mytypes.txt",  [type_first, type_second, ...])
+#
+#     # canva.upload_types("<user-name>, <pass>, <project>", [type_first, type_second, ...])
+#
+#     canva_proj = canva.load_project("<user-name>, <pass>, <project>")
+#     with bblocks.execution.session.SessionInfo("session_a") as session:
+#         session.register_types([FaceDetector, VideoProcessor])
+#         session.run(canva_proj)
+#
+#
+# > broutonblocks-cli --run <project>  --user <user-name>, --pass <pass> --session="default"  --port 2000

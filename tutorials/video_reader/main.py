@@ -1,6 +1,6 @@
 from bblocks.execution.node import *
 from bblocks.execution.nodecluster import *
-from bblocks.declaration.graph import *
+from bblocks.declaration.project import *
 import cv2
 import sys
 from bblocks.typesparser import typesparser
@@ -186,11 +186,11 @@ def create_graph():
     node_types = parser.parse(types)
     node_types = {node.name: node for node in node_types}
 
-    graph = Graph()
-    ReadVideoFile = graph.addNode(node_types["ReadVideoFile"])
-    AddBorder = graph.addNode(node_types["AddBorder"])
-    CreateBundleFromStream = graph.addNode(node_types["CreateBundleFromStream"])
-    CreateVideoFile = graph.addNode(node_types["CreateVideoFile"])
+    graph = Project()
+    ReadVideoFile = graph.add_node(node_types["ReadVideoFile"])
+    AddBorder = graph.add_node(node_types["AddBorder"])
+    CreateBundleFromStream = graph.add_node(node_types["CreateBundleFromStream"])
+    CreateVideoFile = graph.add_node(node_types["CreateVideoFile"])
 
     graph.connect(ReadVideoFile, "next_batch", AddBorder, "process_batch")
     graph.connect(ReadVideoFile, "frame_count", CreateBundleFromStream, "set_bundle_size")
@@ -215,7 +215,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.CRITICAL)
 
     graph = create_graph()
-    config = json.loads(graph.serializeForExecutor())
+    config = json.loads(graph.serialize())
 
     server_endpoint = 'tcp://127.0.0.1:2000'
     myFabric = MyNodeCluster("python-service", config)

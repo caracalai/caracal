@@ -20,7 +20,7 @@ class FaceDetection(Node):
         for (x, y, w, h) in faces:
             cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
             bboxes.append((int(x), int(y), int(x+w), int(y+h)))
-        self.generate_event("result", (Image(image), bboxes))
+        self.fire("result", (Image(image), bboxes))
 
 
 class ExecutorCluster(NodeCluster):

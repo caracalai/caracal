@@ -12,7 +12,7 @@ class DragAndDropImageWebView(Node):
 
     def run(self):
         image = cv2.imread('./Bezos.jpg')
-        self.generate_event("image_dropped", Image(image))
+        self.fire("image_dropped", Image(image))
 
 
 class ShowDetectedFaceWebView(Node):

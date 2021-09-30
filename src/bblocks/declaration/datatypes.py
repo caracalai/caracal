@@ -1,5 +1,6 @@
 import copy
 
+
 class TypeBase:
     def __init__(self):
         pass
@@ -56,7 +57,6 @@ class Object(TypeBase):
         return "ObjectType"
 
 
-
 class Void(Object):
     def __init__(self):
         super().__init__()
@@ -67,6 +67,7 @@ class Void(Object):
     @property
     def name(self):
         return "VoidType"
+
 
 class Number(Object):
     def __init__(self):
@@ -101,6 +102,7 @@ class Int(Object):
     @property
     def name(self):
         return "IntegerType"
+
 
 class Boolean(Object):
     def __init__(self):
@@ -143,6 +145,7 @@ class BinaryArray(Object):
     def name(self):
         return "BinaryFileType"
 
+
 class VideoStream(Object):
     def __init__(self):
         super(VideoStream, self).__init__()
@@ -159,6 +162,7 @@ class Rect(Object):
     @property
     def name(self):
         return "RectType"
+
 
 class List(Object):
     def __init__(self, basicType: Object):
@@ -207,14 +211,15 @@ class TableDataSource(DataSource):
     def intersect(self, other):
         if type(other) != TableDataSource:
             return False
-        basicTypeIntersection = other.basicType.intersect(self.basicType)
-        if basicTypeIntersection == None:
+        basic_type_intersection = other.basicType.intersect(self.basicType)
+        if basic_type_intersection is None:
             return None
-        return TableDataSource(basicTypeIntersection)
+        return TableDataSource(basic_type_intersection)
 
     @property
     def name(self):
         return "TableDataSourceType({basicType})".format(basicType=self.basicType.name)
+
 
 class Tuple(Object):
     def __init__(self, *types):

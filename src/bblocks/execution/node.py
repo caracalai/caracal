@@ -3,14 +3,62 @@ import threading
 import logging
 from bblocks.proto.protoserializer import *
 from bblocks.proto.basictypes_pb2 import *
-from bblocks.declaration.nodetype import *
+from bblocks.declaration import nodetype
 import inspect
 import uuid
 
 from collections import namedtuple
 _Event = namedtuple("_Event", ["source_id", "event"])
-from bblocks.declaration.nodetype import Handler, Event
 import bblocks.execution.session as session
+
+
+class Handler:
+    def __init__(self, name, type, receives_multiple, info, function):
+        self.declaration = nodetype.HandlerDeclaration(name, type, receives_multiple, info)
+        self.function = function
+        self.connected_events = []
+        self.parent = None
+
+    def __call__(self, *args):
+        self.function(self.parent, *args)
+
+    def connect(self, event):
+        self.connected_events.append(event)
+
+
+def handler(name, type, receives_multiple=False, info=None, function=None):
+    if function:
+        return Handler(function)
+    else:
+        def wrapper(func):
+            return Handler(name, type, receives_multiple, info, func)
+        return wrapper
+
+
+class Property:
+    def __init__(self, type, optional, default_value=None):
+        self.declaration = nodetype.PropertyDeclaration(type, optional, default_value)
+        self.parent = None
+
+
+class Event:
+    def __init__(self, name, type, info=None):
+        self.declaration = nodetype.EventDeclaration(name, type, info)
+        self.parent = None
+
+    @property
+    def node_id(self):
+        return self.parent.id
+
+
+class ExternalEvent(Event):
+    def __init__(self, name, type, node_id):
+        self.declaration = nodetype.EventDeclaration(name, type)
+        self.parent = None
+        self.node_id = node_id
+
+
+
 
 class Message:
     def __init__(self, id=None, value=None):
@@ -36,12 +84,18 @@ class Node:
         self.service_port = None
 
     @property
-    def type(self):
-        return None
-
-    @property
     def name(self):
         return self.__class__.__name__
+
+    @property
+    def type(self):
+        result = nodetype.NodeTypeDeclaration()
+        name = self.name
+        for _, item in self.handlers:
+            result.handlers[item.declaration.id] = item.declaration
+        for _, item in self.properties:
+            result.properties[item.declaration.id] = item.declaration
+        return result
 
     @property
     def pub_endpoint(self):
@@ -56,14 +110,14 @@ class Node:
             value.parent = self
         if isinstance(value, Event):
             value.parent = self
-            self.events[value.name] = value
+            self.events[value.declaration.name] = value
         super().__setattr__(name, value)
 
 
     def __getattribute__(self, item):
         result = super().__getattribute__(item)
         if isinstance(result, Handler):
-            self.handlers[result.name] = result
+            self.handlers[result.declaration.name] = result
             result.parent = self
         # if isinstance(result, Event):
         #     result.parent = self
@@ -120,8 +174,8 @@ class Node:
         sock.close()
         return int(msg["index"])
 
-    def generate_event(self, event, value, msg_id=None):
-        event = event.name
+    def fire(self, event, value, msg_id=None):
+        event = event.declaration.name
         if not event in self.events.keys():
             logging.warning("Node {name}: Couldn't generate event. Error: undefined event '{event}'".format(name=self.id, event=event))
             return
@@ -158,9 +212,9 @@ class Node:
                 for event in handler.connected_events:
                     if event.node_id != input_node_id:
                         continue
-                    self._event2handler[_Event(event=event.name, source_id=event.node_id)] = handler.name
+                    self._event2handler[_Event(event=event.declaration.name, source_id=event.node_id)] = handler.declaration.name
                     topic = "{source_id}|{event}".format(
-                        source_id=event.node_id, event=event.name)
+                        source_id=event.node_id, event=event.declaration.name)
                     self._sub_socket.set(zmq.SUBSCRIBE, topic.encode("utf8"))
                     logging.debug("Node {id}: topic={topic}".format(id=self.id, topic=topic))
 
