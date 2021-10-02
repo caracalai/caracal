@@ -26,16 +26,8 @@ class MetaInfo:
 class PropertyDeclaration:
     def __init__(self, data_type, optional, default_value=None):
         self.data_type = data_type
-        self.is_optional = optional
+        self.optional = optional
         self.default_value = default_value
-
-    def serialize(self):
-        return {
-            "data_type": self.data_type,
-            "is_optional": self.is_optional,
-            "default_value": self.default_value
-        }
-
 
 
 class MethodDeclaration:
@@ -50,12 +42,6 @@ class MethodDeclaration:
     @property
     def argument_types(self):
         return self.data_type.types
-
-    def serialize(self):
-        return {
-            "name": self.name,
-            "data_type": self.data_type
-        }
 
 
 class HandlerDeclaration(MethodDeclaration):

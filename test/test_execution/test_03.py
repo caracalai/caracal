@@ -1,87 +1,72 @@
 import bblocks.execution.session
-
 import bblocks.declaration.datatypes as bbtypes
 from bblocks.execution.node import *
 from bblocks.declaration.nodetype import *
-import logging
+import logging, unittest
+
+sent_array = [54, -21, 54, 43, 34, 5, 43, 2, -6, 2]
+threshold = 23
+result = list(filter(lambda x: x >= threshold, sent_array))
 
 
-class VideoProcessor(Node):
+class Generator(Node):
     def __init__(self):
         super().__init__()
-        self.processed_frame = Event("processedFrame", bbtypes.Image, MetaInfo(description="Description"))
         self.processed_batch = Event("processedBatch", bbtypes.List(bbtypes.Int()))
 
     def run(self):
-        for i in range(10):
-            self.fire(self.processed_batch, [1, 2, 3])
+        self.fire(self.processed_batch, sent_array)
 
 
-class FaceDetector(Node):
+class Processor(Node):
     def __init__(self):
         super().__init__()
         self.threshold = Property(bbtypes.Int(), default_value=0.7, optional=True)
-
-    @handler("onProcessFrame", bbtypes.Image(), False, MetaInfo())
-    def on_process_frame(self, msg):
-        pass
+        self.result = Event("result", bbtypes.Object())
 
     @handler("onProcessBatch", bbtypes.List(bbtypes.Int()), False, MetaInfo())
     def on_process_batch(self, msg):
-        print(msg.value)
+        self.fire(self.result, list(filter(lambda x: x >= self.threshold.value, msg.value)))
+
+class TestNode(Node):
+    @handler("receive_result", bbtypes.Object())
+    def receive_result(self, msg):
+        self.result = msg.value
+        self.terminate()
 
 
-# Everything is served under one session
-def usecase_first():
-    with bblocks.execution.session.Session() as session:
-        logging.basicConfig(level=logging.DEBUG)
-        processor = VideoProcessor()
-        detector = FaceDetector()
+class CheckGraphExecution_03(unittest.TestCase):
+    def test(self):
+        with bblocks.execution.session.Session() as session:
+            logging.basicConfig(level=logging.CRITICAL)
+            processor = Generator()
+            detector = Processor()
+            test_node = TestNode("test-node")
 
-        detector.threshold.value = 1
-        detector.on_process_batch.connect(processor.processed_batch)
-        session.run()
-
-
-# Everything is served under several sessions
-def usecase_second():
-    serves = True
-    port = 2000
-    if serves:
-        with bblocks.execution.session.Session(server_port=port) as session:
-            processor = VideoProcessor()
-            processor.id = "my-processor"
-            session.external_nodes = ["my-detector"]
+            detector.threshold.value = threshold
+            detector.on_process_batch.connect(processor.processed_batch)
+            test_node.receive_result.connect(detector.result)
             session.run()
-    else:
-        with bblocks.execution.session.Session(server_port=port, serves_server=False) as session:
-            detector = FaceDetector()
-            detector.id = "my-detector"
-            detector.threshold = 0.7
-            processor_processed_batch = ExternalEvent("generatedBatch", bbtypes.Image(), node_id="my-processor")
-            detector.processBatch.connect(processor_processed_batch)
-            session.run()
+            self.assertEqual(result, test_node.result)
 
-if __name__ == "__main__":
-    usecase_first()
 
-"""
-session.uploadProject(<user-name>, <pass>, <project>)
-session.downloadProject(<user-name>, <pass>, <project>)
 
-"""
 
-# if __name__ == "__main__":
-#     # usecase_first
-#
-#     bblocks.serialize_to_file("mytypes.txt",  [type_first, type_second, ...])
-#
-#     # canva.upload_types("<user-name>, <pass>, <project>", [type_first, type_second, ...])
-#
-#     canva_proj = canva.load_project("<user-name>, <pass>, <project>")
-#     with bblocks.execution.session.SessionInfo("session_a") as session:
-#         session.register_types([FaceDetector, VideoProcessor])
-#         session.run(canva_proj)
-#
-#
-# > broutonblocks-cli --run <project>  --user <user-name>, --pass <pass> --session="default"  --port 2000
+# # Everything is served under several sessions
+# def usecase_second():
+#     serves = True
+#     port = 2000
+#     if serves:
+#         with bblocks.execution.session.Session(server_port=port) as session:
+#             processor = Generator()
+#             processor.id = "my-processor"
+#             session.external_nodes = ["my-detector"]
+#             session.run()
+#     else:
+#         with bblocks.execution.session.Session(server_port=port, serves_server=False) as session:
+#             detector = Processor()
+#             detector.id = "my-detector"
+#             detector.threshold = 0.7
+#             processor_processed_batch = ExternalEvent("generatedBatch", bbtypes.Image(), node_id="my-processor")
+#             detector.processBatch.connect(processor_processed_batch)
+#             session.run()

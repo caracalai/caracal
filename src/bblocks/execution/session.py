@@ -40,6 +40,11 @@ class Session:
             node.server_port = self.server_port
             node.start()
 
+        for node in self.nodes:
+            node.wait()
+        if self.server != None:
+            self.server.wait()
+
     def add(self, node):
         self.nodes.append(node)
 

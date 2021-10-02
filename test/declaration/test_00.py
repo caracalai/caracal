@@ -21,7 +21,7 @@ class CheckGraphExecution(unittest.TestCase):
             my_node_type = node_types["FirstNode"]
 
             project = Project()
-            project.register_type(my_node_type)
+            project.register_types([my_node_type])
 
             session = SessionInfo()
             my_node = project.add_node(my_node_type, session)

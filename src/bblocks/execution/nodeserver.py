@@ -20,7 +20,7 @@ class NodeServer:
         self.nodes_info = {}
 
     def start(self):
-        self.worker = threading.Thread(target=self._execute)
+        self.worker = threading.Thread(target=self.execute)
         self.worker.start()
 
     def stop(self):
@@ -44,7 +44,7 @@ class NodeServer:
     def endpoint(self):
         return "tcp://127.0.0.1:{port}".format(port=self.port)
 
-    def _initialize_nodes(self):
+    def initialize_nodes(self):
         for node in self.nodes_info.values():
             sock = self.context.socket(zmq.REQ)
             sock.connect(node["service_endpoint"])
@@ -52,21 +52,21 @@ class NodeServer:
             sock.send(json.dumps(self.nodes_info).encode("utf8"))
             sock.close()
 
-    def _finish_nodes(self):
+    def finish_nodes(self):
         for node in self.nodes_info.values():
             sock = self.context.socket(zmq.REQ)
             sock.connect(node["service_endpoint"])
             sock.send(json.dumps({"id": id, "finish": "true"}).encode("utf8"))
             sock.close()
 
-    def _start_nodes(self):
+    def start_nodes(self):
         for id, node in self.nodes_info.items():
             sock = self.context.socket(zmq.REQ)
             sock.connect(node["service_endpoint"])
             sock.send(json.dumps({"id": id, "start": "true"}).encode("utf8"))
             sock.close()
 
-    def _all_nodes_are_registered(self):
+    def all_nodes_are_registered(self):
         for id in self.all_nodes_list:
             if id not in self.nodes_info:
                 return False
@@ -75,7 +75,7 @@ class NodeServer:
                     return False
         return True
 
-    def _execute(self):
+    def execute(self):
         logging.debug("NodeServer: starting execution...")
         while not self.stopped:
             try:
@@ -100,11 +100,22 @@ class NodeServer:
                     }
                     self.socket.send(json.dumps({"success": "true"}).encode("utf8"))
 
-                    if self._all_nodes_are_registered():
-                        self._initialize_nodes()
+                    if self.all_nodes_are_registered():
+                        self.initialize_nodes()
                     continue
 
+                if cmd == "terminate":
+                    self.socket.send(json.dumps({"success": "true"}).encode("utf8"))
+                    for id, node in self.nodes_info.items():
+                        sock = self.context.socket(zmq.REQ)
+                        sock.connect(node["service_endpoint"])
+                        sock.send(json.dumps({"id": id, "terminate": "true"}).encode("utf8"))
+                        sock.close()
+                    break
+
+
                 if cmd == "ready-to-work":
+                    id = request["id"]
                     logging.debug("NodeServer: Node {} is ready to work".format(id))
 
                     self.socket.send(json.dumps({"success": "true"}).encode("utf8"))
@@ -113,7 +124,7 @@ class NodeServer:
 
                     if graph_node_ids.issubset(self.initialized_nodes):
                         logging.debug("NodeServer: all nodes are ready. Starting nodes")
-                        self._start_nodes()
+                        self.start_nodes()
                     continue
 
                 if cmd == "generate-next-message-index":

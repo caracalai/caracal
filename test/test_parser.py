@@ -14,7 +14,6 @@ class CheckGraphExecution(unittest.TestCase):
                 events:                       
                     event1(a: int, b: float)
             """)
-        node_types = {node.name: node for node in node_types}
 
         self.assertTrue("NodeType" in node_types)
         handler = node_types["NodeType"].handlers["value"]

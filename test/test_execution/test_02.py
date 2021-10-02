@@ -1,35 +1,42 @@
 import bblocks.execution.session
 import bblocks.declaration.datatypes as bbtypes
 from bblocks.execution.node import *
-from bblocks.declaration.nodetype import *
+import unittest
+
+
+def map_func(value):
+    return value ** 2
+
+
+sent_array = [54, 23]
+result = list(map(lambda x: map_func(x), sent_array))
+
 
 class InitialList(Node):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, id=None):
+        super().__init__(id)
         self.values = Event("values", bbtypes.List(bbtypes.Int()))
 
     def run(self):
-        self.fire(self.values, [1, 2, 3])
+        self.fire(self.values, sent_array)
 
 
 class Exp(Node):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, id=None):
+        super().__init__(id)
         self.result = Event("result", bbtypes.List(bbtypes.Int()))
 
     @handler(name="value", type=bbtypes.List(bbtypes.Int()))
     def on_process_value(self, msg):
-        self.fire(self.result, msg.value ** 2, msg.id)
+        self.fire(self.result, map_func(msg.value), msg.id)
 
 
 class Map(Node):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, id=None):
+        super().__init__(id)
         self.map_value = Event("map_value", bbtypes.Object())
         self.result = Event("result", bbtypes.List(bbtypes.Object()))
         self.requests = {}
-        self.results = []
-        self.counter = 0
 
     @handler(name="initial_values", type=bbtypes.List(bbtypes.Int()))
     def set_initial_values(self, msg):
@@ -41,54 +48,32 @@ class Map(Node):
     def process_value(self, msg):
         self.requests[msg.id]["result"].append(msg.value)
         if len(self.requests[msg.id]["result"]) == self.requests[msg.id]["size"]:
-            self.counter += 1
-            self.results.append(self.requests[msg.id]["result"])
-            logging.debug(self.requests[msg.id])
-
-            self.results = []
+            res = self.requests[msg.id]["result"]
+            self.fire(self.result, res)
             del self.requests[msg.id]
 
-            # if self.counter == test_count:
-            #     sock = self.context.socket(zmq.REQ)
-            #     sock.connect(result_receiver.endpoint)
-            #     sock.send_string(json.dumps({"results": self._results}))
-            #     sock.close()
+
+class TestNode(Node):
+    @handler("receive_result", bbtypes.Object())
+    def receive_result(self, msg):
+        self.result = msg.value
+        self.terminate()
 
 
-if __name__ == "__main__":
-    with bblocks.execution.session.Session() as session:
-        logging.basicConfig(level=logging.DEBUG)
+class CheckGraphExecution_02(unittest.TestCase):
+    def test(self):
+        with bblocks.execution.session.Session() as session:
+            logging.basicConfig(level=logging.CRITICAL)
 
-        listNode = InitialList()
-        mapNode = Map()
-        expNode = Exp()
+            listNode = InitialList("initial-list")
+            mapNode = Map("map")
+            expNode = Exp("exp")
+            test_node = TestNode("test-node")
 
-        mapNode.set_initial_values.connect(listNode.values)
-        mapNode.process_value.connect(expNode.result)
-        expNode.on_process_value.connect(mapNode.map_value)
-        session.run()
+            mapNode.set_initial_values.connect(listNode.values)
+            mapNode.process_value.connect(expNode.result)
+            expNode.on_process_value.connect(mapNode.map_value)
+            test_node.receive_result.connect(mapNode.result)
+            session.run()
 
-
-#session.uploadProject(<user-name>, <pass>, <project>)
-#session.downloadProject(<user-name>, <pass>, <project>)
-
-# class CheckGraphExecution(unittest.TestCase):
-#     def test_first(self):
-#         global result_receiver
-#
-#         result_receiver = ResultReceiver(localhost)
-#         logging.basicConfig(level=logging.CRITICAL)
-#
-#         declaration = create_graph()
-#         config = json.loads(declaration.serializeForExecutor())
-#
-#         server_endpoint = 'tcp://127.0.0.1:2000'
-#         myFabric = MyNodeCluster("python-service", config)
-#         myFabric.start(server_endpoint)
-#
-#         msg = result_receiver.wait_results()
-#         self.assertTrue("results" in msg)
-#         for i in range(test_count):
-#             for k in range(list_size):
-#                 self.assertEqual(msg["results"][i][k], (i + k)**2)
-#         myFabric.wait_for_finished()
+            self.assertEqual(result, test_node.result)

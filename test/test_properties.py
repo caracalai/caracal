@@ -34,7 +34,6 @@ class CheckProperties(unittest.TestCase):
         try:
             parser = typesparser.TypesParser()
             node_types = parser.parse(self._program)
-            node_types = dict({t.name: t for t in node_types})
             self.assertTrue(len(node_types) == 1, "Incorrect number of node types")
             myNode = node_types["MyNode"]
             self.assertTrue(len(myNode.properties) == 6, "Incorrect number of properties")

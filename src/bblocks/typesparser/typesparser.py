@@ -123,14 +123,14 @@ class TypesParser:
         #return {event.children[0].getText(): self._handle_func_arguments(event.children[2]) for event in event_list}
 
         name = event_tree.children[0].children[0].getText()
-        tp = self._handle_func_arguments(event_tree.children[2])
+        type = self._handle_func_arguments(event_tree.children[2])
         return name, nodetype.EventDeclaration(name, type)
 
     def _handle_handler(self, handler_tree):
         name = handler_tree.children[0].children[0].getText()
         single = len(handler_tree.children[0].children) == 1
         tp = self._handle_func_arguments(handler_tree.children[2])
-        return name, nodetype.HandlerDeclaration(tp, single, not single)
+        return name, nodetype.HandlerDeclaration(name, tp, not single)
 
 
     def _handle_typenodes(self, types_tree):
@@ -142,7 +142,7 @@ class TypesParser:
             attrs = []
             if not typenode_child.children[0].children is None:
                 for attr in typenode_child.children[0].children:
-                    attribute = attributes.Attribute()
+                    attribute = nodetype.Attribute()
                     attribute.name = attr.children[1].getText()
                     for param in attr.children[3::2]:
                         param_name = param.children[0].getText()

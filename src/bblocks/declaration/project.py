@@ -62,8 +62,9 @@ class Project:
         self.nodes = {}     # node-id -> NodeInfo
         self.edges = []     # Edges
 
-    def register_type(self, type):
-        self.types[type.id] = type
+    def register_types(self, types):
+        for type in types:
+            self.types[type.id] = type
 
     def remove_type(self, type):
         raise NotImplemented()
