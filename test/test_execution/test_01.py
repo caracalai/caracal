@@ -1,7 +1,6 @@
-import bblocks.execution.session
-import bblocks.declaration.datatypes as bbtypes
-from bblocks.execution.node import *
-import unittest, time, collections
+import broutonblocks.declaration.datatypes as bbtypes
+from broutonblocks.execution import *
+import unittest, time, collections, logging
 
 item_count = 20
 delay = 0.0
@@ -80,7 +79,7 @@ class TestNode(Node):
 
 class CheckGraphExecution_01(unittest.TestCase):
     def test(self):
-        with bblocks.execution.session.Session() as session:
+        with Session() as session:
             logging.basicConfig(level=logging.CRITICAL)
 
             generator_first = GeneratorFirst()

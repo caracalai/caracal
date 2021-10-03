@@ -1,10 +1,10 @@
 import base64
 import copy
-import uuid
 import json
-from bblocks.declaration.nodetype import *
-from bblocks.proto.protoserializer import ProtoSerializer
-import pickle
+import uuid
+
+from broutonblocks.declaration.nodetype import *
+
 
 class SessionInfo:
     def __init__(self, name="default"):

@@ -1,5 +1,5 @@
-import bblocks.proto.basictypes_pb2 as basictypes_pb2
-import bblocks.execution.basictypes as basictypes
+import broutonblocks.proto.basictypes_pb2 as basictypes_pb2
+import broutonblocks.execution.basictypes as basictypes
 from google.protobuf.any_pb2 import Any
 import numpy as np
 

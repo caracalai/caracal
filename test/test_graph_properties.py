@@ -1,6 +1,6 @@
 import unittest
-from bblocks.typesparser import typesparser
-from bblocks.declaration.project import *
+from broutonblocks.typesparser import *
+from broutonblocks.declaration.projects import *
 
 class CheckGraphProperties(unittest.TestCase):
     def test(self):
@@ -12,7 +12,7 @@ class CheckGraphProperties(unittest.TestCase):
                     """
 
         try:
-            parser = typesparser.TypesParser()
+            parser = TypesParser()
             node_types = parser.parse(self._program)
             MyNodeType = node_types["MyNode"]
 

@@ -1,9 +1,9 @@
 import itertools
 from antlr4.InputStream import InputStream
 from antlr4 import CommonTokenStream
-from bblocks.typesparser import BlockTypesLexer, BlockTypesParser
-from bblocks.declaration import nodetype
-from bblocks.declaration import datatypes
+from broutonblocks.typesparser import BlockTypesLexer, BlockTypesParser
+from broutonblocks.declaration import *
+from broutonblocks.declaration import datatypes
 from antlr4.error.ErrorStrategy import *
 
 

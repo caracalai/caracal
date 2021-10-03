@@ -1,5 +1,5 @@
 from bblocks.typesparser import typesparser
-from bblocks.declaration.project import *
+from bblocks.declaration.projects import *
 import logging
 
 if __name__ == "__main__":

@@ -1,8 +1,8 @@
-import bblocks.execution.session
-import bblocks.declaration.datatypes as bbtypes
-from bblocks.execution.node import *
-from bblocks.declaration.nodetype import *
-import logging, unittest
+import broutonblocks.declaration.datatypes as bbtypes
+from broutonblocks.declaration import *
+from broutonblocks.execution import *
+
+import unittest, logging
 
 sent_array = [54, -21, 54, 43, 34, 5, 43, 2, -6, 2]
 threshold = 23
@@ -37,7 +37,7 @@ class TestNode(Node):
 
 class CheckGraphExecution_03(unittest.TestCase):
     def test(self):
-        with bblocks.execution.session.Session() as session:
+        with Session() as session:
             logging.basicConfig(level=logging.CRITICAL)
             processor = Generator()
             detector = Processor()

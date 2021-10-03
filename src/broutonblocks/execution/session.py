@@ -1,5 +1,5 @@
-from bblocks.declaration.project import *
-from bblocks.execution.nodeserver import NodeServer
+from broutonblocks.declaration.projects import *
+from broutonblocks.execution.nodeserver import NodeServer
 
 current_session = None
 
@@ -10,7 +10,7 @@ class Session:
         self.server_port = server_port
         self.external_nodes = []
         self.nodes = []
-        self.subgraph = Project()
+        self.project = Project()
         self.server = None
 
 
@@ -58,7 +58,7 @@ class Session:
         current_session = None
 
     def find_node_by_value(self, value):
-        for _, node in self.subgraph.nodes.items():
+        for _, node in self.project.nodes.items():
             if node.type_id == value:
                 return node
         return None

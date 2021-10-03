@@ -1,15 +1,14 @@
 import zmq, json
 import threading
 import logging
-from bblocks.proto.protoserializer import *
-from bblocks.proto.basictypes_pb2 import *
-from bblocks.declaration import nodetype
-import inspect
+from broutonblocks.proto.protoserializer import *
+from broutonblocks.proto.basictypes_pb2 import *
+from broutonblocks.declaration import nodetype
 import uuid
 
 from collections import namedtuple
 _Event = namedtuple("_Event", ["source_id", "event"])
-import bblocks.execution.session as session
+import broutonblocks.execution.session as session
 
 
 class Handler:
@@ -145,7 +144,6 @@ class Node:
         self.stopped = True
 
     def wait(self):
-        # self.stopped = True
         for processor in [self.events_processor, self.events_from_server_processor,
                           self.run_processor]:
             if processor != None:
@@ -243,22 +241,16 @@ class Node:
     def process_events_from_server(self):
         logging.debug("Node {name}:process_events_from_server1".format(name=self.id))
         while not self.stopped:
-            logging.debug("Node {name}:process_events_from_server2".format(name=self.id))
             msg = self.service_socket.recv()
             config = json.loads(msg)
-            logging.debug("Node {name}:process_events_from_server3".format(name=self.id))
             self.service_socket.send(json.dumps({"success": True}).encode("utf8"))
             self.stopped = True
             self.close_all_sockets()
-
-            logging.debug("Node {name}:process_events_from_server4".format(name=self.id))
             self.run_processor.join()
-            logging.debug("Node {name}:process_events_from_server5".format(name=self.id))
-            logging.debug("Node {name}:process_events_from_server6".format(name=self.id))
             break
         logging.debug("Node {name}:process_events_from_server finished".format(name=self.id))
 
-    def _process_events(self):
+    def process_events(self):
         if len(self.event2handler) == 0:
             return
         while not self.stopped:
@@ -312,7 +304,7 @@ class Node:
         answer = self.wait_answer_from_server()
 
 
-        self.events_processor = threading.Thread(target=self._process_events)
+        self.events_processor = threading.Thread(target=self.process_events)
         self.events_processor.start()
 
         self.events_from_server_processor = threading.Thread(target=self.process_events_from_server)

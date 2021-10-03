@@ -1,9 +1,9 @@
 import unittest
-from bblocks.typesparser import typesparser
+from broutonblocks.typesparser import *
 
 class CheckGraphExecution(unittest.TestCase):
     def test_first(self):
-        parser = typesparser.TypesParser()
+        parser = TypesParser()
         node_types = parser.parse(
             """
             node NodeType:
@@ -28,5 +28,5 @@ class CheckGraphExecution(unittest.TestCase):
         self.assertTrue(event.argument_names[1] == "b")
 
     def test_second(self):
-        parser = typesparser.TypesParser()
-        self.assertRaises(typesparser.TypesParseError, parser.parse, "wrong program")
+        parser = TypesParser()
+        self.assertRaises(TypesParseError, parser.parse, "wrong program")

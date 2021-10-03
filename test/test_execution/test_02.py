@@ -1,7 +1,6 @@
-import bblocks.execution.session
-import bblocks.declaration.datatypes as bbtypes
-from bblocks.execution.node import *
-import unittest
+import broutonblocks.declaration.datatypes as bbtypes
+from broutonblocks.execution import *
+import unittest, logging
 
 
 def map_func(value):
@@ -62,7 +61,7 @@ class TestNode(Node):
 
 class CheckGraphExecution_02(unittest.TestCase):
     def test(self):
-        with bblocks.execution.session.Session() as session:
+        with Session() as session:
             logging.basicConfig(level=logging.CRITICAL)
 
             listNode = InitialList("initial-list")

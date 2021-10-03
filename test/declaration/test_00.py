@@ -1,6 +1,5 @@
-from bblocks.declaration.project import *
-from bblocks.declaration.project import *
-from bblocks.typesparser import typesparser
+from broutonblocks.declaration import Project, SessionInfo
+from broutonblocks.typesparser import TypesParser
 import unittest
 
 
@@ -16,7 +15,7 @@ class CheckGraphExecution(unittest.TestCase):
 
     def test_00(self):
         try:
-            parser = typesparser.TypesParser()
+            parser = TypesParser()
             node_types = parser.parse(self.my_type)
             my_node_type = node_types["FirstNode"]
 

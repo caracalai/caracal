@@ -1,6 +1,6 @@
 from bblocks.execution.node import *
 from bblocks.execution.nodecluster import *
-from bblocks.declaration.project import *
+from bblocks.declaration.projects import *
 import cv2
 import sys
 from bblocks.typesparser import typesparser
