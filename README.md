@@ -35,7 +35,7 @@ $ pip install git+https://github.com/BroutonBlocks/bblocks-python.git
 ## Tests running
 
 ```
-python -m unittest discover
+python -m unittest discover --verbose
 ```
 
 Made with :heart: by founders of <a href="https://broutonlab.com">BroutonLab</a>.

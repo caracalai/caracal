@@ -1,17 +1,20 @@
 from broutonblocks.declaration.projects import *
 from broutonblocks.execution.nodeserver import NodeServer
-
+import logging
 current_session = None
 
 
 class Session:
-    def __init__(self, serves_server=True, server_port=None):
+    def __init__(self, serves_server=True, server_port=None, external_nodes=None):
+        if external_nodes is None:
+            external_nodes = []
         self.serves_server = serves_server
         self.server_port = server_port
-        self.external_nodes = []
+        self.external_nodes = external_nodes
         self.nodes = []
         self.project = Project()
         self.server = None
+
 
 
     def initialize(self, project_file, node_type_impls):
@@ -27,26 +30,33 @@ class Session:
 
 
     def run(self):
-        if self.serves_server:
-            all_nodes = self.external_nodes
+        try:
+            if self.serves_server:
+                logging.debug("session external nodes = {nodes}".format(nodes=self.external_nodes))
+                all_nodes = self.external_nodes
+                for node in self.nodes:
+                    all_nodes.append(node.id)
+                all_nodes = list(set(all_nodes))
+                #logging.debug("session all nodes = {nodes}".format(nodes=self.all_nodes))
+                self.server = NodeServer(all_nodes, self.server_port)
+                self.server_port = self.server.port
+                self.server.start()
+
             for node in self.nodes:
-                all_nodes.append(node.id)
-            all_nodes = list(set(all_nodes))
-            self.server = NodeServer(all_nodes, self.server_port)
-            self.server_port = self.server.port
-            self.server.start()
+                node.server_port = self.server_port
+                node.start()
 
-        for node in self.nodes:
-            node.server_port = self.server_port
-            node.start()
-
-        for node in self.nodes:
-            node.wait()
-        if self.server != None:
-            self.server.wait()
+            for node in self.nodes:
+                node.wait()
+            if self.server is not None:
+                self.server.wait()
+        except Exception as e:
+            logging.critical("Session exception " + str(e))
 
     def add(self, node):
         self.nodes.append(node)
+        logging.debug("session add node. Node count = {count}".format(count=len(self.nodes)))
+
 
     def __enter__(self):
         global current_session
@@ -55,6 +65,7 @@ class Session:
 
     def __exit__(self, type, value, tb):
         global current_session
+        del self
         current_session = None
 
     def find_node_by_value(self, value):

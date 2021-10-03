@@ -63,7 +63,6 @@ class CheckGraphExecution_02(unittest.TestCase):
     def test(self):
         with Session() as session:
             logging.basicConfig(level=logging.CRITICAL)
-
             listNode = InitialList("initial-list")
             mapNode = Map("map")
             expNode = Exp("exp")

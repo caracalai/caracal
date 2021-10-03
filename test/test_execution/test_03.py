@@ -40,7 +40,9 @@ class CheckGraphExecution_03(unittest.TestCase):
         with Session() as session:
             logging.basicConfig(level=logging.CRITICAL)
             processor = Generator()
+            processor.id = "processor"
             detector = Processor()
+            detector.id = "detector"
             test_node = TestNode("test-node")
 
             detector.threshold.value = threshold
@@ -48,25 +50,3 @@ class CheckGraphExecution_03(unittest.TestCase):
             test_node.receive_result.connect(detector.result)
             session.run()
             self.assertEqual(result, test_node.result)
-
-
-
-
-# # Everything is served under several sessions
-# def usecase_second():
-#     serves = True
-#     port = 2000
-#     if serves:
-#         with bblocks.execution.session.Session(server_port=port) as session:
-#             processor = Generator()
-#             processor.id = "my-processor"
-#             session.external_nodes = ["my-detector"]
-#             session.run()
-#     else:
-#         with bblocks.execution.session.Session(server_port=port, serves_server=False) as session:
-#             detector = Processor()
-#             detector.id = "my-detector"
-#             detector.threshold = 0.7
-#             processor_processed_batch = ExternalEvent("generatedBatch", bbtypes.Image(), node_id="my-processor")
-#             detector.processBatch.connect(processor_processed_batch)
-#             session.run()

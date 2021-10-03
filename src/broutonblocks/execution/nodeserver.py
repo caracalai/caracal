@@ -18,6 +18,7 @@ class NodeServer:
         self.next_msg_index = 0
         self.worker = None
         self.nodes_info = {}
+        logging.debug("all_nodes_list: " + str(self.all_nodes_list))
 
     def start(self):
         self.worker = threading.Thread(target=self.execute)
@@ -76,7 +77,7 @@ class NodeServer:
         return True
 
     def execute(self):
-        logging.debug("NodeServer: starting execution...")
+        logging.debug("Server: starting execution...")
         while not self.stopped:
             try:
                 msg = self.socket.recv()
@@ -85,14 +86,14 @@ class NodeServer:
 
                 request = json.loads(msg)
                 if not "command" in request:
-                    logging.debug("NodeServer: Failed request")
+                    logging.debug("Server: Failed request")
                     self.socket.send(json.dumps({"success": "false"}).encode("utf8"))
                     continue
 
                 cmd = request["command"]
                 if cmd == "register":
                     id = request["id"]
-                    logging.debug("NodeServer: Registration of {}".format(id))
+                    logging.debug("Server: Registration of {}".format(id))
 
                     self.nodes_info[id] = {
                         "publisher_endpoint": request["publisher_endpoint"],
@@ -101,6 +102,7 @@ class NodeServer:
                     self.socket.send(json.dumps({"success": "true"}).encode("utf8"))
 
                     if self.all_nodes_are_registered():
+                        logging.debug("Server: all nodes are registered. Starting initialization...")
                         self.initialize_nodes()
                     continue
 
@@ -116,14 +118,14 @@ class NodeServer:
 
                 if cmd == "ready-to-work":
                     id = request["id"]
-                    logging.debug("NodeServer: Node {} is ready to work".format(id))
+                    logging.debug("Server: Node {} is ready to work".format(id))
 
                     self.socket.send(json.dumps({"success": "true"}).encode("utf8"))
                     self.initialized_nodes.add(request["id"])
                     graph_node_ids = set(self.all_nodes_list)
 
                     if graph_node_ids.issubset(self.initialized_nodes):
-                        logging.debug("NodeServer: all nodes are ready. Starting nodes")
+                        logging.debug("Server: all nodes are ready. Starting nodes")
                         self.start_nodes()
                     continue
 
@@ -131,8 +133,8 @@ class NodeServer:
                     self.socket.send(json.dumps({"index": self.next_msg_index}).encode("utf8"))
                     self.next_msg_index += 1
                     continue
-                logging.warning("NodeServer: undefined command {cmd}".format(cmd=cmd))
+                logging.warning("Server: undefined command {cmd}".format(cmd=cmd))
             except Exception as e:
                 logging.debug("Socked is closed")
                 break
-        logging.debug("NodeServer: Finished execution...")
+        logging.debug("Server: Finished execution...")

@@ -92,6 +92,6 @@ class CheckGraphExecution_01(unittest.TestCase):
             test_node.receive_result.connect(summator.result)
             session.run()
 
-
             self.assertEqual([0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57],
                              test_node.result)
+            print("finish 01")

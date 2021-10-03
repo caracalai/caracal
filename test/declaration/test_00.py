@@ -3,9 +3,9 @@ from broutonblocks.typesparser import TypesParser
 import unittest
 
 
-class CheckGraphExecution(unittest.TestCase):
+class CheckDeclaration_00(unittest.TestCase):
     def __init__(self, methodName='runTest'):
-        super(CheckGraphExecution, self).__init__(methodName)
+        super(CheckDeclaration_00, self).__init__(methodName)
         self.my_type = """
                 node FirstNode:
                     properties:
@@ -13,7 +13,7 @@ class CheckGraphExecution(unittest.TestCase):
                         border_width: int(10)                
                 """
 
-    def test_00(self):
+    def test(self):
         try:
             parser = TypesParser()
             node_types = parser.parse(self.my_type)
