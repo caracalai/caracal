@@ -1,4 +1,4 @@
-<h1 align="center">BroutonBlocks - Rapid Visualization-driven AI prototyping and development platform.  </h1>
+<h1 align="center">BroutonBlocks - Rapid AI prototyping and development platform.  </h1>
 
 <p align="center">
 <img align="center" src="https://broutonblocks.com/img/blocks3.35b077cf.png" alt="Program in BroutonBlocks" width="400"/>
@@ -19,9 +19,9 @@
 
 ## What is it?
 BroutonBlocks contains
- - Canva, No-Code platform that helps to set up the AI project structure visually.
- - Library of predefined blocks which can be used in your project
- - SDKs for development of custom blocks in <a href="https://github.com/BroutonBlocks/bblocks-cpp">C++</a>, <a href="https://github.com/BroutonBlocks/bblocks-python">Python</a> and <a href="https://github.com/BroutonBlocks/bblocks-node">Node.js</a>.
+ - Canva, webapp proving No-Code funtionality that helps to set up the AI project structure visually.
+ - Collection of open-sourced blocks which can be used in your project.
+ - SDKs for development of custom blocks in C++, <a href="https://github.com/BroutonBlocks/bblocks-python">Python</a> and Node.js.
 
 ## Installing from PyPI
 ### Windows, MAC OS and Linux
