@@ -38,7 +38,7 @@ class TestNode(Node):
 
 
 def first_worker():
-    with Session(server_port=2001, external_nodes=["detector", "test-node"]) as session:
+    with Session(server_port=port, external_nodes=["detector", "test-node"]) as session:
         processor = Generator()
         processor.id = "generator"
         session.run()
