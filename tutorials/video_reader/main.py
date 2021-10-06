@@ -1,6 +1,6 @@
-from bblocks.execution.node import *
-from bblocks.execution.nodecluster import *
-from bblocks.declaration.projects import *
+from broutonblocks.execution.node import *
+
+from broutonblocks.declaration.projects import *
 import cv2
 import sys
 from bblocks.typesparser import typesparser
@@ -12,6 +12,7 @@ delay = 0.0
 test_count = 10
 list_size = 5
 import time
+
 
 class ReadVideoFile(Node):
     def __init__(self):
@@ -46,12 +47,10 @@ class ReadVideoFile(Node):
         if len(batch) == batch_size:
             self.generate_event("next_batch", batch)
             frame_cnt += len(batch)
-            batch = []
         cap.release()
         end = time.time()
         self.generate_event("frame_count", frame_cnt)
         print("finished")
-
 
 
 class AddBorder(Node):
@@ -66,7 +65,7 @@ class AddBorder(Node):
         for image in images:
             image = image.image
             row, col = image.shape[:2]
-            bottom = image[row - 2:row, 0:col]
+            bottom = image[row - 2 : row, 0:col]
             mean = cv2.mean(bottom)[0]
 
             bordersize = 30
@@ -77,7 +76,7 @@ class AddBorder(Node):
                 left=bordersize,
                 right=bordersize,
                 borderType=cv2.BORDER_CONSTANT,
-                value=[165, 36, 34]
+                value=[165, 36, 34],
             )
             result.append(basictypes.Image(border))
         self.generate_event("result_batch", result, msg.id)
@@ -115,6 +114,7 @@ class CreateBundleFromStream(Node):
             self._counters.pop(0)
             self.generate_event("next_bundle", bundle)
 
+
 class CreateVideoFile(Node):
     def __init__(self):
         super().__init__()
@@ -125,8 +125,10 @@ class CreateVideoFile(Node):
         if len(frames) == 0:
             return
         frame_shape = frames[0].image.shape
-        fourcc = cv2.VideoWriter_fourcc('M', 'P', '4', 'V')
-        video = cv2.VideoWriter(output_filepath, fourcc, 25, (frame_shape[1], frame_shape[0]))
+        fourcc = cv2.VideoWriter_fourcc("M", "P", "4", "V")
+        video = cv2.VideoWriter(
+            output_filepath, fourcc, 25, (frame_shape[1], frame_shape[0])
+        )
         for frame in frames:
             video.write(frame.image)
 
@@ -152,8 +154,7 @@ class MyNodeCluster(NodeCluster):
         raise RuntimeError("Undefined type {type}".format(type=name))
 
 
-types = \
-    """
+types = """
     node ReadVideoFile:
         events:
             next_batch(imgs: list(image))
@@ -193,7 +194,9 @@ def create_graph():
     CreateVideoFile = graph.add_node(node_types["CreateVideoFile"])
 
     graph.connect(ReadVideoFile, "next_batch", AddBorder, "process_batch")
-    graph.connect(ReadVideoFile, "frame_count", CreateBundleFromStream, "set_bundle_size")
+    graph.connect(
+        ReadVideoFile, "frame_count", CreateBundleFromStream, "set_bundle_size"
+    )
     graph.connect(AddBorder, "result_batch", CreateBundleFromStream, "add_batch")
     graph.connect(CreateBundleFromStream, "next_bundle", CreateVideoFile, "process")
     graph.server_fabric = "python-service"
@@ -201,7 +204,8 @@ def create_graph():
         v.fabric = "python-service"
     return graph
 
-#import tracemalloctracemalloc.start(10)
+
+# import tracemalloctracemalloc.start(10)
 if __name__ == "__main__":
     global result_receiver
     global video_filepath
@@ -217,9 +221,9 @@ if __name__ == "__main__":
     graph = create_graph()
     config = json.loads(graph.serialize())
 
-    server_endpoint = 'tcp://127.0.0.1:2000'
+    server_endpoint = "tcp://127.0.0.1:2000"
     myFabric = MyNodeCluster("python-service", config)
     myFabric.start(server_endpoint)
-    #myFabric.wait()
+    # myFabric.wait()
     msg = result_receiver.wait_results()
     myFabric.wait_for_finished()

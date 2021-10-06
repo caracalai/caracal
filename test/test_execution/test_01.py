@@ -1,13 +1,18 @@
+import collections
+import logging
+import time
+import unittest
+
 import broutonblocks.declaration.datatypes as bbtypes
-from broutonblocks.execution import *
-import unittest, time, collections, logging
+from broutonblocks.execution import Event, handler, Node, Session
 
 item_count = 20
 delay = 0.0
 
+
 class GeneratorFirst(Node):
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id_=None):
+        super().__init__(id_)
         self.value = Event("value", bbtypes.Int())
 
     def run(self):
@@ -23,8 +28,8 @@ class GeneratorFirst(Node):
 
 
 class GeneratorSecond(Node):
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id_=None):
+        super().__init__(id_)
         self.value = Event("value", bbtypes.Int())
 
     def run(self):
@@ -40,8 +45,8 @@ class GeneratorSecond(Node):
 
 
 class Summator(Node):
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id_=None):
+        super().__init__(id_)
         self.result = Event("result", bbtypes.Int())
         self.first_queue = collections.deque()
         self.second_queue = collections.deque()
@@ -64,6 +69,7 @@ class Summator(Node):
             second = self.second_queue[0]
             self.second_queue.popleft()
             self.fire(self.result, first + second)
+
 
 class TestNode(Node):
     def __init__(self):
@@ -92,6 +98,29 @@ class CheckGraphExecution_01(unittest.TestCase):
             test_node.receive_result.connect(summator.result)
             session.run()
 
-            self.assertEqual([0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57],
-                             test_node.result)
+            self.assertEqual(
+                [
+                    0,
+                    3,
+                    6,
+                    9,
+                    12,
+                    15,
+                    18,
+                    21,
+                    24,
+                    27,
+                    30,
+                    33,
+                    36,
+                    39,
+                    42,
+                    45,
+                    48,
+                    51,
+                    54,
+                    57,
+                ],
+                test_node.result,
+            )
             print("finish 01")

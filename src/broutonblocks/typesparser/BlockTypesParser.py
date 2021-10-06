@@ -3,10 +3,11 @@
 from antlr4 import *
 from io import StringIO
 import sys
+
 if sys.version_info[1] > 5:
-	from typing import TextIO
+    from typing import TextIO
 else:
-	from typing.io import TextIO
+    from typing.io import TextIO
 
 
 def serializedATN():
@@ -37,12 +38,12 @@ def serializedATN():
         buf.write("\3\36\3\36\3\36\3\36\5\36\u00ec\n\36\3\36\3\36\3\36\3")
         buf.write("\36\3\36\3\36\3\36\3\36\7\36\u00f6\n\36\f\36\16\36\u00f9")
         buf.write("\13\36\3\36\2\48:\37\2\4\6\b\n\f\16\20\22\24\26\30\32")
-        buf.write("\34\36 \"$&(*,.\60\62\64\668:\2\5\3\2\30\32\3\2\16\17")
+        buf.write('\34\36 "$&(*,.\60\62\64\668:\2\5\3\2\30\32\3\2\16\17')
         buf.write("\3\2\13\f\2\u00f6\2=\3\2\2\2\4C\3\2\2\2\6R\3\2\2\2\bU")
         buf.write("\3\2\2\2\nd\3\2\2\2\fj\3\2\2\2\16l\3\2\2\2\20n\3\2\2\2")
         buf.write("\22p\3\2\2\2\24w\3\2\2\2\26z\3\2\2\2\30\u0081\3\2\2\2")
         buf.write("\32\u0084\3\2\2\2\34\u008b\3\2\2\2\36\u008e\3\2\2\2 \u0095")
-        buf.write("\3\2\2\2\"\u0098\3\2\2\2$\u009e\3\2\2\2&\u00a2\3\2\2\2")
+        buf.write('\3\2\2\2"\u0098\3\2\2\2$\u009e\3\2\2\2&\u00a2\3\2\2\2')
         buf.write("(\u00a6\3\2\2\2*\u00ab\3\2\2\2,\u00b0\3\2\2\2.\u00b8\3")
         buf.write("\2\2\2\60\u00bc\3\2\2\2\62\u00c0\3\2\2\2\64\u00ce\3\2")
         buf.write("\2\2\66\u00d0\3\2\2\28\u00d2\3\2\2\2:\u00eb\3\2\2\2<>")
@@ -58,7 +59,7 @@ def serializedATN():
         buf.write("\t\2\2c\t\3\2\2\2de\5\64\33\2ef\7\r\2\2fg\5\f\7\2g\13")
         buf.write("\3\2\2\2hk\5\16\b\2ik\5\20\t\2jh\3\2\2\2ji\3\2\2\2k\r")
         buf.write("\3\2\2\2lm\7\30\2\2m\17\3\2\2\2no\7\31\2\2o\21\3\2\2\2")
-        buf.write("pq\7\24\2\2qr\7\4\2\2rs\5\24\13\2s\23\3\2\2\2tv\5\"\22")
+        buf.write('pq\7\24\2\2qr\7\4\2\2rs\5\24\13\2s\23\3\2\2\2tv\5"\22')
         buf.write("\2ut\3\2\2\2vy\3\2\2\2wu\3\2\2\2wx\3\2\2\2x\25\3\2\2\2")
         buf.write("yw\3\2\2\2z{\7\26\2\2{|\7\4\2\2|}\5\30\r\2}\27\3\2\2\2")
         buf.write("~\u0080\5*\26\2\177~\3\2\2\2\u0080\u0083\3\2\2\2\u0081")
@@ -76,7 +77,7 @@ def serializedATN():
         buf.write("\3\2\2\2\u009c\u009d\3\2\2\2\u009d#\3\2\2\2\u009e\u009f")
         buf.write("\7\b\2\2\u009f\u00a0\t\2\2\2\u00a0\u00a1\7\t\2\2\u00a1")
         buf.write("%\3\2\2\2\u00a2\u00a4\5\64\33\2\u00a3\u00a5\7\6\2\2\u00a4")
-        buf.write("\u00a3\3\2\2\2\u00a4\u00a5\3\2\2\2\u00a5\'\3\2\2\2\u00a6")
+        buf.write("\u00a3\3\2\2\2\u00a4\u00a5\3\2\2\2\u00a5'\3\2\2\2\u00a6")
         buf.write("\u00a7\5\64\33\2\u00a7\u00a8\7\b\2\2\u00a8\u00a9\5,\27")
         buf.write("\2\u00a9\u00aa\7\t\2\2\u00aa)\3\2\2\2\u00ab\u00ac\5\60")
         buf.write("\31\2\u00ac\u00ad\7\b\2\2\u00ad\u00ae\5,\27\2\u00ae\u00af")
@@ -116,27 +117,71 @@ def serializedATN():
         return buf.getvalue()
 
 
-class BlockTypesParser ( Parser ):
+class BlockTypesParser(Parser):
 
     grammarFileName = "BlockTypes.g4"
 
     atn = ATNDeserializer().deserialize(serializedATN())
 
-    decisionsToDFA = [ DFA(ds, i) for i, ds in enumerate(atn.decisionToState) ]
+    decisionsToDFA = [DFA(ds, i) for i, ds in enumerate(atn.decisionToState)]
 
     sharedContextCache = PredictionContextCache()
 
-    literalNames = [ "<INVALID>", "<INVALID>", "':'", "'.'", "'?'", "'+'", 
-                     "'('", "')'", "'@'", "'or'", "'and'", "'='", "'=='", 
-                     "'!='", "'['", "']'", "','", "'node'", "'properties'", 
-                     "'events'", "'handlers'", "'predicates'" ]
+    literalNames = [
+        "<INVALID>",
+        "<INVALID>",
+        "':'",
+        "'.'",
+        "'?'",
+        "'+'",
+        "'('",
+        "')'",
+        "'@'",
+        "'or'",
+        "'and'",
+        "'='",
+        "'=='",
+        "'!='",
+        "'['",
+        "']'",
+        "','",
+        "'node'",
+        "'properties'",
+        "'events'",
+        "'handlers'",
+        "'predicates'",
+    ]
 
-    symbolicNames = [ "<INVALID>", "WS", "COLON", "DOT", "QUESTION_MARK", 
-                      "PLUS", "LPAREN", "RPAREN", "AT", "OR", "AND", "ASSIGN", 
-                      "EQ", "NEQ", "LBRACKET", "RBRACKET", "COMMA", "NODE", 
-                      "PROPERTIES", "EVENTS", "HANDLERS", "PREDICATES", 
-                      "STRING_LITERAL", "INTEGER", "FLOAT", "IDENT", "BLOCKCOMMENT", 
-                      "LINECOMMENT" ]
+    symbolicNames = [
+        "<INVALID>",
+        "WS",
+        "COLON",
+        "DOT",
+        "QUESTION_MARK",
+        "PLUS",
+        "LPAREN",
+        "RPAREN",
+        "AT",
+        "OR",
+        "AND",
+        "ASSIGN",
+        "EQ",
+        "NEQ",
+        "LBRACKET",
+        "RBRACKET",
+        "COMMA",
+        "NODE",
+        "PROPERTIES",
+        "EVENTS",
+        "HANDLERS",
+        "PREDICATES",
+        "STRING_LITERAL",
+        "INTEGER",
+        "FLOAT",
+        "IDENT",
+        "BLOCKCOMMENT",
+        "LINECOMMENT",
+    ]
 
     RULE_block_types = 0
     RULE_block_type_definition = 1
@@ -168,100 +213,125 @@ class BlockTypesParser ( Parser ):
     RULE_logical_expr = 27
     RULE_expr = 28
 
-    ruleNames =  [ "block_types", "block_type_definition", "attributes", 
-                   "attribute", "attr_param", "attr_param_value", "string", 
-                   "integer", "properties_section", "properties", "handlers_section", 
-                   "handlers", "events_section", "events", "predicates_section", 
-                   "predicates", "prop", "prop_initialization", "prop_name", 
-                   "event", "handler", "func_arguments", "argument", "handler_name", 
-                   "block_type", "ident", "pred", "logical_expr", "expr" ]
+    ruleNames = [
+        "block_types",
+        "block_type_definition",
+        "attributes",
+        "attribute",
+        "attr_param",
+        "attr_param_value",
+        "string",
+        "integer",
+        "properties_section",
+        "properties",
+        "handlers_section",
+        "handlers",
+        "events_section",
+        "events",
+        "predicates_section",
+        "predicates",
+        "prop",
+        "prop_initialization",
+        "prop_name",
+        "event",
+        "handler",
+        "func_arguments",
+        "argument",
+        "handler_name",
+        "block_type",
+        "ident",
+        "pred",
+        "logical_expr",
+        "expr",
+    ]
 
     EOF = Token.EOF
-    WS=1
-    COLON=2
-    DOT=3
-    QUESTION_MARK=4
-    PLUS=5
-    LPAREN=6
-    RPAREN=7
-    AT=8
-    OR=9
-    AND=10
-    ASSIGN=11
-    EQ=12
-    NEQ=13
-    LBRACKET=14
-    RBRACKET=15
-    COMMA=16
-    NODE=17
-    PROPERTIES=18
-    EVENTS=19
-    HANDLERS=20
-    PREDICATES=21
-    STRING_LITERAL=22
-    INTEGER=23
-    FLOAT=24
-    IDENT=25
-    BLOCKCOMMENT=26
-    LINECOMMENT=27
+    WS = 1
+    COLON = 2
+    DOT = 3
+    QUESTION_MARK = 4
+    PLUS = 5
+    LPAREN = 6
+    RPAREN = 7
+    AT = 8
+    OR = 9
+    AND = 10
+    ASSIGN = 11
+    EQ = 12
+    NEQ = 13
+    LBRACKET = 14
+    RBRACKET = 15
+    COMMA = 16
+    NODE = 17
+    PROPERTIES = 18
+    EVENTS = 19
+    HANDLERS = 20
+    PREDICATES = 21
+    STRING_LITERAL = 22
+    INTEGER = 23
+    FLOAT = 24
+    IDENT = 25
+    BLOCKCOMMENT = 26
+    LINECOMMENT = 27
 
-    def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
+    def __init__(self, input: TokenStream, output: TextIO = sys.stdout):
         super().__init__(input, output)
         self.checkVersion("4.9.2")
-        self._interp = ParserATNSimulator(self, self.atn, self.decisionsToDFA, self.sharedContextCache)
+        self._interp = ParserATNSimulator(
+            self, self.atn, self.decisionsToDFA, self.sharedContextCache
+        )
         self._predicates = None
 
-
-
-
     class Block_typesContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
         def EOF(self):
             return self.getToken(BlockTypesParser.EOF, 0)
 
-        def block_type_definition(self, i:int=None):
+        def block_type_definition(self, i: int = None):
             if i is None:
-                return self.getTypedRuleContexts(BlockTypesParser.Block_type_definitionContext)
+                return self.getTypedRuleContexts(
+                    BlockTypesParser.Block_type_definitionContext
+                )
             else:
-                return self.getTypedRuleContext(BlockTypesParser.Block_type_definitionContext,i)
-
+                return self.getTypedRuleContext(
+                    BlockTypesParser.Block_type_definitionContext, i
+                )
 
         def getRuleIndex(self):
             return BlockTypesParser.RULE_block_types
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterBlock_types" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterBlock_types"):
                 listener.enterBlock_types(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitBlock_types" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitBlock_types"):
                 listener.exitBlock_types(self)
-
-
-
 
     def block_types(self):
 
         localctx = BlockTypesParser.Block_typesContext(self, self._ctx, self.state)
         self.enterRule(localctx, 0, self.RULE_block_types)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 59 
+            self.state = 59
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
                 self.state = 58
                 self.block_type_definition()
-                self.state = 61 
+                self.state = 61
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if not (_la==BlockTypesParser.AT or _la==BlockTypesParser.NODE):
+                if not (_la == BlockTypesParser.AT or _la == BlockTypesParser.NODE):
                     break
 
             self.state = 63
@@ -274,75 +344,83 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class Block_type_definitionContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
         def attributes(self):
-            return self.getTypedRuleContext(BlockTypesParser.AttributesContext,0)
-
+            return self.getTypedRuleContext(BlockTypesParser.AttributesContext, 0)
 
         def NODE(self):
             return self.getToken(BlockTypesParser.NODE, 0)
 
         def ident(self):
-            return self.getTypedRuleContext(BlockTypesParser.IdentContext,0)
-
+            return self.getTypedRuleContext(BlockTypesParser.IdentContext, 0)
 
         def COLON(self):
             return self.getToken(BlockTypesParser.COLON, 0)
 
-        def properties_section(self, i:int=None):
+        def properties_section(self, i: int = None):
             if i is None:
-                return self.getTypedRuleContexts(BlockTypesParser.Properties_sectionContext)
+                return self.getTypedRuleContexts(
+                    BlockTypesParser.Properties_sectionContext
+                )
             else:
-                return self.getTypedRuleContext(BlockTypesParser.Properties_sectionContext,i)
+                return self.getTypedRuleContext(
+                    BlockTypesParser.Properties_sectionContext, i
+                )
 
-
-        def handlers_section(self, i:int=None):
+        def handlers_section(self, i: int = None):
             if i is None:
-                return self.getTypedRuleContexts(BlockTypesParser.Handlers_sectionContext)
+                return self.getTypedRuleContexts(
+                    BlockTypesParser.Handlers_sectionContext
+                )
             else:
-                return self.getTypedRuleContext(BlockTypesParser.Handlers_sectionContext,i)
+                return self.getTypedRuleContext(
+                    BlockTypesParser.Handlers_sectionContext, i
+                )
 
-
-        def events_section(self, i:int=None):
+        def events_section(self, i: int = None):
             if i is None:
                 return self.getTypedRuleContexts(BlockTypesParser.Events_sectionContext)
             else:
-                return self.getTypedRuleContext(BlockTypesParser.Events_sectionContext,i)
+                return self.getTypedRuleContext(
+                    BlockTypesParser.Events_sectionContext, i
+                )
 
-
-        def predicates_section(self, i:int=None):
+        def predicates_section(self, i: int = None):
             if i is None:
-                return self.getTypedRuleContexts(BlockTypesParser.Predicates_sectionContext)
+                return self.getTypedRuleContexts(
+                    BlockTypesParser.Predicates_sectionContext
+                )
             else:
-                return self.getTypedRuleContext(BlockTypesParser.Predicates_sectionContext,i)
-
+                return self.getTypedRuleContext(
+                    BlockTypesParser.Predicates_sectionContext, i
+                )
 
         def getRuleIndex(self):
             return BlockTypesParser.RULE_block_type_definition
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterBlock_type_definition" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterBlock_type_definition"):
                 listener.enterBlock_type_definition(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitBlock_type_definition" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitBlock_type_definition"):
                 listener.exitBlock_type_definition(self)
-
-
-
 
     def block_type_definition(self):
 
-        localctx = BlockTypesParser.Block_type_definitionContext(self, self._ctx, self.state)
+        localctx = BlockTypesParser.Block_type_definitionContext(
+            self, self._ctx, self.state
+        )
         self.enterRule(localctx, 2, self.RULE_block_type_definition)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 65
@@ -353,7 +431,7 @@ class BlockTypesParser ( Parser ):
             self.ident()
             self.state = 68
             self.match(BlockTypesParser.COLON)
-            self.state = 73 
+            self.state = 73
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
@@ -379,10 +457,24 @@ class BlockTypesParser ( Parser ):
                 else:
                     raise NoViableAltException(self)
 
-                self.state = 75 
+                self.state = 75
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << BlockTypesParser.PROPERTIES) | (1 << BlockTypesParser.EVENTS) | (1 << BlockTypesParser.HANDLERS) | (1 << BlockTypesParser.PREDICATES))) != 0)):
+                if not (
+                    (
+                        ((_la) & ~0x3F) == 0
+                        and (
+                            (1 << _la)
+                            & (
+                                (1 << BlockTypesParser.PROPERTIES)
+                                | (1 << BlockTypesParser.EVENTS)
+                                | (1 << BlockTypesParser.HANDLERS)
+                                | (1 << BlockTypesParser.PREDICATES)
+                            )
+                        )
+                        != 0
+                    )
+                ):
                     break
 
         except RecognitionException as re:
@@ -393,46 +485,43 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class AttributesContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def attribute(self, i:int=None):
+        def attribute(self, i: int = None):
             if i is None:
                 return self.getTypedRuleContexts(BlockTypesParser.AttributeContext)
             else:
-                return self.getTypedRuleContext(BlockTypesParser.AttributeContext,i)
-
+                return self.getTypedRuleContext(BlockTypesParser.AttributeContext, i)
 
         def getRuleIndex(self):
             return BlockTypesParser.RULE_attributes
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAttributes" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterAttributes"):
                 listener.enterAttributes(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAttributes" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitAttributes"):
                 listener.exitAttributes(self)
-
-
-
 
     def attributes(self):
 
         localctx = BlockTypesParser.AttributesContext(self, self._ctx, self.state)
         self.enterRule(localctx, 4, self.RULE_attributes)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 80
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==BlockTypesParser.AT:
+            while _la == BlockTypesParser.AT:
                 self.state = 77
                 self.attribute()
                 self.state = 82
@@ -447,11 +536,12 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class AttributeContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
@@ -459,8 +549,7 @@ class BlockTypesParser ( Parser ):
             return self.getToken(BlockTypesParser.AT, 0)
 
         def ident(self):
-            return self.getTypedRuleContext(BlockTypesParser.IdentContext,0)
-
+            return self.getTypedRuleContext(BlockTypesParser.IdentContext, 0)
 
         def LPAREN(self):
             return self.getToken(BlockTypesParser.LPAREN, 0)
@@ -468,14 +557,13 @@ class BlockTypesParser ( Parser ):
         def RPAREN(self):
             return self.getToken(BlockTypesParser.RPAREN, 0)
 
-        def attr_param(self, i:int=None):
+        def attr_param(self, i: int = None):
             if i is None:
                 return self.getTypedRuleContexts(BlockTypesParser.Attr_paramContext)
             else:
-                return self.getTypedRuleContext(BlockTypesParser.Attr_paramContext,i)
+                return self.getTypedRuleContext(BlockTypesParser.Attr_paramContext, i)
 
-
-        def COMMA(self, i:int=None):
+        def COMMA(self, i: int = None):
             if i is None:
                 return self.getTokens(BlockTypesParser.COMMA)
             else:
@@ -484,22 +572,19 @@ class BlockTypesParser ( Parser ):
         def getRuleIndex(self):
             return BlockTypesParser.RULE_attribute
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAttribute" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterAttribute"):
                 listener.enterAttribute(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAttribute" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitAttribute"):
                 listener.exitAttribute(self)
-
-
-
 
     def attribute(self):
 
         localctx = BlockTypesParser.AttributeContext(self, self._ctx, self.state)
         self.enterRule(localctx, 6, self.RULE_attribute)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 83
@@ -512,13 +597,13 @@ class BlockTypesParser ( Parser ):
             self.state = 94
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==BlockTypesParser.IDENT:
+            if _la == BlockTypesParser.IDENT:
                 self.state = 86
                 self.attr_param()
                 self.state = 91
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                while _la==BlockTypesParser.COMMA:
+                while _la == BlockTypesParser.COMMA:
                     self.state = 87
                     self.match(BlockTypesParser.COMMA)
                     self.state = 88
@@ -526,8 +611,6 @@ class BlockTypesParser ( Parser ):
                     self.state = 93
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
-
-
 
             self.state = 96
             self.match(BlockTypesParser.RPAREN)
@@ -539,38 +622,34 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class Attr_paramContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
         def ident(self):
-            return self.getTypedRuleContext(BlockTypesParser.IdentContext,0)
-
+            return self.getTypedRuleContext(BlockTypesParser.IdentContext, 0)
 
         def ASSIGN(self):
             return self.getToken(BlockTypesParser.ASSIGN, 0)
 
         def attr_param_value(self):
-            return self.getTypedRuleContext(BlockTypesParser.Attr_param_valueContext,0)
-
+            return self.getTypedRuleContext(BlockTypesParser.Attr_param_valueContext, 0)
 
         def getRuleIndex(self):
             return BlockTypesParser.RULE_attr_param
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAttr_param" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterAttr_param"):
                 listener.enterAttr_param(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAttr_param" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitAttr_param"):
                 listener.exitAttr_param(self)
-
-
-
 
     def attr_param(self):
 
@@ -592,35 +671,31 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class Attr_param_valueContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
         def string(self):
-            return self.getTypedRuleContext(BlockTypesParser.StringContext,0)
-
+            return self.getTypedRuleContext(BlockTypesParser.StringContext, 0)
 
         def integer(self):
-            return self.getTypedRuleContext(BlockTypesParser.IntegerContext,0)
-
+            return self.getTypedRuleContext(BlockTypesParser.IntegerContext, 0)
 
         def getRuleIndex(self):
             return BlockTypesParser.RULE_attr_param_value
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAttr_param_value" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterAttr_param_value"):
                 listener.enterAttr_param_value(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAttr_param_value" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitAttr_param_value"):
                 listener.exitAttr_param_value(self)
-
-
-
 
     def attr_param_value(self):
 
@@ -651,11 +726,12 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class StringContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
@@ -665,16 +741,13 @@ class BlockTypesParser ( Parser ):
         def getRuleIndex(self):
             return BlockTypesParser.RULE_string
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterString" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterString"):
                 listener.enterString(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitString" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitString"):
                 listener.exitString(self)
-
-
-
 
     def string(self):
 
@@ -692,11 +765,12 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class IntegerContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
@@ -706,16 +780,13 @@ class BlockTypesParser ( Parser ):
         def getRuleIndex(self):
             return BlockTypesParser.RULE_integer
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterInteger" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterInteger"):
                 listener.enterInteger(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitInteger" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitInteger"):
                 listener.exitInteger(self)
-
-
-
 
     def integer(self):
 
@@ -733,11 +804,12 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class Properties_sectionContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
@@ -748,26 +820,24 @@ class BlockTypesParser ( Parser ):
             return self.getToken(BlockTypesParser.COLON, 0)
 
         def properties(self):
-            return self.getTypedRuleContext(BlockTypesParser.PropertiesContext,0)
-
+            return self.getTypedRuleContext(BlockTypesParser.PropertiesContext, 0)
 
         def getRuleIndex(self):
             return BlockTypesParser.RULE_properties_section
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterProperties_section" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterProperties_section"):
                 listener.enterProperties_section(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitProperties_section" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitProperties_section"):
                 listener.exitProperties_section(self)
-
-
-
 
     def properties_section(self):
 
-        localctx = BlockTypesParser.Properties_sectionContext(self, self._ctx, self.state)
+        localctx = BlockTypesParser.Properties_sectionContext(
+            self, self._ctx, self.state
+        )
         self.enterRule(localctx, 16, self.RULE_properties_section)
         try:
             self.enterOuterAlt(localctx, 1)
@@ -785,46 +855,43 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class PropertiesContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def prop(self, i:int=None):
+        def prop(self, i: int = None):
             if i is None:
                 return self.getTypedRuleContexts(BlockTypesParser.PropContext)
             else:
-                return self.getTypedRuleContext(BlockTypesParser.PropContext,i)
-
+                return self.getTypedRuleContext(BlockTypesParser.PropContext, i)
 
         def getRuleIndex(self):
             return BlockTypesParser.RULE_properties
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterProperties" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterProperties"):
                 listener.enterProperties(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitProperties" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitProperties"):
                 listener.exitProperties(self)
-
-
-
 
     def properties(self):
 
         localctx = BlockTypesParser.PropertiesContext(self, self._ctx, self.state)
         self.enterRule(localctx, 18, self.RULE_properties)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 117
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==BlockTypesParser.IDENT:
+            while _la == BlockTypesParser.IDENT:
                 self.state = 114
                 self.prop()
                 self.state = 119
@@ -839,11 +906,12 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class Handlers_sectionContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
@@ -854,22 +922,18 @@ class BlockTypesParser ( Parser ):
             return self.getToken(BlockTypesParser.COLON, 0)
 
         def handlers(self):
-            return self.getTypedRuleContext(BlockTypesParser.HandlersContext,0)
-
+            return self.getTypedRuleContext(BlockTypesParser.HandlersContext, 0)
 
         def getRuleIndex(self):
             return BlockTypesParser.RULE_handlers_section
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterHandlers_section" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterHandlers_section"):
                 listener.enterHandlers_section(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitHandlers_section" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitHandlers_section"):
                 listener.exitHandlers_section(self)
-
-
-
 
     def handlers_section(self):
 
@@ -891,46 +955,43 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class HandlersContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def handler(self, i:int=None):
+        def handler(self, i: int = None):
             if i is None:
                 return self.getTypedRuleContexts(BlockTypesParser.HandlerContext)
             else:
-                return self.getTypedRuleContext(BlockTypesParser.HandlerContext,i)
-
+                return self.getTypedRuleContext(BlockTypesParser.HandlerContext, i)
 
         def getRuleIndex(self):
             return BlockTypesParser.RULE_handlers
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterHandlers" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterHandlers"):
                 listener.enterHandlers(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitHandlers" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitHandlers"):
                 listener.exitHandlers(self)
-
-
-
 
     def handlers(self):
 
         localctx = BlockTypesParser.HandlersContext(self, self._ctx, self.state)
         self.enterRule(localctx, 22, self.RULE_handlers)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 127
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==BlockTypesParser.IDENT:
+            while _la == BlockTypesParser.IDENT:
                 self.state = 124
                 self.handler()
                 self.state = 129
@@ -945,11 +1006,12 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class Events_sectionContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
@@ -960,22 +1022,18 @@ class BlockTypesParser ( Parser ):
             return self.getToken(BlockTypesParser.COLON, 0)
 
         def events(self):
-            return self.getTypedRuleContext(BlockTypesParser.EventsContext,0)
-
+            return self.getTypedRuleContext(BlockTypesParser.EventsContext, 0)
 
         def getRuleIndex(self):
             return BlockTypesParser.RULE_events_section
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterEvents_section" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterEvents_section"):
                 listener.enterEvents_section(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitEvents_section" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitEvents_section"):
                 listener.exitEvents_section(self)
-
-
-
 
     def events_section(self):
 
@@ -997,46 +1055,43 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class EventsContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def event(self, i:int=None):
+        def event(self, i: int = None):
             if i is None:
                 return self.getTypedRuleContexts(BlockTypesParser.EventContext)
             else:
-                return self.getTypedRuleContext(BlockTypesParser.EventContext,i)
-
+                return self.getTypedRuleContext(BlockTypesParser.EventContext, i)
 
         def getRuleIndex(self):
             return BlockTypesParser.RULE_events
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterEvents" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterEvents"):
                 listener.enterEvents(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitEvents" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitEvents"):
                 listener.exitEvents(self)
-
-
-
 
     def events(self):
 
         localctx = BlockTypesParser.EventsContext(self, self._ctx, self.state)
         self.enterRule(localctx, 26, self.RULE_events)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 137
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==BlockTypesParser.IDENT:
+            while _la == BlockTypesParser.IDENT:
                 self.state = 134
                 self.event()
                 self.state = 139
@@ -1051,11 +1106,12 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class Predicates_sectionContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
@@ -1066,26 +1122,24 @@ class BlockTypesParser ( Parser ):
             return self.getToken(BlockTypesParser.COLON, 0)
 
         def predicates(self):
-            return self.getTypedRuleContext(BlockTypesParser.PredicatesContext,0)
-
+            return self.getTypedRuleContext(BlockTypesParser.PredicatesContext, 0)
 
         def getRuleIndex(self):
             return BlockTypesParser.RULE_predicates_section
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterPredicates_section" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterPredicates_section"):
                 listener.enterPredicates_section(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitPredicates_section" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitPredicates_section"):
                 listener.exitPredicates_section(self)
-
-
-
 
     def predicates_section(self):
 
-        localctx = BlockTypesParser.Predicates_sectionContext(self, self._ctx, self.state)
+        localctx = BlockTypesParser.Predicates_sectionContext(
+            self, self._ctx, self.state
+        )
         self.enterRule(localctx, 28, self.RULE_predicates_section)
         try:
             self.enterOuterAlt(localctx, 1)
@@ -1103,46 +1157,50 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class PredicatesContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def pred(self, i:int=None):
+        def pred(self, i: int = None):
             if i is None:
                 return self.getTypedRuleContexts(BlockTypesParser.PredContext)
             else:
-                return self.getTypedRuleContext(BlockTypesParser.PredContext,i)
-
+                return self.getTypedRuleContext(BlockTypesParser.PredContext, i)
 
         def getRuleIndex(self):
             return BlockTypesParser.RULE_predicates
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterPredicates" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterPredicates"):
                 listener.enterPredicates(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitPredicates" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitPredicates"):
                 listener.exitPredicates(self)
-
-
-
 
     def predicates(self):
 
         localctx = BlockTypesParser.PredicatesContext(self, self._ctx, self.state)
         self.enterRule(localctx, 30, self.RULE_predicates)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 147
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << BlockTypesParser.LPAREN) | (1 << BlockTypesParser.INTEGER) | (1 << BlockTypesParser.IDENT))) != 0):
+            while ((_la) & ~0x3F) == 0 and (
+                (1 << _la)
+                & (
+                    (1 << BlockTypesParser.LPAREN)
+                    | (1 << BlockTypesParser.INTEGER)
+                    | (1 << BlockTypesParser.IDENT)
+                )
+            ) != 0:
                 self.state = 144
                 self.pred()
                 self.state = 149
@@ -1157,48 +1215,45 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class PropContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
         def prop_name(self):
-            return self.getTypedRuleContext(BlockTypesParser.Prop_nameContext,0)
-
+            return self.getTypedRuleContext(BlockTypesParser.Prop_nameContext, 0)
 
         def COLON(self):
             return self.getToken(BlockTypesParser.COLON, 0)
 
         def block_type(self):
-            return self.getTypedRuleContext(BlockTypesParser.Block_typeContext,0)
-
+            return self.getTypedRuleContext(BlockTypesParser.Block_typeContext, 0)
 
         def prop_initialization(self):
-            return self.getTypedRuleContext(BlockTypesParser.Prop_initializationContext,0)
-
+            return self.getTypedRuleContext(
+                BlockTypesParser.Prop_initializationContext, 0
+            )
 
         def getRuleIndex(self):
             return BlockTypesParser.RULE_prop
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterProp" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterProp"):
                 listener.enterProp(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitProp" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitProp"):
                 listener.exitProp(self)
-
-
-
 
     def prop(self):
 
         localctx = BlockTypesParser.PropContext(self, self._ctx, self.state)
         self.enterRule(localctx, 32, self.RULE_prop)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 150
@@ -1210,10 +1265,9 @@ class BlockTypesParser ( Parser ):
             self.state = 154
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==BlockTypesParser.LPAREN:
+            if _la == BlockTypesParser.LPAREN:
                 self.state = 153
                 self.prop_initialization()
-
 
         except RecognitionException as re:
             localctx.exception = re
@@ -1223,11 +1277,12 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class Prop_initializationContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
@@ -1249,29 +1304,41 @@ class BlockTypesParser ( Parser ):
         def getRuleIndex(self):
             return BlockTypesParser.RULE_prop_initialization
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterProp_initialization" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterProp_initialization"):
                 listener.enterProp_initialization(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitProp_initialization" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitProp_initialization"):
                 listener.exitProp_initialization(self)
-
-
-
 
     def prop_initialization(self):
 
-        localctx = BlockTypesParser.Prop_initializationContext(self, self._ctx, self.state)
+        localctx = BlockTypesParser.Prop_initializationContext(
+            self, self._ctx, self.state
+        )
         self.enterRule(localctx, 34, self.RULE_prop_initialization)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 156
             self.match(BlockTypesParser.LPAREN)
             self.state = 157
             _la = self._input.LA(1)
-            if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << BlockTypesParser.STRING_LITERAL) | (1 << BlockTypesParser.INTEGER) | (1 << BlockTypesParser.FLOAT))) != 0)):
+            if not (
+                (
+                    ((_la) & ~0x3F) == 0
+                    and (
+                        (1 << _la)
+                        & (
+                            (1 << BlockTypesParser.STRING_LITERAL)
+                            | (1 << BlockTypesParser.INTEGER)
+                            | (1 << BlockTypesParser.FLOAT)
+                        )
+                    )
+                    != 0
+                )
+            ):
                 self._errHandler.recoverInline(self)
             else:
                 self._errHandler.reportMatch(self)
@@ -1286,17 +1353,17 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class Prop_nameContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
         def ident(self):
-            return self.getTypedRuleContext(BlockTypesParser.IdentContext,0)
-
+            return self.getTypedRuleContext(BlockTypesParser.IdentContext, 0)
 
         def QUESTION_MARK(self):
             return self.getToken(BlockTypesParser.QUESTION_MARK, 0)
@@ -1304,22 +1371,19 @@ class BlockTypesParser ( Parser ):
         def getRuleIndex(self):
             return BlockTypesParser.RULE_prop_name
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterProp_name" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterProp_name"):
                 listener.enterProp_name(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitProp_name" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitProp_name"):
                 listener.exitProp_name(self)
-
-
-
 
     def prop_name(self):
 
         localctx = BlockTypesParser.Prop_nameContext(self, self._ctx, self.state)
         self.enterRule(localctx, 36, self.RULE_prop_name)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 160
@@ -1327,10 +1391,9 @@ class BlockTypesParser ( Parser ):
             self.state = 162
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==BlockTypesParser.QUESTION_MARK:
+            if _la == BlockTypesParser.QUESTION_MARK:
                 self.state = 161
                 self.match(BlockTypesParser.QUESTION_MARK)
-
 
         except RecognitionException as re:
             localctx.exception = re
@@ -1340,24 +1403,23 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class EventContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
         def ident(self):
-            return self.getTypedRuleContext(BlockTypesParser.IdentContext,0)
-
+            return self.getTypedRuleContext(BlockTypesParser.IdentContext, 0)
 
         def LPAREN(self):
             return self.getToken(BlockTypesParser.LPAREN, 0)
 
         def func_arguments(self):
-            return self.getTypedRuleContext(BlockTypesParser.Func_argumentsContext,0)
-
+            return self.getTypedRuleContext(BlockTypesParser.Func_argumentsContext, 0)
 
         def RPAREN(self):
             return self.getToken(BlockTypesParser.RPAREN, 0)
@@ -1365,16 +1427,13 @@ class BlockTypesParser ( Parser ):
         def getRuleIndex(self):
             return BlockTypesParser.RULE_event
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterEvent" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterEvent"):
                 listener.enterEvent(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitEvent" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitEvent"):
                 listener.exitEvent(self)
-
-
-
 
     def event(self):
 
@@ -1398,24 +1457,23 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class HandlerContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
         def handler_name(self):
-            return self.getTypedRuleContext(BlockTypesParser.Handler_nameContext,0)
-
+            return self.getTypedRuleContext(BlockTypesParser.Handler_nameContext, 0)
 
         def LPAREN(self):
             return self.getToken(BlockTypesParser.LPAREN, 0)
 
         def func_arguments(self):
-            return self.getTypedRuleContext(BlockTypesParser.Func_argumentsContext,0)
-
+            return self.getTypedRuleContext(BlockTypesParser.Func_argumentsContext, 0)
 
         def RPAREN(self):
             return self.getToken(BlockTypesParser.RPAREN, 0)
@@ -1423,16 +1481,13 @@ class BlockTypesParser ( Parser ):
         def getRuleIndex(self):
             return BlockTypesParser.RULE_handler
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterHandler" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterHandler"):
                 listener.enterHandler(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitHandler" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitHandler"):
                 listener.exitHandler(self)
-
-
-
 
     def handler(self):
 
@@ -1456,22 +1511,22 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class Func_argumentsContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def argument(self, i:int=None):
+        def argument(self, i: int = None):
             if i is None:
                 return self.getTypedRuleContexts(BlockTypesParser.ArgumentContext)
             else:
-                return self.getTypedRuleContext(BlockTypesParser.ArgumentContext,i)
+                return self.getTypedRuleContext(BlockTypesParser.ArgumentContext, i)
 
-
-        def COMMA(self, i:int=None):
+        def COMMA(self, i: int = None):
             if i is None:
                 return self.getTokens(BlockTypesParser.COMMA)
             else:
@@ -1480,22 +1535,19 @@ class BlockTypesParser ( Parser ):
         def getRuleIndex(self):
             return BlockTypesParser.RULE_func_arguments
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterFunc_arguments" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterFunc_arguments"):
                 listener.enterFunc_arguments(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitFunc_arguments" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitFunc_arguments"):
                 listener.exitFunc_arguments(self)
-
-
-
 
     def func_arguments(self):
 
         localctx = BlockTypesParser.Func_argumentsContext(self, self._ctx, self.state)
         self.enterRule(localctx, 42, self.RULE_func_arguments)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 174
@@ -1503,7 +1555,7 @@ class BlockTypesParser ( Parser ):
             self.state = 179
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==BlockTypesParser.COMMA:
+            while _la == BlockTypesParser.COMMA:
                 self.state = 175
                 self.match(BlockTypesParser.COMMA)
                 self.state = 176
@@ -1520,38 +1572,34 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class ArgumentContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
         def ident(self):
-            return self.getTypedRuleContext(BlockTypesParser.IdentContext,0)
-
+            return self.getTypedRuleContext(BlockTypesParser.IdentContext, 0)
 
         def COLON(self):
             return self.getToken(BlockTypesParser.COLON, 0)
 
         def block_type(self):
-            return self.getTypedRuleContext(BlockTypesParser.Block_typeContext,0)
-
+            return self.getTypedRuleContext(BlockTypesParser.Block_typeContext, 0)
 
         def getRuleIndex(self):
             return BlockTypesParser.RULE_argument
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterArgument" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterArgument"):
                 listener.enterArgument(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitArgument" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitArgument"):
                 listener.exitArgument(self)
-
-
-
 
     def argument(self):
 
@@ -1573,17 +1621,17 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class Handler_nameContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
         def ident(self):
-            return self.getTypedRuleContext(BlockTypesParser.IdentContext,0)
-
+            return self.getTypedRuleContext(BlockTypesParser.IdentContext, 0)
 
         def PLUS(self):
             return self.getToken(BlockTypesParser.PLUS, 0)
@@ -1591,22 +1639,19 @@ class BlockTypesParser ( Parser ):
         def getRuleIndex(self):
             return BlockTypesParser.RULE_handler_name
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterHandler_name" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterHandler_name"):
                 listener.enterHandler_name(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitHandler_name" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitHandler_name"):
                 listener.exitHandler_name(self)
-
-
-
 
     def handler_name(self):
 
         localctx = BlockTypesParser.Handler_nameContext(self, self._ctx, self.state)
         self.enterRule(localctx, 46, self.RULE_handler_name)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 186
@@ -1614,10 +1659,9 @@ class BlockTypesParser ( Parser ):
             self.state = 188
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==BlockTypesParser.PLUS:
+            if _la == BlockTypesParser.PLUS:
                 self.state = 187
                 self.match(BlockTypesParser.PLUS)
-
 
         except RecognitionException as re:
             localctx.exception = re
@@ -1627,11 +1671,12 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class Block_typeContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
@@ -1641,17 +1686,16 @@ class BlockTypesParser ( Parser ):
         def LPAREN(self):
             return self.getToken(BlockTypesParser.LPAREN, 0)
 
-        def block_type(self, i:int=None):
+        def block_type(self, i: int = None):
             if i is None:
                 return self.getTypedRuleContexts(BlockTypesParser.Block_typeContext)
             else:
-                return self.getTypedRuleContext(BlockTypesParser.Block_typeContext,i)
-
+                return self.getTypedRuleContext(BlockTypesParser.Block_typeContext, i)
 
         def RPAREN(self):
             return self.getToken(BlockTypesParser.RPAREN, 0)
 
-        def COMMA(self, i:int=None):
+        def COMMA(self, i: int = None):
             if i is None:
                 return self.getTokens(BlockTypesParser.COMMA)
             else:
@@ -1660,29 +1704,26 @@ class BlockTypesParser ( Parser ):
         def getRuleIndex(self):
             return BlockTypesParser.RULE_block_type
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterBlock_type" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterBlock_type"):
                 listener.enterBlock_type(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitBlock_type" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitBlock_type"):
                 listener.exitBlock_type(self)
-
-
-
 
     def block_type(self):
 
         localctx = BlockTypesParser.Block_typeContext(self, self._ctx, self.state)
         self.enterRule(localctx, 48, self.RULE_block_type)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 190
             self.match(BlockTypesParser.IDENT)
             self.state = 202
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,16,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input, 16, self._ctx)
             if la_ == 1:
                 self.state = 191
                 self.match(BlockTypesParser.LPAREN)
@@ -1691,7 +1732,7 @@ class BlockTypesParser ( Parser ):
                 self.state = 197
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                while _la==BlockTypesParser.COMMA:
+                while _la == BlockTypesParser.COMMA:
                     self.state = 193
                     self.match(BlockTypesParser.COMMA)
                     self.state = 194
@@ -1703,7 +1744,6 @@ class BlockTypesParser ( Parser ):
                 self.state = 200
                 self.match(BlockTypesParser.RPAREN)
 
-
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -1712,11 +1752,12 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class IdentContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
@@ -1726,16 +1767,13 @@ class BlockTypesParser ( Parser ):
         def getRuleIndex(self):
             return BlockTypesParser.RULE_ident
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterIdent" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterIdent"):
                 listener.enterIdent(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitIdent" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitIdent"):
                 listener.exitIdent(self)
-
-
-
 
     def ident(self):
 
@@ -1753,31 +1791,28 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class PredContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
         def logical_expr(self):
-            return self.getTypedRuleContext(BlockTypesParser.Logical_exprContext,0)
-
+            return self.getTypedRuleContext(BlockTypesParser.Logical_exprContext, 0)
 
         def getRuleIndex(self):
             return BlockTypesParser.RULE_pred
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterPred" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterPred"):
                 listener.enterPred(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitPred" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitPred"):
                 listener.exitPred(self)
-
-
-
 
     def pred(self):
 
@@ -1795,20 +1830,20 @@ class BlockTypesParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class Logical_exprContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def expr(self, i:int=None):
+        def expr(self, i: int = None):
             if i is None:
                 return self.getTypedRuleContexts(BlockTypesParser.ExprContext)
             else:
-                return self.getTypedRuleContext(BlockTypesParser.ExprContext,i)
-
+                return self.getTypedRuleContext(BlockTypesParser.ExprContext, i)
 
         def EQ(self):
             return self.getToken(BlockTypesParser.EQ, 0)
@@ -1816,12 +1851,11 @@ class BlockTypesParser ( Parser ):
         def NEQ(self):
             return self.getToken(BlockTypesParser.NEQ, 0)
 
-        def logical_expr(self, i:int=None):
+        def logical_expr(self, i: int = None):
             if i is None:
                 return self.getTypedRuleContexts(BlockTypesParser.Logical_exprContext)
             else:
-                return self.getTypedRuleContext(BlockTypesParser.Logical_exprContext,i)
-
+                return self.getTypedRuleContext(BlockTypesParser.Logical_exprContext, i)
 
         def OR(self):
             return self.getToken(BlockTypesParser.OR, 0)
@@ -1832,31 +1866,29 @@ class BlockTypesParser ( Parser ):
         def getRuleIndex(self):
             return BlockTypesParser.RULE_logical_expr
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterLogical_expr" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterLogical_expr"):
                 listener.enterLogical_expr(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitLogical_expr" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitLogical_expr"):
                 listener.exitLogical_expr(self)
 
-
-
-    def logical_expr(self, _p:int=0):
+    def logical_expr(self, _p: int = 0):
         _parentctx = self._ctx
         _parentState = self.state
         localctx = BlockTypesParser.Logical_exprContext(self, self._ctx, _parentState)
         _prevctx = localctx
         _startState = 54
         self.enterRecursionRule(localctx, 54, self.RULE_logical_expr, _p)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 209
             self.expr(0)
             self.state = 210
             _la = self._input.LA(1)
-            if not(_la==BlockTypesParser.EQ or _la==BlockTypesParser.NEQ):
+            if not (_la == BlockTypesParser.EQ or _la == BlockTypesParser.NEQ):
                 self._errHandler.recoverInline(self)
             else:
                 self._errHandler.reportMatch(self)
@@ -1866,30 +1898,37 @@ class BlockTypesParser ( Parser ):
             self._ctx.stop = self._input.LT(-1)
             self.state = 218
             self._errHandler.sync(self)
-            _alt = self._interp.adaptivePredict(self._input,17,self._ctx)
-            while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
-                if _alt==1:
+            _alt = self._interp.adaptivePredict(self._input, 17, self._ctx)
+            while _alt != 2 and _alt != ATN.INVALID_ALT_NUMBER:
+                if _alt == 1:
                     if self._parseListeners is not None:
                         self.triggerExitRuleEvent()
                     _prevctx = localctx
-                    localctx = BlockTypesParser.Logical_exprContext(self, _parentctx, _parentState)
-                    self.pushNewRecursionContext(localctx, _startState, self.RULE_logical_expr)
+                    localctx = BlockTypesParser.Logical_exprContext(
+                        self, _parentctx, _parentState
+                    )
+                    self.pushNewRecursionContext(
+                        localctx, _startState, self.RULE_logical_expr
+                    )
                     self.state = 213
                     if not self.precpred(self._ctx, 1):
                         from antlr4.error.Errors import FailedPredicateException
-                        raise FailedPredicateException(self, "self.precpred(self._ctx, 1)")
+
+                        raise FailedPredicateException(
+                            self, "self.precpred(self._ctx, 1)"
+                        )
                     self.state = 214
                     _la = self._input.LA(1)
-                    if not(_la==BlockTypesParser.OR or _la==BlockTypesParser.AND):
+                    if not (_la == BlockTypesParser.OR or _la == BlockTypesParser.AND):
                         self._errHandler.recoverInline(self)
                     else:
                         self._errHandler.reportMatch(self)
                         self.consume()
                     self.state = 215
-                    self.logical_expr(2) 
+                    self.logical_expr(2)
                 self.state = 220
                 self._errHandler.sync(self)
-                _alt = self._interp.adaptivePredict(self._input,17,self._ctx)
+                _alt = self._interp.adaptivePredict(self._input, 17, self._ctx)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -1899,17 +1938,17 @@ class BlockTypesParser ( Parser ):
             self.unrollRecursionContexts(_parentctx)
         return localctx
 
-
     class ExprContext(ParserRuleContext):
-        __slots__ = 'parser'
+        __slots__ = "parser"
 
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+        def __init__(
+            self, parser, parent: ParserRuleContext = None, invokingState: int = -1
+        ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
         def ident(self):
-            return self.getTypedRuleContext(BlockTypesParser.IdentContext,0)
-
+            return self.getTypedRuleContext(BlockTypesParser.IdentContext, 0)
 
         def INTEGER(self):
             return self.getToken(BlockTypesParser.INTEGER, 0)
@@ -1917,12 +1956,11 @@ class BlockTypesParser ( Parser ):
         def LPAREN(self):
             return self.getToken(BlockTypesParser.LPAREN, 0)
 
-        def expr(self, i:int=None):
+        def expr(self, i: int = None):
             if i is None:
                 return self.getTypedRuleContexts(BlockTypesParser.ExprContext)
             else:
-                return self.getTypedRuleContext(BlockTypesParser.ExprContext,i)
-
+                return self.getTypedRuleContext(BlockTypesParser.ExprContext, i)
 
         def RPAREN(self):
             return self.getToken(BlockTypesParser.RPAREN, 0)
@@ -1939,17 +1977,15 @@ class BlockTypesParser ( Parser ):
         def getRuleIndex(self):
             return BlockTypesParser.RULE_expr
 
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterExpr" ):
+        def enterRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "enterExpr"):
                 listener.enterExpr(self)
 
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitExpr" ):
+        def exitRule(self, listener: ParseTreeListener):
+            if hasattr(listener, "exitExpr"):
                 listener.exitExpr(self)
 
-
-
-    def expr(self, _p:int=0):
+    def expr(self, _p: int = 0):
         _parentctx = self._ctx
         _parentState = self.state
         localctx = BlockTypesParser.ExprContext(self, self._ctx, _parentState)
@@ -1960,7 +1996,7 @@ class BlockTypesParser ( Parser ):
             self.enterOuterAlt(localctx, 1)
             self.state = 233
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,18,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input, 18, self._ctx)
             if la_ == 1:
                 self.state = 222
                 self.ident()
@@ -1991,26 +2027,32 @@ class BlockTypesParser ( Parser ):
                 self.match(BlockTypesParser.RPAREN)
                 pass
 
-
             self._ctx.stop = self._input.LT(-1)
             self.state = 245
             self._errHandler.sync(self)
-            _alt = self._interp.adaptivePredict(self._input,20,self._ctx)
-            while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
-                if _alt==1:
+            _alt = self._interp.adaptivePredict(self._input, 20, self._ctx)
+            while _alt != 2 and _alt != ATN.INVALID_ALT_NUMBER:
+                if _alt == 1:
                     if self._parseListeners is not None:
                         self.triggerExitRuleEvent()
                     _prevctx = localctx
                     self.state = 243
                     self._errHandler.sync(self)
-                    la_ = self._interp.adaptivePredict(self._input,19,self._ctx)
+                    la_ = self._interp.adaptivePredict(self._input, 19, self._ctx)
                     if la_ == 1:
-                        localctx = BlockTypesParser.ExprContext(self, _parentctx, _parentState)
-                        self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
+                        localctx = BlockTypesParser.ExprContext(
+                            self, _parentctx, _parentState
+                        )
+                        self.pushNewRecursionContext(
+                            localctx, _startState, self.RULE_expr
+                        )
                         self.state = 235
                         if not self.precpred(self._ctx, 2):
                             from antlr4.error.Errors import FailedPredicateException
-                            raise FailedPredicateException(self, "self.precpred(self._ctx, 2)")
+
+                            raise FailedPredicateException(
+                                self, "self.precpred(self._ctx, 2)"
+                            )
                         self.state = 236
                         self.match(BlockTypesParser.LBRACKET)
                         self.state = 237
@@ -2020,22 +2062,28 @@ class BlockTypesParser ( Parser ):
                         pass
 
                     elif la_ == 2:
-                        localctx = BlockTypesParser.ExprContext(self, _parentctx, _parentState)
-                        self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
+                        localctx = BlockTypesParser.ExprContext(
+                            self, _parentctx, _parentState
+                        )
+                        self.pushNewRecursionContext(
+                            localctx, _startState, self.RULE_expr
+                        )
                         self.state = 240
                         if not self.precpred(self._ctx, 1):
                             from antlr4.error.Errors import FailedPredicateException
-                            raise FailedPredicateException(self, "self.precpred(self._ctx, 1)")
+
+                            raise FailedPredicateException(
+                                self, "self.precpred(self._ctx, 1)"
+                            )
                         self.state = 241
                         self.match(BlockTypesParser.DOT)
                         self.state = 242
                         self.ident()
                         pass
 
-             
                 self.state = 247
                 self._errHandler.sync(self)
-                _alt = self._interp.adaptivePredict(self._input,20,self._ctx)
+                _alt = self._interp.adaptivePredict(self._input, 20, self._ctx)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -2045,9 +2093,7 @@ class BlockTypesParser ( Parser ):
             self.unrollRecursionContexts(_parentctx)
         return localctx
 
-
-
-    def sempred(self, localctx:RuleContext, ruleIndex:int, predIndex:int):
+    def sempred(self, localctx: RuleContext, ruleIndex: int, predIndex: int):
         if self._predicates == None:
             self._predicates = dict()
         self._predicates[27] = self.logical_expr_sempred
@@ -2058,20 +2104,13 @@ class BlockTypesParser ( Parser ):
         else:
             return pred(localctx, predIndex)
 
-    def logical_expr_sempred(self, localctx:Logical_exprContext, predIndex:int):
-            if predIndex == 0:
-                return self.precpred(self._ctx, 1)
-         
+    def logical_expr_sempred(self, localctx: Logical_exprContext, predIndex: int):
+        if predIndex == 0:
+            return self.precpred(self._ctx, 1)
 
-    def expr_sempred(self, localctx:ExprContext, predIndex:int):
-            if predIndex == 1:
-                return self.precpred(self._ctx, 2)
-         
+    def expr_sempred(self, localctx: ExprContext, predIndex: int):
+        if predIndex == 1:
+            return self.precpred(self._ctx, 2)
 
-            if predIndex == 2:
-                return self.precpred(self._ctx, 1)
-         
-
-
-
-
+        if predIndex == 2:
+            return self.precpred(self._ctx, 1)

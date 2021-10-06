@@ -26,5 +26,3 @@ if __name__ == "__main__":
 
     with open("graph.json", "w") as f:
         f.write(graph.serialize())
-
-

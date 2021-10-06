@@ -1,6 +1,8 @@
+import logging
+import unittest
+
 import broutonblocks.declaration.datatypes as bbtypes
-from broutonblocks.execution import *
-import unittest, logging
+from broutonblocks.execution import Event, handler, Node, Session
 
 
 def map_func(value):
@@ -12,8 +14,8 @@ result = list(map(lambda x: map_func(x), sent_array))
 
 
 class InitialList(Node):
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id_=None):
+        super().__init__(id_)
         self.values = Event("values", bbtypes.List(bbtypes.Int()))
 
     def run(self):
@@ -21,8 +23,8 @@ class InitialList(Node):
 
 
 class Exp(Node):
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id_=None):
+        super().__init__(id_)
         self.result = Event("result", bbtypes.List(bbtypes.Int()))
 
     @handler(name="value", type=bbtypes.List(bbtypes.Int()))
@@ -31,8 +33,8 @@ class Exp(Node):
 
 
 class Map(Node):
-    def __init__(self, id=None):
-        super().__init__(id)
+    def __init__(self, id_=None):
+        super().__init__(id_)
         self.map_value = Event("map_value", bbtypes.Object())
         self.result = Event("result", bbtypes.List(bbtypes.Object()))
         self.requests = {}

@@ -28,7 +28,7 @@ class TypeBase:
     def intersect(self, other):
         if type(self) == type(other):
             return copy.deepcopy(other)
-        assert self.is_composite == False
+        assert not self.is_composite
 
         if type(self) == Object:
             return copy.deepcopy(other)
@@ -50,7 +50,9 @@ class Object(TypeBase):
         if type(self) is not Object and type(other) is not Object:
             if type(other) == type(self):
                 return True
-        raise Exception("{}.contains({}): Method is not implemented".format(self.name, other.name))
+        raise Exception(
+            "{}.contains({}): Method is not implemented".format(self.name, other.name)
+        )
 
     @property
     def name(self):
@@ -91,6 +93,7 @@ class Float(Object):
     @property
     def name(self):
         return "FloatType"
+
 
 class Int(Object):
     def __init__(self):
@@ -238,7 +241,7 @@ class Tuple(Object):
     def typeCount(self):
         return len(self._types)
 
-    def type(self, index):
+    def type(self, index):  # noqa
         return self._types[index]
 
     @property
@@ -246,7 +249,7 @@ class Tuple(Object):
         return self._types
 
     def createFrom(input_tuple, index, newType):
-        types = [copy.deepcopy(type) for type in input_tuple._types]
+        types = [copy.deepcopy(type_) for type_ in input_tuple._types]
         types[index] = copy.deepcopy(newType)
         return Tuple(types)
 
@@ -254,7 +257,7 @@ class Tuple(Object):
         if not type(value) is tuple:
             return False
         for v, t in zip(value, self._types):
-            if t.contains_value(v) == False:
+            if not t.contains_value(v):
                 return False
         return True
 
@@ -265,7 +268,6 @@ class Tuple(Object):
     @property
     def name(self):
         return "TupleType({args})".format(args=", ".join([x.name for x in self._types]))
-
 
     def intersect(self, other):
         if type(other) == Object:
@@ -282,7 +284,7 @@ class Tuple(Object):
         result = []
         for t1, t2 in zip(self._types, other._types):
             val = t1.intersect(t2)
-            if val == None:
+            if val is None:
                 return None
             result.append(val)
 

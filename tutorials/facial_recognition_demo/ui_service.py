@@ -5,13 +5,14 @@ from bblocks.execution.nodecluster import *
 from bblocks.declaration import *
 import cv2
 
+
 class DragAndDropImageWebView(Node):
     def __init__(self):
         super().__init__()
         self.register_event("image_dropped")
 
     def run(self):
-        image = cv2.imread('./Bezos.jpg')
+        image = cv2.imread("./Bezos.jpg")
         self.fire("image_dropped", Image(image))
 
 
@@ -40,7 +41,7 @@ if __name__ == "__main__":
     with open("./graph.json") as f:
         config = json.load(f)
 
-    server_endpoint = 'tcp://127.0.0.1:2000'
+    server_endpoint = "tcp://127.0.0.1:2000"
     cluster = UICluster("ui-service", config)
     cluster.start(server_endpoint)
     cluster.wait()

@@ -36,32 +36,32 @@ class MyErrorStrategy(DefaultErrorStrategy):
     def sync(self, recognizer):
         pass
 
+
 class TypesParser:
     def __init__(self):
         self.tree_ = None
 
     def _handle_block_type(self, block_type_tree):
         complex_type_name = block_type_tree.children[0].getText().lower()
-        typelist = [self._handle_block_type(item) for item in block_type_tree.children[2::2]]
+        typelist = [
+            self._handle_block_type(item) for item in block_type_tree.children[2::2]
+        ]
 
         scalar_types = {
             "object": datatypes.Object,
-
             # basic types
             "int": datatypes.Int,
             "float": datatypes.Float,
             "boolean": datatypes.Boolean,
             "string": datatypes.String,
-
             # collections
             "tuple": datatypes.Tuple,
             "list": datatypes.List,
-
             "binaryfile": datatypes.BinaryArray,
             "videostream": datatypes.VideoStream,
             "image": datatypes.Image,
             "rect": datatypes.Rect,
-            "void": datatypes.Void
+            "void": datatypes.Void,
         }
 
         for name, tp in scalar_types.items():
@@ -91,7 +91,11 @@ class TypesParser:
     def _handle_property(self, property_tree):
         name_subtree = property_tree.children[0].children
         name = name_subtree[0].getText()
-        is_optional = len(name_subtree) > 1 and name_subtree[1].symbol.type == BlockTypesParser.BlockTypesParser.QUESTION_MARK
+        is_optional = (
+            len(name_subtree) > 1
+            and name_subtree[1].symbol.type
+            == BlockTypesParser.BlockTypesParser.QUESTION_MARK
+        )
 
         property_type = self._handle_block_type(property_tree.children[2])
         if len(property_tree.children) > 3:
@@ -104,23 +108,64 @@ class TypesParser:
 
     def _handle_all_properties_section(self, tree):
         result = {}
-        properties_section_list = list(filter(lambda x: isinstance(x, BlockTypesParser.BlockTypesParser.Properties_sectionContext), tree.children[3:]))
-        property_list = list(itertools.chain(*[item.children[2].children for item in properties_section_list if not item.children[2].children is None]))
+        properties_section_list = list(
+            filter(
+                lambda x: isinstance(
+                    x, BlockTypesParser.BlockTypesParser.Properties_sectionContext
+                ),
+                tree.children[3:],
+            )
+        )
+        property_list = list(
+            itertools.chain(
+                *[
+                    item.children[2].children
+                    for item in properties_section_list
+                    if not item.children[2].children is None
+                ]
+            )
+        )
         return dict(self._handle_property(property) for property in property_list)
 
     def _handle_all_event_sections(self, block_type_definition_tree):
-        events_section_list = list(filter(lambda x: isinstance(x, BlockTypesParser.BlockTypesParser.Events_sectionContext), block_type_definition_tree.children[3:]))
-        event_list = list(itertools.chain(*[prop.children[2].children for prop in events_section_list]))
+        events_section_list = list(
+            filter(
+                lambda x: isinstance(
+                    x, BlockTypesParser.BlockTypesParser.Events_sectionContext
+                ),
+                block_type_definition_tree.children[3:],
+            )
+        )
+        event_list = list(
+            itertools.chain(
+                *[prop.children[2].children for prop in events_section_list]
+            )
+        )
         return dict(self._handle_event(event) for event in event_list)
 
     def _handle_all_handler_sections(self, block_type_definition_tree):
         result = {}
-        handlers_section_list = list(filter(lambda x: isinstance(x, BlockTypesParser.BlockTypesParser.Handlers_sectionContext), block_type_definition_tree.children[3:]))
-        handler_list = list(itertools.chain(*[item.children[2].children for item in handlers_section_list if not item.children[2].children is None]))
+        handlers_section_list = list(
+            filter(
+                lambda x: isinstance(
+                    x, BlockTypesParser.BlockTypesParser.Handlers_sectionContext
+                ),
+                block_type_definition_tree.children[3:],
+            )
+        )
+        handler_list = list(
+            itertools.chain(
+                *[
+                    item.children[2].children
+                    for item in handlers_section_list
+                    if not item.children[2].children is None
+                ]
+            )
+        )
         return dict(self._handle_handler(handler) for handler in handler_list)
 
     def _handle_event(self, event_tree):
-        #return {event.children[0].getText(): self._handle_func_arguments(event.children[2]) for event in event_list}
+        # return {event.children[0].getText(): self._handle_func_arguments(event.children[2]) for event in event_list}
 
         name = event_tree.children[0].children[0].getText()
         type = self._handle_func_arguments(event_tree.children[2])
@@ -132,11 +177,13 @@ class TypesParser:
         tp = self._handle_func_arguments(handler_tree.children[2])
         return name, nodetype.HandlerDeclaration(name, tp, not single)
 
-
     def _handle_typenodes(self, types_tree):
         result = []
         for typenode_child in types_tree.getChildren():
-            if not isinstance(typenode_child, BlockTypesParser.BlockTypesParser.Block_type_definitionContext):
+            if not isinstance(
+                typenode_child,
+                BlockTypesParser.BlockTypesParser.Block_type_definitionContext,
+            ):
                 continue
             item = nodetype.NodeTypeDeclaration()
             attrs = []
@@ -147,7 +194,9 @@ class TypesParser:
                     for param in attr.children[3::2]:
                         param_name = param.children[0].getText()
                         param_value = param.children[2].children[0]
-                        if isinstance(param_value, BlockTypesParser.BlockTypesParser.StringContext):
+                        if isinstance(
+                            param_value, BlockTypesParser.BlockTypesParser.StringContext
+                        ):
                             param_value = param_value.children[0].getText()[1:-1]
                         else:
                             param_value = int(param_value.children[0].getText())
@@ -174,5 +223,3 @@ class TypesParser:
 
         result = self._handle_typenodes(self.tree_)
         return dict({t.name: t for t in result})
-
-

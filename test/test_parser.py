@@ -1,5 +1,7 @@
 import unittest
-from broutonblocks.typesparser import *
+
+from broutonblocks.typesparser import TypesParseError, TypesParser
+
 
 class CheckGraphExecution(unittest.TestCase):
     def test_first(self):
@@ -11,9 +13,10 @@ class CheckGraphExecution(unittest.TestCase):
                     value(val:int)
                     processFile(file:BinaryFile)
                     value2(a: tuple(int, int))
-                events:                       
+                events:
                     event1(a: int, b: float)
-            """)
+            """
+        )
 
         self.assertTrue("NodeType" in node_types)
         handler = node_types["NodeType"].handlers["value"]

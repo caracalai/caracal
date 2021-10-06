@@ -1,7 +1,8 @@
-import broutonblocks.proto.basictypes_pb2 as basictypes_pb2
-import broutonblocks.execution.basictypes as basictypes
+from broutonblocks.execution import basictypes
+from broutonblocks.proto import basictypes_pb2
 from google.protobuf.any_pb2 import Any
 import numpy as np
+
 
 class ProtoSerializer:
     def ProtobufSerializer(self):
@@ -9,18 +10,22 @@ class ProtoSerializer:
 
     def deserialize_value(self, value):
         if isinstance(value, Any):
-            for t in [basictypes_pb2.StringValue,
-                      basictypes_pb2.ImageValue,
-                      basictypes_pb2.BooleanValue,
-                      basictypes_pb2.IntValue,
-                      basictypes_pb2.CameraValue,
-                      basictypes_pb2.TupleValue,
-                      basictypes_pb2.ListValue]:
-                if value.type_url == 'type.googleapis.com/%s' % t.DESCRIPTOR.full_name:
+            for t in [
+                basictypes_pb2.StringValue,
+                basictypes_pb2.ImageValue,
+                basictypes_pb2.BooleanValue,
+                basictypes_pb2.IntValue,
+                basictypes_pb2.CameraValue,
+                basictypes_pb2.TupleValue,
+                basictypes_pb2.ListValue,
+            ]:
+                if value.type_url == "type.googleapis.com/%s" % t.DESCRIPTOR.full_name:
                     unpacked_message = t()
                     if value.Unpack(unpacked_message):
                         return self.deserialize_value(unpacked_message)
-                    raise RuntimeError("Couldn't deserialize {value}".format(value=value))
+                    raise RuntimeError(
+                        "Couldn't deserialize {value}".format(value=value)
+                    )
 
         if isinstance(value, basictypes_pb2.IntValue):
             return value.value
@@ -101,13 +106,13 @@ class ProtoSerializer:
             return result
         raise RuntimeError("Undefined value")
 
-    def serialize_message(self, id, value):
+    def serialize_message(self, id_, value):
         message = basictypes_pb2.Message()
-        message.id = id
+        message.id = id_
         message.value.Pack(self.serialize_value(value))
         return message
 
     def deserialize_message(self, msg):
-        id = msg.id
+        id_ = msg.id
         value = self.deserialize_value(msg.value)
-        return id, value
+        return id_, value

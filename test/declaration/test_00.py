@@ -1,16 +1,17 @@
+import unittest
+
 from broutonblocks.declaration import Project, SessionInfo
 from broutonblocks.typesparser import TypesParser
-import unittest
 
 
 class CheckDeclaration_00(unittest.TestCase):
-    def __init__(self, methodName='runTest'):
+    def __init__(self, methodName="runTest"):
         super(CheckDeclaration_00, self).__init__(methodName)
         self.my_type = """
                 node FirstNode:
                     properties:
                         threshold?: float(0.8) // default value
-                        border_width: int(10)                
+                        border_width: int(10)
                 """
 
     def test(self):

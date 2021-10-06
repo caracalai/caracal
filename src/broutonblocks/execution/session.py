@@ -1,6 +1,9 @@
-from broutonblocks.declaration.projects import *
-from broutonblocks.execution.nodeserver import NodeServer
 import logging
+
+from broutonblocks.declaration.projects import Project
+from broutonblocks.execution.nodeserver import NodeServer
+
+
 current_session = None
 
 
@@ -15,12 +18,10 @@ class Session:
         self.project = Project()
         self.server = None
 
-
-
     def initialize(self, project_file, node_type_impls):
-        project = Project.deserialize(project_file)
+        self.project = Project.deserialize(project_file)
 
-        reprs = {impl().type : impl  for impl in node_type_impls}
+        # reprs = {impl().type: impl for impl in node_type_impls}
 
         # for node in project.nodes:
         #     for node_type_impl in node_type_impls:
@@ -28,16 +29,18 @@ class Session:
         #             found = True
         #             node_type_impl()
 
-
     def run(self):
         try:
             if self.serves_server:
-                logging.debug("session external nodes = {nodes}".format(nodes=self.external_nodes))
+                logging.debug(
+                    "session external nodes = {nodes}".format(nodes=self.external_nodes)
+                )
                 all_nodes = self.external_nodes
                 for node in self.nodes:
                     all_nodes.append(node.id)
                 all_nodes = list(set(all_nodes))
-                #logging.debug("session all nodes = {nodes}".format(nodes=self.all_nodes))
+                # logging.debug("session all nodes = {nodes}"
+                # .format(nodes=self.all_nodes))
                 self.server = NodeServer(all_nodes, self.server_port)
                 self.server_port = self.server.port
                 self.server.start()
@@ -55,15 +58,16 @@ class Session:
 
     def add(self, node):
         self.nodes.append(node)
-        logging.debug("session add node. Node count = {count}".format(count=len(self.nodes)))
-
+        logging.debug(
+            "session add node. Node count = {count}".format(count=len(self.nodes))
+        )
 
     def __enter__(self):
         global current_session
         current_session = self
         return self
 
-    def __exit__(self, type, value, tb):
+    def __exit__(self, type_, value, tb):
         global current_session
         del self
         current_session = None
@@ -73,5 +77,3 @@ class Session:
             if node.type_id == value:
                 return node
         return None
-
-

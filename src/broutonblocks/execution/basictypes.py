@@ -6,4 +6,3 @@ class Image:
 class Camera:
     def __init__(self, url):
         self.url = url
-

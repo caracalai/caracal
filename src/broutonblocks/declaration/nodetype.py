@@ -1,10 +1,8 @@
-import pickle
-
-
 class ProgrammingLanguage:
-    Python = 0,
-    Cpp = 1,
+    Python = (0,)
+    Cpp = (1,)
     NodeJs = 2
+
 
 class Attribute:
     def __init__(self):
@@ -12,9 +10,8 @@ class Attribute:
         self.values = {}
 
     def serialize(self):
-        return {
-            "name": self.name
-        }
+        return {"name": self.name}
+
 
 class MetaInfo:
     def __init__(self, **kwargs):
@@ -22,6 +19,7 @@ class MetaInfo:
 
     def serialize(self):
         return {}
+
 
 class PropertyDeclaration:
     def __init__(self, data_type, optional, default_value=None):
@@ -51,7 +49,7 @@ class HandlerDeclaration(MethodDeclaration):
 
     def __str__(self):
         result = "{type}".format(type=self.data_type)
-        if self.single == False:
+        if not self.single:
             result += " [can be multiple]"
         return result
 
@@ -61,7 +59,7 @@ class EventDeclaration(MethodDeclaration):
         result = "{type}".format(type=self.data_type)
         return result
 
-    @property
+    @property  # noqa
     def id(self):
         return "property_{id}"
 
@@ -74,27 +72,25 @@ class NodeTypeDeclaration:
         self.name = None
         self.attributes = []
 
-    @property
+    @property  # noqa
     def id(self):
         return self.name
 
     def __str__(self):
-        result = 'node {name}\n'.format(name=self.name)
-        result += '\tproperties:\n'
+        result = "node {name}\n".format(name=self.name)
+        result += "\tproperties:\n"
         for key, value in self.properties.items():
             result += "\t\t{name}: {type}\n".format(name=key, type=value)
-        result += '\thandlers:\n'
+        result += "\thandlers:\n"
         for key, value in self.handlers.items():
             result += "\t\t{name}: {type}\n".format(name=key, type=value)
-        result += '\tevents:\n'
+        result += "\tevents:\n"
         for key, value in self.events.items():
             result += "\t\t{name}: {type}\n".format(name=key, type=value)
         return result
 
-
     def serialize(self):
-        result = {}
-        result["name"] = self.name
+        result = {"name": self.name}
 
         handlers = {}
         for item in self.handlers.values():
@@ -104,12 +100,12 @@ class NodeTypeDeclaration:
         events = {}
         for item in self.events.values():
             events[item.id] = item.serialize()
-        result["handlers"] = events
+        result["events"] = events
 
         properties = {}
         for item in self.properties.values():
             properties[item.id] = item.serialize()
-        result["handlers"] = properties
+        result["properties"] = properties
 
         return result
 
@@ -121,7 +117,8 @@ class NodeTypeDeclaration:
         #             prop_value = n.property_values[prop_name]
         #         if prop_value != None:
         #             properties[prop_name] = base64.b64encode(
-        #                 ProtoSerializer().serialize_message(0, prop_value).SerializeToString()
+        #                 ProtoSerializer().serialize_message(0, prop_value)
+        #                 .SerializeToString()
         #             ).decode('ascii')
         #     result["nodes"][n.id] = {
         #         "type": {
