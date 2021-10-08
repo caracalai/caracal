@@ -151,9 +151,7 @@ class BlockTypesListener(ParseTreeListener):
         pass
 
     # Enter a parse tree produced by BlockTypesParser#prop_initialization.
-    def enterProp_initialization(
-        self, ctx: BlockTypesParser.Prop_initializationContext
-    ):
+    def enterProp_initialization(self, ctx: BlockTypesParser.Prop_initializationContext):
         pass
 
     # Exit a parse tree produced by BlockTypesParser#prop_initialization.

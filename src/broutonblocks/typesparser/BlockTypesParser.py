@@ -377,9 +377,7 @@ class BlockTypesParser(Parser):
 
         def handlers_section(self, i: int = None):
             if i is None:
-                return self.getTypedRuleContexts(
-                    BlockTypesParser.Handlers_sectionContext
-                )
+                return self.getTypedRuleContexts(BlockTypesParser.Handlers_sectionContext)
             else:
                 return self.getTypedRuleContext(
                     BlockTypesParser.Handlers_sectionContext, i
@@ -389,9 +387,7 @@ class BlockTypesParser(Parser):
             if i is None:
                 return self.getTypedRuleContexts(BlockTypesParser.Events_sectionContext)
             else:
-                return self.getTypedRuleContext(
-                    BlockTypesParser.Events_sectionContext, i
-                )
+                return self.getTypedRuleContext(BlockTypesParser.Events_sectionContext, i)
 
         def predicates_section(self, i: int = None):
             if i is None:
@@ -835,9 +831,7 @@ class BlockTypesParser(Parser):
 
     def properties_section(self):
 
-        localctx = BlockTypesParser.Properties_sectionContext(
-            self, self._ctx, self.state
-        )
+        localctx = BlockTypesParser.Properties_sectionContext(self, self._ctx, self.state)
         self.enterRule(localctx, 16, self.RULE_properties_section)
         try:
             self.enterOuterAlt(localctx, 1)
@@ -1137,9 +1131,7 @@ class BlockTypesParser(Parser):
 
     def predicates_section(self):
 
-        localctx = BlockTypesParser.Predicates_sectionContext(
-            self, self._ctx, self.state
-        )
+        localctx = BlockTypesParser.Predicates_sectionContext(self, self._ctx, self.state)
         self.enterRule(localctx, 28, self.RULE_predicates_section)
         try:
             self.enterOuterAlt(localctx, 1)
