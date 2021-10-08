@@ -2,7 +2,8 @@ name: flake8 Lint
 
 on:
   push:
-    - refactoring
+    branches:
+      - refactoring
   pull-request:
 
 jobs:
