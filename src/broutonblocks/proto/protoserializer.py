@@ -23,9 +23,7 @@ class ProtoSerializer:
                     unpacked_message = t()
                     if value.Unpack(unpacked_message):
                         return self.deserialize_value(unpacked_message)
-                    raise RuntimeError(
-                        "Couldn't deserialize {value}".format(value=value)
-                    )
+                    raise RuntimeError("Couldn't deserialize {value}".format(value=value))
 
         if isinstance(value, basictypes_pb2.IntValue):
             return value.value

@@ -36,9 +36,7 @@ class CheckProperties(unittest.TestCase):
             node_types = parser.parse(self._program)
             self.assertTrue(len(node_types) == 1, "Incorrect number of node types")
             myNode = node_types["MyNode"]
-            self.assertTrue(
-                len(myNode.properties) == 6, "Incorrect number of properties"
-            )
+            self.assertTrue(len(myNode.properties) == 6, "Incorrect number of properties")
             self.assertTrue(
                 myNode.properties["threshold"].optional, "Threshold should be optional"
             )

@@ -1,6 +1,7 @@
-import numpy
 import logging
 
+import numpy
 
-if __name__ == '__main__':
-    print('ok')
+
+if __name__ == "__main__":
+    print("ok")
