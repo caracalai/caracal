@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - refactoring
-  pull-request:
 
 jobs:
   flake8-lint:
