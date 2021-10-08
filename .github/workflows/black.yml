@@ -1,17 +1,36 @@
 name: autoblack
-on: [push, pull_request]
+
+on:
+  # Trigger the workflow on push or pull request,
+  # but only for the main branch
+  push:
+    branches:
+      - refactoring
+  pull_request:
+    branches:
+      - refactoring
+
 jobs:
-  lint:
+  run-linters:
+    name: Run linters
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-      - name: Install Python dependencies
-        run: |
-          pip install pipenv
-          pipenv install --deploy --dev
-      - uses: wearerequired/lint-action@v1
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          python-version: 3.8
+
+      - name: Install Python dependencies
+        run: pip install black
+
+      - name: Run linters
+        uses: wearerequired/lint-action@v1
+        with:
           black: true
+          black_args:  "--line-length 90"
           auto_fix: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
