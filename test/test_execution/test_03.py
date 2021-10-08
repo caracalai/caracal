@@ -1,8 +1,9 @@
-import broutonblocks.declaration.datatypes as bbtypes
-from broutonblocks.declaration import *
-from broutonblocks.execution import *
+import logging
+import unittest
 
-import unittest, logging
+from broutonblocks.declaration import MetaInfo
+import broutonblocks.declaration.datatypes as bbtypes
+from broutonblocks.execution import Event, handler, Node, Property, Session
 
 sent_array = [54, -21, 54, 43, 34, 5, 43, 2, -6, 2]
 threshold = 23
@@ -26,7 +27,10 @@ class Processor(Node):
 
     @handler("onProcessBatch", bbtypes.List(bbtypes.Int()), False, MetaInfo())
     def on_process_batch(self, msg):
-        self.fire(self.result, list(filter(lambda x: x >= self.threshold.value, msg.value)))
+        self.fire(
+            self.result, list(filter(lambda x: x >= self.threshold.value, msg.value))
+        )
+
 
 class TestNode(Node):
     @handler("receive_result", bbtypes.Object())

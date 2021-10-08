@@ -1,14 +1,24 @@
-import broutonblocks.declaration.datatypes as bbtypes
-from broutonblocks.declaration import *
-from broutonblocks.execution import *
+import logging
 import threading
-import unittest, logging
+import unittest
+
+from broutonblocks.declaration import MetaInfo
+import broutonblocks.declaration.datatypes as bbtypes
+from broutonblocks.execution import (
+    Event,
+    ExternalEvent,
+    handler,
+    Node,
+    Property,
+    Session,
+)
 
 port = 2001
 sent_array = [54, -21, 54, 43, 34, 5, 43, 2, -6, 2]
 threshold = 23
 result = list(filter(lambda x: x >= threshold, sent_array))
 test_node_result = None
+
 
 class Generator(Node):
     def __init__(self):
@@ -27,7 +37,10 @@ class Processor(Node):
 
     @handler("onProcessBatch", bbtypes.List(bbtypes.Int()), False, MetaInfo())
     def on_process_batch(self, msg):
-        self.fire(self.result, list(filter(lambda x: x >= self.threshold.value, msg.value)))
+        self.fire(
+            self.result, list(filter(lambda x: x >= self.threshold.value, msg.value))
+        )
+
 
 class TestNode(Node):
     @handler("receive_result", bbtypes.Object())
@@ -36,12 +49,12 @@ class TestNode(Node):
         self.terminate()
 
 
-
 def first_worker():
     with Session(server_port=port, external_nodes=["detector", "test-node"]) as session:
         processor = Generator()
         processor.id = "generator"
         session.run()
+
 
 def second_worker():
     with Session(serves_server=False, server_port=port) as session:
@@ -50,13 +63,16 @@ def second_worker():
         test_node = TestNode("test-node")
 
         detector.threshold.value = threshold
-        processed_batch = ExternalEvent("processedBatch", bbtypes.List(bbtypes.Int()), node_id="generator")
+        processed_batch = ExternalEvent(
+            "processedBatch", bbtypes.List(bbtypes.Int()), node_id="generator"
+        )
         detector.on_process_batch.connect(processed_batch)
         test_node.receive_result.connect(detector.result)
         session.run()
 
         global test_node_result
         test_node_result = test_node.result
+
 
 class CheckGraphExecution_05(unittest.TestCase):
     def test(self):

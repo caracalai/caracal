@@ -11,9 +11,9 @@
   <a href="">Join Discord</a>
   |
   <a href="">Newsletter</a>
-  | 
+  |
   <a href="">Blog</a>
-  | 
+  |
   <a href="">Twitter</a>
 </p>
 

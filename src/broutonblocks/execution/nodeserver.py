@@ -1,6 +1,8 @@
 import json
-import zmq, threading
 import logging
+import threading
+
+import zmq
 
 
 class NodeServer:
@@ -36,7 +38,11 @@ class NodeServer:
             try:
                 socket.close()
             except Exception as e:
-                print('Trying to close down socket: {} resulted in error: {}'.format(socket, e))
+                print(
+                    "Trying to close down socket: {} resulted in error: {}".format(
+                        socket, e
+                    )
+                )
 
         self.context.term()
         self.worker.join()
@@ -54,25 +60,25 @@ class NodeServer:
             sock.close()
 
     def finish_nodes(self):
-        for node in self.nodes_info.values():
+        for id_, node in self.nodes_info.items():
             sock = self.context.socket(zmq.REQ)
             sock.connect(node["service_endpoint"])
-            sock.send(json.dumps({"id": id, "finish": "true"}).encode("utf8"))
+            sock.send(json.dumps({"id": id_, "finish": "true"}).encode("utf8"))
             sock.close()
 
     def start_nodes(self):
-        for id, node in self.nodes_info.items():
+        for id_, node in self.nodes_info.items():
             sock = self.context.socket(zmq.REQ)
             sock.connect(node["service_endpoint"])
-            sock.send(json.dumps({"id": id, "start": "true"}).encode("utf8"))
+            sock.send(json.dumps({"id": id_, "start": "true"}).encode("utf8"))
             sock.close()
 
     def all_nodes_are_registered(self):
-        for id in self.all_nodes_list:
-            if id not in self.nodes_info:
+        for id_ in self.all_nodes_list:
+            if id_ not in self.nodes_info:
                 return False
             for param in ["publisher_endpoint", "service_endpoint"]:
-                if not (param in self.nodes_info[id] and self.nodes_info[id] != ""):
+                if not (param in self.nodes_info[id_] and self.nodes_info[id_] != ""):
                     return False
         return True
 
@@ -85,40 +91,43 @@ class NodeServer:
                     break
 
                 request = json.loads(msg)
-                if not "command" in request:
+                if "command" not in request:
                     logging.debug("Server: Failed request")
                     self.socket.send(json.dumps({"success": "false"}).encode("utf8"))
                     continue
 
                 cmd = request["command"]
                 if cmd == "register":
-                    id = request["id"]
-                    logging.debug("Server: Registration of {}".format(id))
+                    id_ = request["id"]
+                    logging.debug("Server: Registration of {}".format(id_))
 
-                    self.nodes_info[id] = {
+                    self.nodes_info[id_] = {
                         "publisher_endpoint": request["publisher_endpoint"],
-                        "service_endpoint": request["service_endpoint"]
+                        "service_endpoint": request["service_endpoint"],
                     }
                     self.socket.send(json.dumps({"success": "true"}).encode("utf8"))
 
                     if self.all_nodes_are_registered():
-                        logging.debug("Server: all nodes are registered. Starting initialization...")
+                        logging.debug(
+                            "Server: all nodes are registered. Starting initialization..."
+                        )
                         self.initialize_nodes()
                     continue
 
                 if cmd == "terminate":
                     self.socket.send(json.dumps({"success": "true"}).encode("utf8"))
-                    for id, node in self.nodes_info.items():
+                    for id_, node in self.nodes_info.items():
                         sock = self.context.socket(zmq.REQ)
                         sock.connect(node["service_endpoint"])
-                        sock.send(json.dumps({"id": id, "terminate": "true"}).encode("utf8"))
+                        sock.send(
+                            json.dumps({"id": id_, "terminate": "true"}).encode("utf8")
+                        )
                         sock.close()
                     break
 
-
                 if cmd == "ready-to-work":
-                    id = request["id"]
-                    logging.debug("Server: Node {} is ready to work".format(id))
+                    id_ = request["id"]
+                    logging.debug("Server: Node {} is ready to work".format(id_))
 
                     self.socket.send(json.dumps({"success": "true"}).encode("utf8"))
                     self.initialized_nodes.add(request["id"])
@@ -130,11 +139,13 @@ class NodeServer:
                     continue
 
                 if cmd == "generate-next-message-index":
-                    self.socket.send(json.dumps({"index": self.next_msg_index}).encode("utf8"))
+                    self.socket.send(
+                        json.dumps({"index": self.next_msg_index}).encode("utf8")
+                    )
                     self.next_msg_index += 1
                     continue
                 logging.warning("Server: undefined command {cmd}".format(cmd=cmd))
-            except Exception as e:
+            except Exception:
                 logging.debug("Socked is closed")
                 break
         logging.debug("Server: Finished execution...")
