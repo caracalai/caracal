@@ -9,7 +9,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           pip install pipenv
-          pipenv install --deploy --dev --system
+          pipenv install --deploy --dev
       - uses: wearerequired/lint-action@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
