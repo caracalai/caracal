@@ -137,9 +137,7 @@ class TypesParser:
             )
         )
         event_list = list(
-            itertools.chain(
-                *[prop.children[2].children for prop in events_section_list]
-            )
+            itertools.chain(*[prop.children[2].children for prop in events_section_list])
         )
         return dict(self._handle_event(event) for event in event_list)
 

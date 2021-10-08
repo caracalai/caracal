@@ -194,9 +194,7 @@ def create_graph():
     CreateVideoFile = graph.add_node(node_types["CreateVideoFile"])
 
     graph.connect(ReadVideoFile, "next_batch", AddBorder, "process_batch")
-    graph.connect(
-        ReadVideoFile, "frame_count", CreateBundleFromStream, "set_bundle_size"
-    )
+    graph.connect(ReadVideoFile, "frame_count", CreateBundleFromStream, "set_bundle_size")
     graph.connect(AddBorder, "result_batch", CreateBundleFromStream, "add_batch")
     graph.connect(CreateBundleFromStream, "next_bundle", CreateVideoFile, "process")
     graph.server_fabric = "python-service"
