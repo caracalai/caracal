@@ -31,6 +31,6 @@ jobs:
         uses: wearerequired/lint-action@v1
         with:
           black: true
-          black_args:  "--line-length=90 --exclude=^src/broutonblocks/typesparser/"
+          black_args:  '--line-length=90 --force-exclude="src/broutonblocks/typesparser/"'
           auto_fix: true
           github_token: ${{ secrets.GITHUB_TOKEN }}
