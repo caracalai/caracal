@@ -2,11 +2,11 @@
 from antlr4 import *
 from io import StringIO
 import sys
+
 if sys.version_info[1] > 5:
     from typing import TextIO
 else:
     from typing.io import TextIO
-
 
 
 def serializedATN():
@@ -33,20 +33,20 @@ def serializedATN():
         buf.write("\u00bc\13\33\3\33\3\33\3\33\3\33\3\33\3\34\3\34\3\34\3")
         buf.write("\34\7\34\u00c7\n\34\f\34\16\34\u00ca\13\34\3\34\3\34\3")
         buf.write("\u00ba\2\35\3\3\5\4\7\5\t\6\13\7\r\b\17\t\21\n\23\13\25")
-        buf.write("\f\27\r\31\16\33\17\35\20\37\21!\22#\23%\24\'\25)\26+")
+        buf.write("\f\27\r\31\16\33\17\35\20\37\21!\22#\23%\24'\25)\26+")
         buf.write("\27-\30/\31\61\32\63\33\65\34\67\35\3\2\b\5\2\13\f\17")
-        buf.write("\17\"\"\6\2\f\f\17\17$$^^\4\2$$^^\4\2C\\c|\6\2\62;C\\")
+        buf.write('\17""\6\2\f\f\17\17$$^^\4\2$$^^\4\2C\\c|\6\2\62;C\\')
         buf.write("aac|\4\2\f\f\17\17\2\u00d6\2\3\3\2\2\2\2\5\3\2\2\2\2\7")
         buf.write("\3\2\2\2\2\t\3\2\2\2\2\13\3\2\2\2\2\r\3\2\2\2\2\17\3\2")
         buf.write("\2\2\2\21\3\2\2\2\2\23\3\2\2\2\2\25\3\2\2\2\2\27\3\2\2")
         buf.write("\2\2\31\3\2\2\2\2\33\3\2\2\2\2\35\3\2\2\2\2\37\3\2\2\2")
-        buf.write("\2!\3\2\2\2\2#\3\2\2\2\2%\3\2\2\2\2\'\3\2\2\2\2)\3\2\2")
+        buf.write("\2!\3\2\2\2\2#\3\2\2\2\2%\3\2\2\2\2'\3\2\2\2\2)\3\2\2")
         buf.write("\2\2+\3\2\2\2\2-\3\2\2\2\2/\3\2\2\2\2\61\3\2\2\2\2\63")
         buf.write("\3\2\2\2\2\65\3\2\2\2\2\67\3\2\2\2\39\3\2\2\2\5=\3\2\2")
         buf.write("\2\7?\3\2\2\2\tA\3\2\2\2\13C\3\2\2\2\rE\3\2\2\2\17G\3")
         buf.write("\2\2\2\21I\3\2\2\2\23K\3\2\2\2\25N\3\2\2\2\27R\3\2\2\2")
         buf.write("\31T\3\2\2\2\33W\3\2\2\2\35Z\3\2\2\2\37\\\3\2\2\2!^\3")
-        buf.write("\2\2\2#`\3\2\2\2%e\3\2\2\2\'p\3\2\2\2)w\3\2\2\2+\u0080")
+        buf.write("\2\2\2#`\3\2\2\2%e\3\2\2\2'p\3\2\2\2)w\3\2\2\2+\u0080")
         buf.write("\3\2\2\2-\u008b\3\2\2\2/\u009e\3\2\2\2\61\u00a1\3\2\2")
         buf.write("\2\63\u00ad\3\2\2\2\65\u00b4\3\2\2\2\67\u00c2\3\2\2\2")
         buf.write("9:\t\2\2\2:;\3\2\2\2;<\b\2\2\2<\4\3\2\2\2=>\7<\2\2>\6")
@@ -56,7 +56,7 @@ def serializedATN():
         buf.write("\2NO\7c\2\2OP\7p\2\2PQ\7f\2\2Q\26\3\2\2\2RS\7?\2\2S\30")
         buf.write("\3\2\2\2TU\7?\2\2UV\7?\2\2V\32\3\2\2\2WX\7#\2\2XY\7?\2")
         buf.write("\2Y\34\3\2\2\2Z[\7]\2\2[\36\3\2\2\2\\]\7_\2\2] \3\2\2")
-        buf.write("\2^_\7.\2\2_\"\3\2\2\2`a\7p\2\2ab\7q\2\2bc\7f\2\2cd\7")
+        buf.write('\2^_\7.\2\2_"\3\2\2\2`a\7p\2\2ab\7q\2\2bc\7f\2\2cd\7')
         buf.write("g\2\2d$\3\2\2\2ef\7r\2\2fg\7t\2\2gh\7q\2\2hi\7r\2\2ij")
         buf.write("\7g\2\2jk\7t\2\2kl\7v\2\2lm\7k\2\2mn\7g\2\2no\7u\2\2o")
         buf.write("&\3\2\2\2pq\7g\2\2qr\7x\2\2rs\7g\2\2st\7p\2\2tu\7v\2\2")
@@ -102,7 +102,7 @@ class BlockTypesLexer(Lexer):
 
     atn = ATNDeserializer().deserialize(serializedATN())
 
-    decisionsToDFA = [ DFA(ds, i) for i, ds in enumerate(atn.decisionToState) ]
+    decisionsToDFA = [DFA(ds, i) for i, ds in enumerate(atn.decisionToState)]
 
     WS = 1
     COLON = 2
@@ -132,35 +132,102 @@ class BlockTypesLexer(Lexer):
     BLOCKCOMMENT = 26
     LINECOMMENT = 27
 
-    channelNames = [ u"DEFAULT_TOKEN_CHANNEL", u"HIDDEN" ]
+    channelNames = [u"DEFAULT_TOKEN_CHANNEL", u"HIDDEN"]
 
-    modeNames = [ "DEFAULT_MODE" ]
+    modeNames = ["DEFAULT_MODE"]
 
-    literalNames = [ "<INVALID>",
-            "':'", "'.'", "'?'", "'+'", "'('", "')'", "'@'", "'or'", "'and'", 
-            "'='", "'=='", "'!='", "'['", "']'", "','", "'node'", "'properties'", 
-            "'events'", "'handlers'", "'predicates'" ]
+    literalNames = [
+        "<INVALID>",
+        "':'",
+        "'.'",
+        "'?'",
+        "'+'",
+        "'('",
+        "')'",
+        "'@'",
+        "'or'",
+        "'and'",
+        "'='",
+        "'=='",
+        "'!='",
+        "'['",
+        "']'",
+        "','",
+        "'node'",
+        "'properties'",
+        "'events'",
+        "'handlers'",
+        "'predicates'",
+    ]
 
-    symbolicNames = [ "<INVALID>",
-            "WS", "COLON", "DOT", "QUESTION_MARK", "PLUS", "LPAREN", "RPAREN", 
-            "AT", "OR", "AND", "ASSIGN", "EQ", "NEQ", "LBRACKET", "RBRACKET", 
-            "COMMA", "NODE", "PROPERTIES", "EVENTS", "HANDLERS", "PREDICATES", 
-            "STRING_LITERAL", "INTEGER", "FLOAT", "IDENT", "BLOCKCOMMENT", 
-            "LINECOMMENT" ]
+    symbolicNames = [
+        "<INVALID>",
+        "WS",
+        "COLON",
+        "DOT",
+        "QUESTION_MARK",
+        "PLUS",
+        "LPAREN",
+        "RPAREN",
+        "AT",
+        "OR",
+        "AND",
+        "ASSIGN",
+        "EQ",
+        "NEQ",
+        "LBRACKET",
+        "RBRACKET",
+        "COMMA",
+        "NODE",
+        "PROPERTIES",
+        "EVENTS",
+        "HANDLERS",
+        "PREDICATES",
+        "STRING_LITERAL",
+        "INTEGER",
+        "FLOAT",
+        "IDENT",
+        "BLOCKCOMMENT",
+        "LINECOMMENT",
+    ]
 
-    ruleNames = [ "WS", "COLON", "DOT", "QUESTION_MARK", "PLUS", "LPAREN", 
-                  "RPAREN", "AT", "OR", "AND", "ASSIGN", "EQ", "NEQ", "LBRACKET", 
-                  "RBRACKET", "COMMA", "NODE", "PROPERTIES", "EVENTS", "HANDLERS", 
-                  "PREDICATES", "STRING_LITERAL", "INTEGER", "FLOAT", "IDENT", 
-                  "BLOCKCOMMENT", "LINECOMMENT" ]
+    ruleNames = [
+        "WS",
+        "COLON",
+        "DOT",
+        "QUESTION_MARK",
+        "PLUS",
+        "LPAREN",
+        "RPAREN",
+        "AT",
+        "OR",
+        "AND",
+        "ASSIGN",
+        "EQ",
+        "NEQ",
+        "LBRACKET",
+        "RBRACKET",
+        "COMMA",
+        "NODE",
+        "PROPERTIES",
+        "EVENTS",
+        "HANDLERS",
+        "PREDICATES",
+        "STRING_LITERAL",
+        "INTEGER",
+        "FLOAT",
+        "IDENT",
+        "BLOCKCOMMENT",
+        "LINECOMMENT",
+    ]
 
     grammarFileName = "BlockTypes.g4"
 
-    def __init__(self, input=None, output:TextIO = sys.stdout):
+    def __init__(self, input=None, output: TextIO = sys.stdout):
         super().__init__(input, output)
         self.checkVersion("4.9.2")
-        self._interp = LexerATNSimulator(self, self.atn, self.decisionsToDFA, PredictionContextCache())
+        self._interp = LexerATNSimulator(
+            self, self.atn, self.decisionsToDFA, PredictionContextCache()
+        )
         self._actions = None
         self._predicates = None
-
-
