@@ -6,7 +6,7 @@
 <p align="center"><b>No-Code framework to make AI prototyping, diagnostics and development faster.</b></p>
 
 <p align="center">
-  <a href="">Docs</a>
+  <a href="https://docs.broutonblocks.com/">Docs</a>
   |
   <a href="">Join Discord</a>
   |
