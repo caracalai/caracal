@@ -1,14 +1,6 @@
 name: autoblack
 
-on:
-  # Trigger the workflow on push or pull request,
-  # but only for the main branch
-  push:
-    branches:
-      - refactoring
-  pull_request:
-    branches:
-      - refactoring
+on: [push, pull_request]
 
 jobs:
   run-linters:
