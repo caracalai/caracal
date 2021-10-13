@@ -1,9 +1,7 @@
 name: flake8 Lint
 
-on:
-  push:
-    branches:
-      - refactoring
+on: [push, pull_request]
+
 
 jobs:
   flake8-lint:

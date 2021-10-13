@@ -38,4 +38,16 @@ $ pip install git+https://github.com/BroutonBlocks/bblocks-python.git
 python -m unittest discover --verbose
 ```
 
+## Contributing
+### Steps to make a pull request
+- Create a personal fork of the project on Github.
+- Setup environment and install requirements.
+- Run ``` pre-commit install ``` to set up the git hook scripts.
+- Implement/fix you feature, comment your code.
+- Write/adapt tests as needed.
+- Write/adapt the documentation as needed.
+- Open a pull request from your fork in the correct branch.
+
+
+
 Made with :heart: by founders of <a href="https://broutonlab.com">BroutonLab</a>.
