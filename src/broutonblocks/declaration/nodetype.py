@@ -59,8 +59,8 @@ class EventDeclaration(MethodDeclaration):
         result = "{type}".format(type=self.data_type)
         return result
 
-    @property  # noqa
-    def id(self):
+    @property
+    def uid(self):
         return "property_{id}"
 
 
@@ -72,8 +72,8 @@ class NodeTypeDeclaration:
         self.name = None
         self.attributes = []
 
-    @property  # noqa
-    def id(self):
+    @property
+    def uid(self):
         return self.name
 
     def __str__(self):

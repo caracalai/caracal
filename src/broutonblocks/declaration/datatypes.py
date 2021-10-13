@@ -241,7 +241,7 @@ class Tuple(Object):
     def typeCount(self):
         return len(self._types)
 
-    def type(self, index):  # noqa
+    def item_type(self, index):
         return self._types[index]
 
     @property
