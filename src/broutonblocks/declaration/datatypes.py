@@ -71,18 +71,6 @@ class Void(Object):
         return "VoidType"
 
 
-class Number(Object):
-    def __init__(self):
-        super().__init__()
-
-    def contains_value(self, value):
-        return isinstance(value, (int, float)) and not isinstance(value, bool)
-
-    @property
-    def name(self):
-        return "NumberType"
-
-
 class Float(Object):
     def __init__(self):
         super().__init__()
@@ -100,7 +88,7 @@ class Int(Object):
         super().__init__()
 
     def contains_value(self, value):
-        return isinstance(value, (int))
+        return isinstance(value, int)
 
     @property
     def name(self):
@@ -168,13 +156,9 @@ class Rect(Object):
 
 
 class List(Object):
-    def __init__(self, basicType: Object):
+    def __init__(self, basic_type: Object):
         super().__init__()
-        self.basicType_ = basicType
-
-    @property
-    def basicType(self):
-        return self.basicType_
+        self.basic_type = basic_type
 
     def contains_value(self, value):
         if not type(value) is list:
@@ -183,7 +167,7 @@ class List(Object):
 
     @property
     def name(self):
-        return "ListType({basicType})".format(basicType=self.basicType.name)
+        return "ListType({basicType})".format(basicType=self.basic_type.name)
 
 
 class DataSource(Object):
@@ -198,65 +182,28 @@ class DataSource(Object):
         return "DataSourceType"
 
 
-class TableDataSource(DataSource):
-    def __init__(self, basicType):
-        super().__init__()
-        self._basicType = basicType
-
-    @property
-    def basicType(self):
-        return self._basicType
-
-    @property
-    def is_composite(self):
-        return True
-
-    def intersect(self, other):
-        if type(other) != TableDataSource:
-            return False
-        basic_type_intersection = other.basicType.intersect(self.basicType)
-        if basic_type_intersection is None:
-            return None
-        return TableDataSource(basic_type_intersection)
-
-    @property
-    def name(self):
-        return "TableDataSourceType({basicType})".format(basicType=self.basicType.name)
-
-
 class Tuple(Object):
     def __init__(self, *types):
         super().__init__()
-        self._types = list(types)
+        self.item_types = list(types)
 
     @property
-    def names(self):
-        return self._names
+    def type_count(self):
+        return len(self.item_types)
 
-    @names.setter
-    def names(self, nms):
-        self._names = nms
+    def item_type(self, index):
+        return self.item_types[index]
 
-    @property
-    def typeCount(self):
-        return len(self._types)
-
-    def type(self, index):  # noqa
-        return self._types[index]
-
-    @property
-    def types(self):
-        return self._types
-
-    def createFrom(input_tuple, index, newType):
-        types = [copy.deepcopy(type_) for type_ in input_tuple._types]
+    @staticmethod
+    def create_from(input_tuple, index, newType):
+        types = [copy.deepcopy(type_) for type_ in input_tuple.item_types]
         types[index] = copy.deepcopy(newType)
         return Tuple(types)
 
     def contains_value(self, value):
         if not type(value) is tuple:
             return False
-        for v, t in zip(value, self._types):
+        for v, t in zip(value, self.item_types):
             if not t.contains_value(v):
                 return False
         return True
@@ -267,22 +214,24 @@ class Tuple(Object):
 
     @property
     def name(self):
-        return "TupleType({args})".format(args=", ".join([x.name for x in self._types]))
+        return "TupleType({args})".format(
+            args=", ".join([x.name for x in self.item_types])
+        )
 
     def intersect(self, other):
         if type(other) == Object:
             return other.intersect(self)
         if type(other) != type(self):
             return None
-        if len(self._types) != len(other._types):
-            if len(self._types) == 0:
+        if len(self.item_types) != len(other.item_types):
+            if len(self.item_types) == 0:
                 return copy.deepcopy(other)
-            if len(other._types) == 0:
+            if len(other.item_types) == 0:
                 return copy.deepcopy(self)
             return None
 
         result = []
-        for t1, t2 in zip(self._types, other._types):
+        for t1, t2 in zip(self.item_types, other.item_types):
             val = t1.intersect(t2)
             if val is None:
                 return None

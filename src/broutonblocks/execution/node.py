@@ -109,8 +109,8 @@ class Node:
     def name(self):
         return self.__class__.__name__
 
-    @property  # noqa
-    def type(self):
+    @property
+    def node_type(self):
         result = nodetype.NodeTypeDeclaration()
         for _, item in self.handlers.items():
             result.handlers[item.declaration.id] = item.declaration

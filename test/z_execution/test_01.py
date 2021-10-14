@@ -123,4 +123,3 @@ class CheckGraphExecution_01(unittest.TestCase):
                 ],
                 test_node.result,
             )
-            print("finish 01")

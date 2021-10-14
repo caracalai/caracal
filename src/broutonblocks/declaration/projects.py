@@ -12,28 +12,28 @@ class SessionInfo:
 
 
 class Node:
-    def __init__(self, project, type_id, session_id, name="undefined_name"):
+    def __init__(self, project, type_id, session_id):
         self.type_id = type_id
         self.property_values = {}
         self.session_id = session_id
         self.project = project
-        self.id = "{type_name}_{uuid}".format(
-            type_name=self.type.name, uuid=str(uuid.uuid4())
+        self.uid = "{type_name}_{uuid}".format(
+            type_name=self.node_type.name, uuid=str(uuid.uuid4())
         )
 
-    @property  # noqa
-    def type(self):
-        return self.project.types[self.type_id]
+    @property
+    def node_type(self):
+        return self.project.node_types[self.type_id]
 
     @property
     def session(self):
         return self.project.sessions[self.session_id]
 
     def set_property(self, name, value):
-        if name not in self.type.properties.keys():
+        if name not in self.node_type.properties.keys():
             raise RuntimeError("Couldn't set property")
 
-        prop_type = self.type.properties[name].data_type
+        prop_type = self.node_type.properties[name].data_type
         if not prop_type.contains_value(value):
             raise RuntimeError("Couldn't set property")
 
@@ -61,16 +61,15 @@ class Edge:
 class Project:
     def __init__(self):
         self.sessions = {}  # session-id -> SessionInfo
-        self.types = {}  # type-id -> TypeInfo
+        self.node_types = {}  # type-id -> NodeTypeDeclaration
         self.nodes = {}  # node-id -> NodeInfo
         self.edges = []  # Edges
 
-    def register_types(self, types):
-        for type_ in types:
-            self.types[type_.id] = type_
+    def add_node_type(self, node_type):
+        self.node_types[node_type.uid] = node_type
 
-    def remove_type(self, type_):
-        raise NotImplementedError()
+    def remove_node_type(self, node_type):
+        del self.node_types[node_type.uid]
 
     @staticmethod
     def deserialize(text):
@@ -99,24 +98,24 @@ class Project:
         all_edges = self.edges + [edge]
 
         # a = self.node(edge.source_node_id).type
-        if event_name not in self.node(edge.source_node_id).type.events:
+        if event_name not in self.node(edge.source_node_id).node_type.events:
             return False, "Node {node} doesn't have event {event}".format(
-                node=self.node(edge.source_node_id).type.name, event=event_name
+                node=self.node(edge.source_node_id).node_type.name, event=event_name
             )
 
-        if handler_name not in self.node(edge.dest_node_id).type.handlers:
+        if handler_name not in self.node(edge.dest_node_id).node_type.handlers:
             return False, "Node {node} doesn't have handler {handler}".format(
-                node=self.node(edge.dest_node_id).type.name, handler=handler_name
+                node=self.node(edge.dest_node_id).node_type.name, handler=handler_name
             )
 
         types_info = {}
         for _, node in self.nodes.items():
             types_info[node.id] = {}
-            types_info[node.id]["events"] = copy.deepcopy(node.type.events)
+            types_info[node.id]["events"] = copy.deepcopy(node.node_type.events)
 
             types_info[node.id]["handlers"] = {}
-            for h, t in node.type.handlers.items():
-                types_info[node.id]["handlers"][h] = copy.deepcopy(t.type)
+            for h, t in node.node_type.handlers.items():
+                types_info[node.id]["handlers"][h] = copy.deepcopy(t.node_type)
 
         if not dest_node.node_value.handlers[handler_name].receives_multiple:
             if (
@@ -144,7 +143,7 @@ class Project:
             for edge in all_edges:
                 source_type = types_info[edge.source_node_id]["events"][
                     edge.event_name
-                ].type
+                ].node_type
                 dest_type = types_info[edge.dest_node_id]["handlers"][edge.handler_name]
                 intersected_type = source_type.intersect(dest_type)
                 if intersected_type is None:
@@ -153,9 +152,9 @@ class Project:
                         "Couldn't match types of {source_node}.{event} "
                         "('{source_class}') and "
                         "{dest_node}.{handler} ('{dest_class}')".format(
-                            source_node=self.node(edge.source_node_id).type.name,
+                            source_node=self.node(edge.source_node_id).node_type.name,
                             event=edge.event_name,
-                            dest_node=self.node(edge.dest_node_id).type.name,
+                            dest_node=self.node(edge.dest_node_id).node_type.name,
                             handler=edge.handler_name,
                             source_class=source_type.name,
                             dest_class=dest_type.name,
@@ -168,7 +167,7 @@ class Project:
                 ]:
                     if (
                         self.nodes[edge.dest_node_id]
-                        .type.handlers[edge.handler_name]
+                        .node_type.handlers[edge.handler_name]
                         .receives_multiple
                     ):
                         continue
@@ -199,8 +198,8 @@ class Project:
         raise NotImplementedError()
 
     def add_node(self, type_, session):
-        node = Node(self, type_.id, session)
-        self.nodes[node.id] = node
+        node = Node(self, type_.uid, session)
+        self.nodes[node.uid] = node
         return node
 
     def remove_node(self, node_id):
