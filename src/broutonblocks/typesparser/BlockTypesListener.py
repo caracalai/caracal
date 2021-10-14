@@ -89,11 +89,11 @@ class BlockTypesListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by BlockTypesParser#properties.
+    # Enter a parse tree produced by BlockTypesParser#declaration.
     def enterProperties(self, ctx:BlockTypesParser.PropertiesContext):
         pass
 
-    # Exit a parse tree produced by BlockTypesParser#properties.
+    # Exit a parse tree produced by BlockTypesParser#declaration.
     def exitProperties(self, ctx:BlockTypesParser.PropertiesContext):
         pass
 

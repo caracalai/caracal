@@ -138,7 +138,7 @@ class BlockTypesLexer(Lexer):
 
     literalNames = [ "<INVALID>",
             "':'", "'.'", "'?'", "'+'", "'('", "')'", "'@'", "'or'", "'and'", 
-            "'='", "'=='", "'!='", "'['", "']'", "','", "'node'", "'properties'", 
+            "'='", "'=='", "'!='", "'['", "']'", "','", "'node'", "'declaration'",
             "'events'", "'handlers'", "'predicates'" ]
 
     symbolicNames = [ "<INVALID>",
