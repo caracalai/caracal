@@ -5,7 +5,7 @@ import cv2
 import sys
 from bblocks.typesparser import typesparser
 import logging
-from test.test_execution.resultreceiver import ResultReceiver
+from test.z_execution.resultreceiver import ResultReceiver
 
 localhost = "tcp://127.0.0.1"
 delay = 0.0

@@ -139,7 +139,7 @@ class TypesParser:
             if not isinstance(typenode_child, BlockTypesParser.BlockTypesParser.Block_type_definitionContext):
                 continue
             item = nodetype.NodeTypeDeclaration()
-            attrs = []
+            attrs = {}
             if not typenode_child.children[0].children is None:
                 for attr in typenode_child.children[0].children:
                     attribute = nodetype.Attribute()
@@ -152,7 +152,7 @@ class TypesParser:
                         else:
                             param_value = int(param_value.children[0].getText())
                         attribute.values[param_name] = param_value
-                    attrs.append(attribute)
+                    attrs[attribute.name] = attribute
             item.attributes = attrs
             item.name = typenode_child.children[2].getText()
             item.properties = self._handle_all_properties_section(typenode_child)
@@ -173,6 +173,6 @@ class TypesParser:
             raise TypesParseError("Could not parse input grammar")
 
         result = self._handle_typenodes(self.tree_)
-        return dict({t.name: t for t in result})
+        return dict({t.uid: t for t in result})
 
 

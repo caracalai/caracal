@@ -128,7 +128,7 @@ class BlockTypesParser ( Parser ):
 
     literalNames = [ "<INVALID>", "<INVALID>", "':'", "'.'", "'?'", "'+'", 
                      "'('", "')'", "'@'", "'or'", "'and'", "'='", "'=='", 
-                     "'!='", "'['", "']'", "','", "'node'", "'properties'", 
+                     "'!='", "'['", "']'", "','", "'node'", "'declaration'",
                      "'events'", "'handlers'", "'predicates'" ]
 
     symbolicNames = [ "<INVALID>", "WS", "COLON", "DOT", "QUESTION_MARK", 
@@ -170,7 +170,7 @@ class BlockTypesParser ( Parser ):
 
     ruleNames =  [ "block_types", "block_type_definition", "attributes", 
                    "attribute", "attr_param", "attr_param_value", "string", 
-                   "integer", "properties_section", "properties", "handlers_section", 
+                   "integer", "properties_section", "declaration", "handlers_section",
                    "handlers", "events_section", "events", "predicates_section", 
                    "predicates", "prop", "prop_initialization", "prop_name", 
                    "event", "handler", "func_arguments", "argument", "handler_name", 

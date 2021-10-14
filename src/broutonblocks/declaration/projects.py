@@ -12,7 +12,7 @@ class SessionInfo:
 
 
 class Node:
-    def __init__(self, project, type_id, session_id, name="undefined_name"):
+    def __init__(self, project, type_id, session_id):
         self.type_id = type_id
         self.property_values = {}
         self.session_id = session_id
@@ -23,7 +23,7 @@ class Node:
 
     @property
     def node_type(self):
-        return self.project.types[self.type_id]
+        return self.project.node_types[self.type_id]
 
     @property
     def session(self):
@@ -61,16 +61,15 @@ class Edge:
 class Project:
     def __init__(self):
         self.sessions = {}  # session-id -> SessionInfo
-        self.types = {}  # type-id -> TypeInfo
+        self.node_types = {}  # type-id -> NodeTypeDeclaration
         self.nodes = {}  # node-id -> NodeInfo
         self.edges = []  # Edges
 
-    def register_types(self, types):
-        for type_ in types:
-            self.types[type_.uid] = type_
+    def add_node_type(self, node_type):
+        self.node_types[node_type.uid] = node_type
 
-    def remove_type(self, type_):
-        raise NotImplementedError()
+    def remove_node_type(self, node_type):
+        del self.node_types[node_type.uid]
 
     @staticmethod
     def deserialize(text):
