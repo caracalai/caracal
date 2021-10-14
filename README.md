@@ -42,6 +42,7 @@ python -m unittest discover --verbose
 ### Steps to make a pull request
 - Create a personal fork of the project on Github.
 - Setup environment and install requirements.
+- Run ```pip install -r requirements_dev.txt ```.
 - Run ``` pre-commit install ``` to set up the git hook scripts.
 - Implement/fix you feature, comment your code.
 - Write/adapt tests as needed.

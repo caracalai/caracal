@@ -4,18 +4,8 @@
 #    pip-compile setup.py
 #
 antlr4-python3-runtime==4.9.2
-black==21.4b2
-flake8==3.8.3
-flake8-bugbear==20.1.4
-flake8-builtins==1.5.3
-flake8-comprehensions==3.2.3
-flake8-docstrings==1.5.0
-flake8-import-order==0.18.1
-flake8-tidy-imports==4.1.0
 numpy==1.21.2
 opencv-python==4.5.3.56
-pre-commit
 protobuf==3.17.3
-pycodestyle==2.6.0
 pyzmq==22.2.1
 six==1.16.0
