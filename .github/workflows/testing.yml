@@ -1,6 +1,9 @@
 name: testing
 
-on: [ push, pull_request ]
+on:
+  push:
+    branches:
+      - readme_tests
 
 jobs:
   run-tests:
