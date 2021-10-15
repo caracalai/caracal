@@ -86,6 +86,7 @@ class Node:
     def __init__(self, id_=None):
         self.stopped = False
         self.context = zmq.Context()
+        self.context.setsockopt(zmq.LINGER, 100)
         self.sub_socket = None
         self.pub_socket = None
         self.service_socket = None
@@ -174,7 +175,7 @@ class Node:
     def close_all_sockets(self):
         for socket in [self.sub_socket, self.pub_socket, self.service_socket]:
             try:
-                socket.close()
+                socket.close(linger=100)
             except Exception as e:
                 print(
                     "Trying to close down socket: "
@@ -194,11 +195,11 @@ class Node:
 
     def message_id(self):
         sock = self.context.socket(zmq.REQ)
-        sock.linger = 250
+        sock.setsockopt(zmq.LINGER, 100)
         sock.connect(self.server_endpoint)
         sock.send(json.dumps({"command": "generate-next-message-index"}).encode("utf8"))
         msg = json.loads(sock.recv())
-        sock.close()
+        sock.close(linger=100)
         return int(msg["index"])
 
     def fire(self, event, value, msg_id=None):
@@ -229,12 +230,12 @@ class Node:
         if not self.terminated:
             self.terminated = True
             sock = self.context.socket(zmq.REQ)
-            sock.linger = 250
+            sock.setsockopt(zmq.LINGER, 100)
 
             sock.connect(self.server_endpoint)
             sock.send(json.dumps({"command": "terminate"}).encode("utf8"))
             json.loads(sock.recv())
-            sock.close()
+            sock.close(linger=100)
 
     def wait_answer_from_server(self):
         msg = self.service_socket.recv()
@@ -246,7 +247,7 @@ class Node:
     def initialize_listener(self, config):
         self.sub_socket = self.context.socket(zmq.SUB)
 
-        self.sub_socket.linger = 250
+        self.sub_socket.setsockopt(zmq.LINGER, 100)
         input_node_ids = set()
         for handler in self.handlers.values():
             for event in handler.connected_events:
@@ -277,10 +278,10 @@ class Node:
 
     def send_command(self, request):
         sock = self.context.socket(zmq.REQ)
-        sock.linger = 250
+        sock.setsockopt(zmq.LINGER, 100)
         sock.connect(self.server_endpoint)
         sock.send(request.encode("utf8"))
-        sock.close()
+        sock.close(linger=100)
 
     def process_events_from_server(self):
         while not self.stopped:
@@ -333,7 +334,7 @@ class Node:
         try:
             # step0: publisher
             self.pub_socket = self.context.socket(zmq.PUB)
-            self.pub_socket.linger = 250
+            self.pub_socket.setsockopt(zmq.LINGER, 100)
             self.pub_port = self.pub_socket.bind_to_random_port("tcp://127.0.0.1")
             logging.debug(
                 "Node {id}. Publisher connected to port={port}".format(
@@ -346,7 +347,7 @@ class Node:
 
             # step2: initialize service socket
             self.service_socket = self.context.socket(zmq.REP)
-            self.service_socket.linger = 250
+            self.service_socket.setsockopt(zmq.LINGER, 100)
             self.service_port = self.service_socket.bind_to_random_port("tcp://127.0.0.1")
             logging.debug(
                 "Node {id}. Service connected to port={port}".format(
@@ -393,5 +394,6 @@ class Node:
             logging.debug("Node {id}. Execution exception".format(id=self.id))
 
     def __del__(self):
-        self.context.term()
+        if not self.context.closed:
+            self.context.term()
         del self

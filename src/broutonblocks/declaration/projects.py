@@ -44,7 +44,7 @@ class Node:
             "type_id": self.type_id,
             "session_id": self.session_id,
             "property_values": 1 / 0,
-            "id": self.id,
+            "id": self.uid,
         }
         return result
 
