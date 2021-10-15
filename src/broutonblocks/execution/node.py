@@ -395,5 +395,5 @@ class Node:
 
     def __del__(self):
         if not self.context.closed:
-            self.context.destroy()
+            self.context.destroy(linger=100)
         del self
