@@ -395,5 +395,5 @@ class Node:
 
     def __del__(self):
         if not self.context.closed:
-            self.context.term()
+            self.context.destroy()
         del self

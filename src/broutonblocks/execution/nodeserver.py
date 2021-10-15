@@ -155,3 +155,8 @@ class NodeServer:
                 logging.debug("Socked is closed")
                 break
         logging.debug("Server: Finished execution...")
+
+    def __del__(self):
+        if not self.context.closed:
+            self.context.destroy()
+        del self
