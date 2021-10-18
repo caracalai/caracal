@@ -9,6 +9,7 @@ from broutonblocks.declaration.nodetype import NodeTypeDeclaration
 class SessionInfo:
     def __init__(self, name="default"):
         self.name = name
+
     @property
     def uid(self):
         return self.name
@@ -220,4 +221,4 @@ class Project:
                     lambda e: e.source_node_id != node_id and e.dest_node_id != node_id,
                     self.edges,
                 )
-        )
+            )
