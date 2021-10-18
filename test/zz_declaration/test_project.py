@@ -77,6 +77,7 @@ class TestProject(unittest.TestCase):
             project.add_node_type(my_node_type)
             my_node = project.add_node(my_node_type, project.sessions["test_session"])
             my_node.set_property("threshold", 0.5)
+            project.remove_session("test_session1")
             project.serialize()
         except RuntimeError:
             self.fail("test_graph_properties01")

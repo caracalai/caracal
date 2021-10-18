@@ -9,7 +9,9 @@ from broutonblocks.declaration.nodetype import NodeTypeDeclaration
 class SessionInfo:
     def __init__(self, name="default"):
         self.name = name
-        self.uid = str(uuid.uuid4())
+    @property
+    def uid(self):
+        return self.name
 
 
 class Node:
@@ -18,7 +20,7 @@ class Node:
         self.property_values = {}
         self.session_id = session_id
         self.project = project
-        self.uid = "{type_name}_{uuid}".format(
+        self.id = "{type_name}_{uuid}".format(
             type_name=self.node_type.name, uuid=str(uuid.uuid4())
         )
 
@@ -45,7 +47,7 @@ class Node:
             "type_id": self.type_id,
             "session_id": self.session_id,
             "property_values": 1 / 0,
-            "id": self.uid,
+            "id": self.id,
         }
         return result
 
@@ -193,15 +195,19 @@ class Project:
 
     def create_session(self, name):
         session = SessionInfo(name)
-        self.sessions[session.name] = session
+        self.sessions[session.uid] = session
 
-    def remove_session(self, name):
-        raise NotImplementedError()
+    def remove_session(self, session_uid):
+        if session_uid in self.sessions:
+            for node_uid in [node_uid for node_uid in self.nodes]:
+                if self.nodes[node_uid].session_uid == self.sessions[session_uid]:
+                    self.remove_node(node_uid)
+            del self.sessions[session_uid]
 
     def add_node(self, type_, session):
-        if session is self.sessions[session.name]:
-            node = Node(self, type_.uid, session)
-            self.nodes[node.uid] = node
+        if session is self.sessions[session.uid]:
+            node = Node(self, type_.uid, session.uid)
+            self.nodes[node.id] = node
             return node
         else:
             raise RuntimeError()
@@ -214,4 +220,4 @@ class Project:
                     lambda e: e.source_node_id != node_id and e.dest_node_id != node_id,
                     self.edges,
                 )
-            )
+        )
