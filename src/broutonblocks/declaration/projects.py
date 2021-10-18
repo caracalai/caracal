@@ -199,9 +199,12 @@ class Project:
         raise NotImplementedError()
 
     def add_node(self, type_, session):
-        node = Node(self, type_.uid, session)
-        self.nodes[node.uid] = node
-        return node
+        if session is self.sessions[session.name]:
+            node = Node(self, type_.uid, session)
+            self.nodes[node.uid] = node
+            return node
+        else:
+            raise RuntimeError()
 
     def remove_node(self, node_id):
         if node_id in self.nodes:
