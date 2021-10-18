@@ -9,6 +9,7 @@ from broutonblocks.declaration.nodetype import NodeTypeDeclaration
 class SessionInfo:
     def __init__(self, name="default"):
         self.name = name
+        self.uid = str(uuid.uuid4())
 
 
 class Node:
@@ -190,9 +191,9 @@ class Project:
     def remove_connection(self, edge_id):
         self.edges = list(filter(lambda e: e.id != edge_id, self.edges))
 
-    def create_session(self, lang, name):
-        session = SessionInfo(lang, name)
-        self.sessions[session.id] = session
+    def create_session(self, name):
+        session = SessionInfo(name)
+        self.sessions[session.name] = session
 
     def remove_session(self, name):
         raise NotImplementedError()

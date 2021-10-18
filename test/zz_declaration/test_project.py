@@ -59,3 +59,24 @@ class TestProject(unittest.TestCase):
             project.serialize()
         except RuntimeError:
             self.fail("test_graph_properties01")
+
+    def test_add_session(self):
+        program = """
+                    node MyNode:
+                        properties:
+                            threshold?: float(0.8) // default value
+                            border_width: int(10)
+                    """
+
+        try:
+            parser = TypesParser()
+            node_types = parser.parse(program)
+            my_node_type = node_types["MyNode"]
+            project = Project()
+            project.create_session("test_session")
+            project.add_node_type(my_node_type)
+            my_node = project.add_node(my_node_type, project.sessions["test_session"])
+            my_node.set_property("threshold", 0.5)
+            project.serialize()
+        except RuntimeError:
+            self.fail("test_graph_properties01")
