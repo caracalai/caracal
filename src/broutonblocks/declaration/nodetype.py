@@ -43,7 +43,7 @@ class HandlerDeclaration(MethodDeclaration):
 
     def __str__(self):
         result = "{type}".format(type=self.data_type)
-        if not self.single:
+        if self.receives_multiple:
             result += " [can be multiple]"
         return result
 
