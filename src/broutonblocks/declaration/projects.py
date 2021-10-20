@@ -195,7 +195,9 @@ class Project:
     def connect(
         self, source_node_uid: str, event_name: str, dest_node_uid: str, handler_name: str
     ):
-        result, msg = self.can_connect(source_node_uid, event_name, dest_node_uid, handler_name)
+        result, msg = self.can_connect(
+            source_node_uid, event_name, dest_node_uid, handler_name
+        )
         if not result:
             raise RuntimeError(msg)
 
