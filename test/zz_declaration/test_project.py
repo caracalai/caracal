@@ -1,12 +1,12 @@
 import unittest
 
-from broutonblocks.declaration import Project, SessionInfo
+from broutonblocks.declaration import Project
 from broutonblocks.typesparser import TypesParser
 
 
 class TestProject(unittest.TestCase):
-    def __init__(self, methodName="runTest"):
-        super(TestProject, self).__init__(methodName)
+    def __init__(self, method_name="runTest"):
+        super(TestProject, self).__init__(method_name)
 
     def test_00(self):
         try:

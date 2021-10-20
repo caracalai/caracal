@@ -214,7 +214,7 @@ class Project:
         else:
             raise RuntimeError()
 
-    def contains_node(self, uid_):
+    def contains_connection(self, uid_):
         return uid_ in self.edges
 
     def create_session(self, name):
