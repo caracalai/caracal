@@ -100,13 +100,11 @@ class Project:
 
     def can_connect(
         self,
-        source_node: Node,
+        source_node_uid: str,
         event_name: str,
-        dest_node: Node,
+        dest_node_uid: str,
         handler_name: str,
     ):
-        source_node_uid = source_node.uid
-        dest_node_uid = dest_node.uid
 
         edge = Edge(source_node_uid, event_name, dest_node_uid, handler_name)
         all_edges = self.edges + [edge]
@@ -132,7 +130,7 @@ class Project:
                 types_info[node.uid]["handlers"][h] = copy.deepcopy(t.data_type)
 
         if (
-            not self.node_types[dest_node.type_uid]
+            not self.node_types[self.node(dest_node_uid).type_uid]
             .handlers[handler_name]
             .receives_multiple
         ):
@@ -197,13 +195,11 @@ class Project:
     def connect(
         self, source_node_uid: str, event_name: str, dest_node_uid: str, handler_name: str
     ):
-        source_node = self.node(source_node_uid)
-        dest_node = self.node(dest_node_uid)
-        result, msg = self.can_connect(source_node, event_name, dest_node, handler_name)
+        result, msg = self.can_connect(source_node_uid, event_name, dest_node_uid, handler_name)
         if not result:
             raise RuntimeError(msg)
 
-        edge = Edge(source_node.uid, event_name, dest_node.uid, handler_name)
+        edge = Edge(source_node_uid, event_name, dest_node_uid, handler_name)
         self.edges.append(edge)
         return edge
 
