@@ -111,7 +111,8 @@ class TestProject(unittest.TestCase):
             first_node_id = project.add_node(first_type, session_uid)
             second_node_id = project.add_node(second_type, session_uid)
             project.connect(first_node_id, "event", second_node_id, "handler")
-
-            project.connect()
+            self.assertTrue(len(project.edges) == 1)
+            project.remove_connection(project.edges.pop().uid)
+            self.assertTrue(len(project.edges) == 0)
         except RuntimeError:
             self.fail("test_graph_properties01")

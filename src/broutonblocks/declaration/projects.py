@@ -129,7 +129,7 @@ class Project:
 
             types_info[node.uid]["handlers"] = {}
             for h, t in node.node_type.handlers.items():
-                types_info[node.uid]["handlers"][h] = copy.deepcopy(t.node_type)
+                types_info[node.uid]["handlers"][h] = copy.deepcopy(t.data_type)
 
         if (
             not self.node_types[dest_node.type_uid]
@@ -161,7 +161,7 @@ class Project:
             for edge in all_edges:
                 source_type = types_info[edge.source_node_uid]["events"][
                     edge.event_name
-                ].node_type
+                ].data_type
                 dest_type = types_info[edge.dest_node_uid]["handlers"][edge.handler_name]
                 intersected_type = source_type.intersect(dest_type)
                 if intersected_type is None:
