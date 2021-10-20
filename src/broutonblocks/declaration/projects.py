@@ -73,14 +73,14 @@ class Project:
     def remove_node_type(self, node_type):
         del self.node_types[node_type.uid]
 
-    def node_type(self, uid_):
-        if uid_ in self.node_types:
-            return self.node_types[uid_]
+    def node_type(self, node_uid):
+        if node_uid in self.node_types:
+            return self.node_types[node_uid]
         else:
             raise RuntimeError()
 
-    def contains_node_type(self, uid_):
-        return uid_ in self.node_types
+    def contains_node_type(self, node_uid):
+        return node_uid in self.node_types
 
     @staticmethod
     def deserialize(text):
@@ -89,14 +89,14 @@ class Project:
     def serialize(self):
         return base64.b64encode(pickle.dumps(self)).decode("ascii")
 
-    def node(self, uid_):
-        if uid_ in self.nodes:
-            return self.nodes[uid_]
+    def node(self, node_uid):
+        if node_uid in self.nodes:
+            return self.nodes[node_uid]
         else:
             raise RuntimeError()
 
-    def contains_node(self, uid_):
-        return uid_ in self.nodes
+    def contains_node(self, node_uid):
+        return node_uid in self.nodes
 
     def can_connect(
         self,
@@ -208,14 +208,14 @@ class Project:
     def remove_connection(self, edge_uid):
         self.edges = list(filter(lambda e: e.uid != edge_uid, self.edges))
 
-    def connection(self, uid_):
-        if uid_ in self.edges:
-            return self.edges[uid_]
+    def connection(self, edge_uid):
+        if edge_uid in self.edges:
+            return self.edges[edge_uid]
         else:
             raise RuntimeError()
 
-    def contains_connection(self, uid_):
-        return uid_ in self.edges
+    def contains_connection(self, edge_uid):
+        return edge_uid in self.edges
 
     def create_session(self, name):
         session = SessionInfo(name)
@@ -229,14 +229,14 @@ class Project:
                     self.remove_node(node_uid)
             del self.sessions[session_uid]
 
-    def session(self, uid_):
-        if uid_ in self.sessions:
-            return self.sessions[uid_]
+    def session(self, session_uid):
+        if session_uid in self.sessions:
+            return self.sessions[session_uid]
         else:
             raise RuntimeError()
 
-    def contains_session(self, uid_):
-        return uid_ in self.sessions
+    def contains_session(self, session_uid):
+        return session_uid in self.sessions
 
     def add_node(self, type_, session_uid):
         if session_uid in self.sessions:
