@@ -25,11 +25,11 @@ class Node:
 
     @property
     def node_type(self):
-        return self.project._node_types[self.type_uid]
+        return self.project.node_types[self.type_uid]
 
     @property
     def session(self):
-        return self.project._sessions[self.session_uid]
+        return self.project.sessions[self.session_uid]
 
     def set_property(self, name, value):
         if name not in self.node_type.properties.keys():
@@ -62,25 +62,25 @@ class Edge:
 
 class Project:
     def __init__(self):
-        self._sessions = {}  # session-id -> SessionInfo
-        self._node_types = {}  # type-id -> NodeTypeDeclaration
-        self._nodes = {}  # node-id -> NodeInfo
-        self._edges = []  # Edges
+        self.sessions = {}  # session-id -> SessionInfo
+        self.node_types = {}  # type-id -> NodeTypeDeclaration
+        self.nodes = {}  # node-id -> NodeInfo
+        self.edges = []  # Edges
 
     def add_node_type(self, node_type):
-        self._node_types[node_type.uid] = node_type
+        self.node_types[node_type.uid] = node_type
 
     def remove_node_type(self, node_type):
-        del self._node_types[node_type.uid]
+        del self.node_types[node_type.uid]
 
     def node_type(self, uid_):
-        if uid_ in self._node_types:
-            return self._node_types[uid_]
+        if uid_ in self.node_types:
+            return self.node_types[uid_]
         else:
             raise RuntimeError()
 
     def contains_node_type(self, uid_):
-        return uid_ in self._node_types
+        return uid_ in self.node_types
 
     @staticmethod
     def deserialize(text):
@@ -90,13 +90,13 @@ class Project:
         return base64.b64encode(pickle.dumps(self)).decode("ascii")
 
     def node(self, uid_):
-        if uid_ in self._nodes:
-            return self._nodes[uid_]
+        if uid_ in self.nodes:
+            return self.nodes[uid_]
         else:
             raise RuntimeError()
 
     def contains_node(self, uid_):
-        return uid_ in self._nodes
+        return uid_ in self.nodes
 
     def can_connect(
         self,
@@ -109,7 +109,7 @@ class Project:
         dest_node_uid = dest_node.uid
 
         edge = Edge(source_node_uid, event_name, dest_node_uid, handler_name)
-        all_edges = self._edges + [edge]
+        all_edges = self.edges + [edge]
 
         # a = self.node(edge.source_node_id).type
         if event_name not in self.node(edge.source_node_uid).node_type.events:
@@ -123,7 +123,7 @@ class Project:
             )
 
         types_info = {}
-        for _, node in self._nodes.items():
+        for _, node in self.nodes.items():
             types_info[node.uid] = {}
             types_info[node.uid]["events"] = copy.deepcopy(node.node_type.events)
 
@@ -131,7 +131,7 @@ class Project:
             for h, t in node.node_type.handlers.items():
                 types_info[node.uid]["handlers"][h] = copy.deepcopy(t.node_type)
 
-        if not self._node_types[dest_node.type_uid].handlers[handler_name].receives_multiple:
+        if not self.node_types[dest_node.type_uid].handlers[handler_name].receives_multiple:
             if (
                 len(
                     list(
@@ -180,7 +180,7 @@ class Project:
                     (edge.dest_node_uid, "handlers", edge.handler_name),
                 ]:
                     if (
-                        self._nodes[edge.dest_node_uid]
+                        self.nodes[edge.dest_node_uid]
                         .node_type.handlers[edge.handler_name]
                         .receives_multiple
                     ):
@@ -191,63 +191,65 @@ class Project:
         return True, "Success"
 
     def connect(
-        self, source_node: Node, event_name: str, dest_node: Node, handler_name: str
+        self, source_node_uid: str, event_name: str, dest_node_uid: str, handler_name: str
     ):
+        source_node = self.node(source_node_uid)
+        dest_node = self.node(dest_node_uid)
         result, msg = self.can_connect(source_node, event_name, dest_node, handler_name)
         if not result:
             raise RuntimeError(msg)
 
         edge = Edge(source_node.uid, event_name, dest_node.uid, handler_name)
-        self._edges.append(edge)
+        self.edges.append(edge)
         return edge
 
     def remove_connection(self, edge_uid):
-        self._edges = list(filter(lambda e: e.uid != edge_uid, self._edges))
+        self.edges = list(filter(lambda e: e.uid != edge_uid, self.edges))
 
     def connection(self, uid_):
-        if uid_ in self._edges:
-            return self._edges[uid_]
+        if uid_ in self.edges:
+            return self.edges[uid_]
         else:
             raise RuntimeError()
 
     def contains_node(self, uid_):
-        return uid_ in self._edges
+        return uid_ in self.edges
 
     def create_session(self, name):
         session = SessionInfo(name)
-        self._sessions[session.uid] = session
+        self.sessions[session.uid] = session
         return session.uid
 
     def remove_session(self, session_uid):
-        if session_uid in self._sessions:
-            for node_uid in [node_uid for node_uid in self._nodes]:
-                if self._nodes[node_uid].session_uid == self._sessions[session_uid]:
+        if session_uid in self.sessions:
+            for node_uid in [node_uid for node_uid in self.nodes]:
+                if self.nodes[node_uid].session_uid == self.sessions[session_uid]:
                     self.remove_node(node_uid)
-            del self._sessions[session_uid]
+            del self.sessions[session_uid]
 
     def session(self, uid_):
-        if uid_ in self._sessions:
-            return self._sessions[uid_]
+        if uid_ in self.sessions:
+            return self.sessions[uid_]
         else:
             raise RuntimeError()
 
     def contains_session(self, uid_):
-        return uid_ in self._sessions
+        return uid_ in self.sessions
 
     def add_node(self, type_, session_uid):
-        if session_uid in self._sessions:
+        if session_uid in self.sessions:
             node = Node(self, type_.uid, session_uid)
-            self._nodes[node.uid] = node
+            self.nodes[node.uid] = node
             return node.uid
         else:
             raise RuntimeError()
 
     def remove_node(self, node_uid):
-        if node_uid in self._nodes:
-            del self._nodes[node_uid]
-            self._edges = list(
+        if node_uid in self.nodes:
+            del self.nodes[node_uid]
+            self.edges = list(
                 filter(
                     lambda e: e.source_node_uid != node_uid and e.dest_node_uid != node_uid,
-                    self._edges,
+                    self.edges,
                 )
             )

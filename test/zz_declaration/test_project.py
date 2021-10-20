@@ -29,12 +29,12 @@ class TestProject(unittest.TestCase):
             project = Project()
             project.add_node_type(first_type)
             project.add_node_type(second_type)
-            self.assertTrue(len(project._node_types) == 2)
-            self.assertEqual(project._node_types[first_type.uid].name, "MyType")
-            self.assertEqual(project._node_types[second_type.uid].name, "MyType")
+            self.assertTrue(len(project.node_types) == 2)
+            self.assertEqual(project.node_types[first_type.uid].name, "MyType")
+            self.assertEqual(project.node_types[second_type.uid].name, "MyType")
 
             project.remove_node_type(first_type)
-            self.assertTrue(len(project._node_types) == 1)
+            self.assertTrue(len(project.node_types) == 1)
         except RuntimeError:
             self.fail("test_graph_properties01")
 
@@ -77,7 +77,7 @@ class TestProject(unittest.TestCase):
             project.add_node_type(my_node_type)
             my_node = project.add_node(my_node_type, session_uid)
 
-            my_node.set_property("threshold", 0.5)
+            project.node(my_node).set_property("threshold", 0.5)
             project.remove_session("test_session")
             project.serialize()
         except RuntimeError:
@@ -87,8 +87,8 @@ class TestProject(unittest.TestCase):
         try:
             my_type = """
                     node MyType:
-                        handlers:
-                            handler(value: int)
+                        events:
+                            event(value: int)
 
                     @namespace(value="abc")
                     node MyType:
@@ -104,14 +104,13 @@ class TestProject(unittest.TestCase):
             project = Project()
             project.add_node_type(first_type)
             project.add_node_type(second_type)
-            self.assertTrue(len(project._node_types) == 2)
-            self.assertEqual(project._node_types[first_type.uid].name, "MyType")
-            self.assertEqual(project._node_types[second_type.uid].name, "MyType")
+            self.assertTrue(len(project.node_types) == 2)
+            self.assertEqual(project.node_types[first_type.uid].name, "MyType")
+            self.assertEqual(project.node_types[second_type.uid].name, "MyType")
             session_uid = project.create_session("default")
-            node1_id = project.add_node(first_type, session_uid)
-            node2_id = project.add_node(second_type, session_uid)
-            project.connect(node1_id, "event", node2_id, "handler")
-            project._nodes(node1_id)
+            first_node_id = project.add_node(first_type, session_uid)
+            second_node_id = project.add_node(second_type, session_uid)
+            project.connect(first_node_id, "event", second_node_id, "handler")
 
             project.connect()
         except RuntimeError:
