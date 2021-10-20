@@ -131,8 +131,11 @@ class Project:
             for h, t in node.node_type.handlers.items():
                 types_info[node.uid]["handlers"][h] = copy.deepcopy(t.node_type)
 
-
-        if not self.node_types[dest_node.type_uid].handlers[handler_name].receives_multiple:
+        if (
+            not self.node_types[dest_node.type_uid]
+            .handlers[handler_name]
+            .receives_multiple
+        ):
             if (
                 len(
                     list(
@@ -250,7 +253,8 @@ class Project:
             del self.nodes[node_uid]
             self.edges = list(
                 filter(
-                    lambda e: e.source_node_uid != node_uid and e.dest_node_uid != node_uid,
+                    lambda e: e.source_node_uid != node_uid
+                    and e.dest_node_uid != node_uid,
                     self.edges,
                 )
             )
