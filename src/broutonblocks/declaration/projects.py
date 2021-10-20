@@ -73,14 +73,14 @@ class Project:
     def remove_node_type(self, node_type):
         del self.node_types[node_type.uid]
 
+    def contains_node_type(self, node_type_uid):
+        return node_type_uid in self.node_types
+
     def node_type(self, node_type_uid):
-        if node_type_uid in self.node_types:
+        if self.contains_node_type(node_type_uid):
             return self.node_types[node_type_uid]
         else:
             raise RuntimeError()
-
-    def contains_node_type(self, node_type_uid):
-        return node_type_uid in self.node_types
 
     @staticmethod
     def deserialize(text):
@@ -90,7 +90,7 @@ class Project:
         return base64.b64encode(pickle.dumps(self)).decode("ascii")
 
     def node(self, node_uid):
-        if node_uid in self.nodes:
+        if self.contains_node(node_uid):
             return self.nodes[node_uid]
         else:
             raise RuntimeError()
@@ -209,7 +209,7 @@ class Project:
         self.edges = list(filter(lambda e: e.uid != edge_uid, self.edges))
 
     def connection(self, edge_uid):
-        if edge_uid in self.edges:
+        if self.contains_connection(edge_uid):
             return self.edges[edge_uid]
         else:
             raise RuntimeError()
@@ -230,7 +230,7 @@ class Project:
             del self.sessions[session_uid]
 
     def session(self, session_uid):
-        if session_uid in self.sessions:
+        if self.contains_session(session_uid):
             return self.sessions[session_uid]
         else:
             raise RuntimeError()
