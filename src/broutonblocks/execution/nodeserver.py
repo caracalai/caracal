@@ -8,8 +8,9 @@ import zmq
 class NodeServer:
     def __init__(self, all_nodes_list, port=None):
         self.context = zmq.Context()
+        self.context.setsockopt(zmq.LINGER, 100)
         self.socket = self.context.socket(zmq.REP)
-        self.socket.linger = 250
+        self.socket.setsockopt(zmq.LINGER, 100)
         if port is not None:
             self.socket.bind("tcp://127.0.0.1:{port}".format(port=port))
             self.port = port
@@ -37,7 +38,7 @@ class NodeServer:
         self.stop()
         for socket in [self.socket]:
             try:
-                socket.close()
+                socket.close(linger=0)
             except Exception as e:
                 print(
                     "Trying to close down socket: {} resulted in error: {}".format(
@@ -55,27 +56,27 @@ class NodeServer:
     def initialize_nodes(self):
         for node in self.nodes_info.values():
             sock = self.context.socket(zmq.REQ)
-            sock.linger = 250
+            sock.setsockopt(zmq.LINGER, 100)
             sock.connect(node["service_endpoint"])
 
             sock.send(json.dumps(self.nodes_info).encode("utf8"))
-            sock.close()
+            sock.close(linger=100)
 
     def finish_nodes(self):
         for id_, node in self.nodes_info.items():
             sock = self.context.socket(zmq.REQ)
-            sock.linger = 250
+            sock.setsockopt(zmq.LINGER, 100)
             sock.connect(node["service_endpoint"])
             sock.send(json.dumps({"id": id_, "finish": "true"}).encode("utf8"))
-            sock.close()
+            sock.close(linger=100)
 
     def start_nodes(self):
         for id_, node in self.nodes_info.items():
             sock = self.context.socket(zmq.REQ)
-            sock.linger = 250
+            sock.setsockopt(zmq.LINGER, 100)
             sock.connect(node["service_endpoint"])
             sock.send(json.dumps({"id": id_, "start": "true"}).encode("utf8"))
-            sock.close()
+            sock.close(linger=100)
 
     def all_nodes_are_registered(self):
         for id_ in self.all_nodes_list:
@@ -122,12 +123,12 @@ class NodeServer:
                     self.socket.send(json.dumps({"success": "true"}).encode("utf8"))
                     for id_, node in self.nodes_info.items():
                         sock = self.context.socket(zmq.REQ)
-                        sock.linger = 250
+                        sock.setsockopt(zmq.LINGER, 100)
                         sock.connect(node["service_endpoint"])
                         sock.send(
                             json.dumps({"id": id_, "terminate": "true"}).encode("utf8")
                         )
-                        sock.close()
+                        sock.close(linger=100)
                     break
 
                 if cmd == "ready-to-work":
@@ -154,3 +155,8 @@ class NodeServer:
                 logging.debug("Socked is closed")
                 break
         logging.debug("Server: Finished execution...")
+
+    def __del__(self):
+        if not self.context.closed:
+            self.context.destroy(linger=100)
+        del self

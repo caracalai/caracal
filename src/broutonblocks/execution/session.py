@@ -69,6 +69,7 @@ class Session:
 
     def __exit__(self, type_, value, tb):
         global current_session
+        del self.server
         del self
         current_session = None
 

@@ -1,0 +1,25 @@
+name: testing
+
+on:
+  push:
+    branches:
+      - readme_tests
+
+jobs:
+  run-tests:
+    name: Run tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - name: Set up environment
+        run: python setup.py install
+
+      - name: Run tests
+        run: python -m unittest discover --verbose

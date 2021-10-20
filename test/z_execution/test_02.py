@@ -62,18 +62,27 @@ class TestNode(Node):
 
 
 class CheckGraphExecution_02(unittest.TestCase):
-    def test(self):
+    def setUp(self) -> None:
         with Session() as session:
             logging.basicConfig(level=logging.CRITICAL)
-            listNode = InitialList("initial-list")
-            mapNode = Map("map")
-            expNode = Exp("exp")
-            test_node = TestNode("test-node")
+            self.listNode = InitialList("initial-list")
+            self.mapNode = Map("map")
+            self.expNode = Exp("exp")
+            self.test_node = TestNode("test-node")
 
-            mapNode.set_initial_values.connect(listNode.values)
-            mapNode.process_value.connect(expNode.result)
-            expNode.on_process_value.connect(mapNode.map_value)
-            test_node.receive_result.connect(mapNode.result)
+            self.mapNode.set_initial_values.connect(self.listNode.values)
+            self.mapNode.process_value.connect(self.expNode.result)
+            self.expNode.on_process_value.connect(self.mapNode.map_value)
+            self.test_node.receive_result.connect(self.mapNode.result)
             session.run()
 
-            self.assertEqual(result, test_node.result)
+    def test(self):
+
+        self.assertEqual(result, self.test_node.result)
+
+    def tearDown(self) -> None:
+        del self.mapNode
+        del self.expNode
+        del self.listNode
+        del self.test_node
+        del self
