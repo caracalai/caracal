@@ -73,14 +73,14 @@ class Project:
     def remove_node_type(self, node_type):
         del self.node_types[node_type.uid]
 
-    def node_type(self, node_uid):
-        if node_uid in self.node_types:
-            return self.node_types[node_uid]
+    def node_type(self, node_type_uid):
+        if node_type_uid in self.node_types:
+            return self.node_types[node_type_uid]
         else:
             raise RuntimeError()
 
-    def contains_node_type(self, node_uid):
-        return node_uid in self.node_types
+    def contains_node_type(self, node_type_uid):
+        return node_type_uid in self.node_types
 
     @staticmethod
     def deserialize(text):
