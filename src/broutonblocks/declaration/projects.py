@@ -15,7 +15,7 @@ class SessionInfo:
         return self.name
 
 
-class Node:
+class NodeInfo:
     def __init__(self, project, type_id, session_id):
         self.type_id = type_id
         self.property_values = {}
@@ -90,9 +90,9 @@ class Project:
 
     def can_connect(
         self,
-        source_node,
+        source_node: NodeInfo,
         event_name: str,
-        dest_node: NodeTypeDeclaration,
+        dest_node: NodeInfo,
         handler_name: str,
     ):
         source_node_id = source_node.id
@@ -119,9 +119,9 @@ class Project:
 
             types_info[node.id]["handlers"] = {}
             for h, t in node.node_type.handlers.items():
-                types_info[node.id]["handlers"][h] = copy.deepcopy(t.node_type)
+                types_info[node.id]["handlers"][h] = copy.deepcopy(t.data_type)
 
-        if not dest_node.node_value.handlers[handler_name].receives_multiple:
+        if not dest_node.node_type.handlers[handler_name].receives_multiple:
             if (
                 len(
                     list(
@@ -147,7 +147,7 @@ class Project:
             for edge in all_edges:
                 source_type = types_info[edge.source_node_id]["events"][
                     edge.event_name
-                ].node_type
+                ].data_type
                 dest_type = types_info[edge.dest_node_id]["handlers"][edge.handler_name]
                 intersected_type = source_type.intersect(dest_type)
                 if intersected_type is None:
@@ -181,7 +181,11 @@ class Project:
         return True, "Success"
 
     def connect(
-        self, source_node: Node, event_name: str, dest_node: Node, handler_name: str
+        self,
+        source_node: NodeInfo,
+        event_name: str,
+        dest_node: NodeInfo,
+        handler_name: str,
     ):
         result, msg = self.can_connect(source_node, event_name, dest_node, handler_name)
         if not result:
@@ -197,6 +201,7 @@ class Project:
     def create_session(self, name):
         session = SessionInfo(name)
         self.sessions[session.uid] = session
+        return session
 
     def remove_session(self, session_uid):
         if session_uid in self.sessions:
@@ -207,7 +212,7 @@ class Project:
 
     def add_node(self, type_, session):
         if session is self.sessions[session.uid]:
-            node = Node(self, type_.uid, session.uid)
+            node = NodeInfo(self, type_.uid, session.uid)
             self.nodes[node.id] = node
             return node
         else:

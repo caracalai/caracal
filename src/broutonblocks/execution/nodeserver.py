@@ -152,7 +152,7 @@ class NodeServer:
                     continue
                 logging.warning("Server: undefined command {cmd}".format(cmd=cmd))
             except Exception:
-                logging.debug("Socked is closed")
+                logging.debug("Socket is closed")
                 break
         logging.debug("Server: Finished execution...")
 

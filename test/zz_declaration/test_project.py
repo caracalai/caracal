@@ -51,8 +51,8 @@ class TestProject(unittest.TestCase):
             node_types = parser.parse(program)
             my_node_type = node_types["MyNode"]
 
-            session = SessionInfo()
             project = Project()
+            session = project.create_session("default")
             project.add_node_type(my_node_type)
             my_node = project.add_node(my_node_type, session)
             my_node.set_property("threshold", 0.5)

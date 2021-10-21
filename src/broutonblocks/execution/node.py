@@ -96,8 +96,8 @@ class Node:
         self.events = {}
         self.properties = {}
         self.session = session.current_session
-        self.session.add(self)
         self.id = id_ if id_ is not None else str(uuid.uuid1())
+        self.session.add(self)
         self.pub_port = None
         self.service_port = None
         self.terminated = False
@@ -135,6 +135,9 @@ class Node:
         if isinstance(value, Event):
             value.parent = self
             self.events[value.declaration.name] = value
+        if isinstance(value, Handler):
+            value.parent = self
+            self.handlers[value.declaration.name] = value
         super().__setattr__(name, value)
 
     def __getattribute__(self, item):
@@ -284,7 +287,7 @@ class Node:
         sock.close(linger=100)
 
     def process_events_from_server(self):
-        while not self.stopped:
+        while not self.stopped and not self.terminated:
             msg = self.service_socket.recv()
             json.loads(msg)
             self.service_socket.send(json.dumps({"success": True}).encode("utf8"))
@@ -301,7 +304,7 @@ class Node:
         if len(self.event2handler) == 0:
             logging.debug("Node {name}:process_events finished".format(name=self.id))
             return
-        while not self.stopped:
+        while not self.stopped and not self.terminated:
             try:
                 logging.debug(
                     "Node {name}: waiting for the next event...".format(name=self.id)
