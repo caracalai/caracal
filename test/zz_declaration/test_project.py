@@ -33,7 +33,7 @@ class TestProject(unittest.TestCase):
             self.assertEqual(project.node_types[first_type.uid].name, "MyType")
             self.assertEqual(project.node_types[second_type.uid].name, "MyType")
 
-            project.remove_node_type(first_type)
+            project.remove_node_type(first_type.uid)
             self.assertTrue(len(project.node_types) == 1)
         except RuntimeError:
             self.fail("test_graph_properties01")
@@ -55,7 +55,7 @@ class TestProject(unittest.TestCase):
             session_id = project.create_session("default")
             project.add_node_type(my_node_type)
             my_node = project.add_node(my_node_type, session_id)
-            my_node.set_property("threshold", 0.5)
+            project.node(my_node).set_property("threshold", 0.5)
             project.serialize()
         except RuntimeError:
             self.fail("test_graph_properties01")
