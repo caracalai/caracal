@@ -97,11 +97,11 @@ class ProjectInfo:
         return node in self.nodes.values()
 
     def can_connect(
-            self,
-            source_node: NodeInfo,
-            event_name: str,
-            dest_node: NodeInfo,
-            handler_name: str,
+        self,
+        source_node: NodeInfo,
+        event_name: str,
+        dest_node: NodeInfo,
+        handler_name: str,
     ) -> bool:
 
         edge = EdgeInfo(source_node, event_name, dest_node, handler_name)
@@ -124,21 +124,21 @@ class ProjectInfo:
                 types_info[node.uid]["handlers"][h] = copy.deepcopy(t.data_type)
 
         if (
-                not self.node_types[self.nodes[dest_node.uid].node_type.uid]
-                        .handlers[handler_name]
-                        .receives_multiple
+            not self.node_types[self.nodes[dest_node.uid].node_type.uid]
+            .handlers[handler_name]
+            .receives_multiple
         ):
             if (
-                    len(
-                        list(
-                            filter(
-                                lambda e: e.handler_name == handler_name
-                                and e.dest_node.uid == dest_node.uid,
-                                all_edges,
-                            )
+                len(
+                    list(
+                        filter(
+                            lambda e: e.handler_name == handler_name
+                            and e.dest_node.uid == dest_node.uid,
+                            all_edges,
                         )
                     )
-                    > 1
+                )
+                > 1
             ):
                 return False
 
@@ -158,9 +158,9 @@ class ProjectInfo:
                     (edge.dest_node.uid, "handlers", edge.handler_name),
                 ]:
                     if (
-                            self.nodes[edge.dest_node.uid]
-                            .node_type.handlers[edge.handler_name]
-                            .receives_multiple
+                        self.nodes[edge.dest_node.uid]
+                        .node_type.handlers[edge.handler_name]
+                        .receives_multiple
                     ):
                         continue
 
@@ -169,11 +169,13 @@ class ProjectInfo:
         return True
 
     def connect(
-            self, source_node: NodeInfo, event_name: str, dest_node: NodeInfo, handler_name: str
+        self,
+        source_node: NodeInfo,
+        event_name: str,
+        dest_node: NodeInfo,
+        handler_name: str,
     ) -> EdgeInfo:
-        result = self.can_connect(
-            source_node, event_name, dest_node, handler_name
-        )
+        result = self.can_connect(source_node, event_name, dest_node, handler_name)
         if not result:
             raise RuntimeError()
 
@@ -224,7 +226,10 @@ class ProjectInfo:
     def remove_node(self, node: NodeInfo) -> None:
         if node.uid in self.nodes:
             del self.nodes[node.uid]
-            self.edges = [edg for edg in self.edges
-                          if edg.sourse_node.uid != node.uid and edg.dest_node.uid != node.uid]
+            self.edges = [
+                edg
+                for edg in self.edges
+                if edg.sourse_node.uid != node.uid and edg.dest_node.uid != node.uid
+            ]
         else:
             raise RuntimeError()
