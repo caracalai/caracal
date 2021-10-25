@@ -350,7 +350,7 @@ class Node:
                 index = msg.find(b" ")
                 source_id, event = msg[:index].decode("utf8").split("|")
                 binary_msg = basictypes_pb2.Message()
-                binary_msg.ParseFromString(msg[index + 1:])
+                binary_msg.ParseFromString(msg[index + 1 :])
 
                 msg_id, msg_value = ProtoSerializer().deserialize_message(binary_msg)
                 message = Message(msg_id, msg_value)

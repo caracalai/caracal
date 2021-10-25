@@ -11,7 +11,7 @@ class Summator(Node):
         self.fire(self.result, msg.value)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     with Session("") as session:
         s = Summator()
         print(s.prop1)  # prints None
