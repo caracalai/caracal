@@ -60,7 +60,6 @@ class TestProject(unittest.TestCase):
         except RuntimeError:
             self.fail("test_graph_properties01")
 
-
     def test_add_session(self):
         program = """
                    node MyNode:
