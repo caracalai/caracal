@@ -31,7 +31,7 @@ class Handler:
 
 def handler(name, type_, receives_multiple=False, info=None, function=None):
     if function:
-        return Handler(function, type_, receives_multiple, info, function)
+        return Handler(name, type_, receives_multiple, info, function)
     else:
 
         def wrapper(func):
@@ -44,7 +44,11 @@ class Property:
     def __init__(self, type_, optional, default_value=None):
         self.declaration = nodetype.PropertyDeclaration(type_, optional, default_value)
         self.parent = None
-        self.value = None
+        self.value = default_value
+
+    @property
+    def node_id(self):
+        return self.parent.id
 
 
 class Event:
@@ -105,6 +109,7 @@ class Node:
         self.events_processor = None
         self.events_from_server_processor = None
         self.run_processor = None
+        self.__init_attrs()
 
     @property
     def name(self):
@@ -114,11 +119,11 @@ class Node:
     def node_type(self):
         result = nodetype.NodeTypeDeclaration()
         for _, item in self.handlers.items():
-            result.handlers[item.declaration.id] = item.declaration
+            result.handlers[item.declaration.uid] = item.declaration
         for _, item in self.properties.items():
-            result.properties[item.declaration.id] = item.declaration
+            result.properties[item.declaration.uid] = item.declaration
         for _, item in self.events.items():
-            result.events[item.declaration.id] = item.declaration
+            result.events[item.declaration.uid] = item.declaration
         return result
 
     @property
@@ -129,25 +134,56 @@ class Node:
     def service_endpoint(self):
         return "tcp://127.0.0.1:{port}".format(port=self.service_port)
 
-    def __setattr__(self, name, value):
-        if isinstance(value, Property):
-            value.parent = self
-        if isinstance(value, Event):
-            value.parent = self
-            self.events[value.declaration.name] = value
-        if isinstance(value, Handler):
-            value.parent = self
-            self.handlers[value.declaration.name] = value
-        super().__setattr__(name, value)
+    # def __setattr__(self, name, value):
+    #     if isinstance(value, Property):
+    #         value.parent = self
+    #     if isinstance(value, Event):
+    #         value.parent = self
+    #         self.events[value.declaration.name] = value
+    #     if isinstance(value, Handler):
+    #         value.parent = self
+    #         self.handlers[value.declaration.name] = value
+    #     super().__setattr__(name, value)
 
+    def __setattr__(self, key, value):
+        try:
+            attr = object.__getattribute__(self, key)
+            if isinstance(attr, Property):
+                attr.value = value
+
+                return
+        except AttributeError:
+            ...
+        object.__setattr__(self, key, value)
+
+    # def __getattribute__(self, item):
+    #     result = super().__getattribute__(item)
+    #     if isinstance(result, Handler):
+    #         self.handlers[result.declaration.name] = result
+    #         result.parent = self
+    #     if isinstance(result, Property):
+    #         return result.value
+    #
+    #     return result
     def __getattribute__(self, item):
-        result = super().__getattribute__(item)
-        if isinstance(result, Handler):
-            self.handlers[result.declaration.name] = result
-            result.parent = self
+        attr = object.__getattribute__(self, item)
+        if isinstance(attr, Property):
+            return attr.value
+
+        return attr
+
+    def __init_attrs(self):
+        for attr_name in dir(self):
+            attr = self.__getattribute__(attr_name)
+            if isinstance(attr, Handler):
+                self.handlers[attr.declaration.name] = attr
+            if isinstance(attr, Property):
+                self.properties[attr_name] = attr
+            if isinstance(attr, Event):
+                self.events[attr_name] = attr
+
         # if isinstance(result, Event):
         #     result.parent = self
-        return result
 
     def set_server_endpoint(self, server_endpoint):
         self.port = server_endpoint
@@ -314,7 +350,7 @@ class Node:
                 index = msg.find(b" ")
                 source_id, event = msg[:index].decode("utf8").split("|")
                 binary_msg = basictypes_pb2.Message()
-                binary_msg.ParseFromString(msg[index + 1 :])
+                binary_msg.ParseFromString(msg[index + 1:])
 
                 msg_id, msg_value = ProtoSerializer().deserialize_message(binary_msg)
                 message = Message(msg_id, msg_value)
