@@ -1,6 +1,6 @@
 import unittest
 
-from broutonblocks.declaration import Project
+from broutonblocks.declaration import ProjectInfo
 from broutonblocks.typesparser import TypesParser
 
 
@@ -26,14 +26,14 @@ class TestProject(unittest.TestCase):
             first_type = types["MyType"]
             second_type = types["abc:MyType"]
 
-            project = Project()
+            project = ProjectInfo()
             project.add_node_type(first_type)
             project.add_node_type(second_type)
             self.assertTrue(len(project.node_types) == 2)
             self.assertEqual(project.node_types[first_type.uid].name, "MyType")
             self.assertEqual(project.node_types[second_type.uid].name, "MyType")
 
-            project.remove_node_type(first_type.uid)
+            project.remove_node_type(first_type)
             self.assertTrue(len(project.node_types) == 1)
         except RuntimeError:
             self.fail("test_graph_properties01")
@@ -51,11 +51,11 @@ class TestProject(unittest.TestCase):
             node_types = parser.parse(program)
             my_node_type = node_types["MyNode"]
 
-            project = Project()
-            session_id = project.create_session("default")
+            project = ProjectInfo()
+            session = project.create_session("default")
             project.add_node_type(my_node_type)
-            my_node = project.add_node(my_node_type, session_id)
-            project.node(my_node).set_property("threshold", 0.5)
+            my_node = project.add_node(my_node_type, session)
+            my_node.set_property("threshold", 0.5)
             project.serialize()
         except RuntimeError:
             self.fail("test_graph_properties01")
@@ -72,13 +72,13 @@ class TestProject(unittest.TestCase):
             parser = TypesParser()
             node_types = parser.parse(program)
             my_node_type = node_types["MyNode"]
-            project = Project()
-            session_uid = project.create_session("test_session")
+            project = ProjectInfo()
+            session = project.create_session("test_session")
             project.add_node_type(my_node_type)
-            my_node = project.add_node(my_node_type, session_uid)
+            my_node = project.add_node(my_node_type, session)
 
-            project.node(my_node).set_property("threshold", 0.5)
-            project.remove_session("test_session")
+            my_node.set_property("threshold", 0.5)
+            project.remove_session(session)
             project.serialize()
         except RuntimeError:
             self.fail("test_graph_properties01")
@@ -101,18 +101,22 @@ class TestProject(unittest.TestCase):
             first_type = types["MyType"]
             second_type = types["abc:MyType"]
 
-            project = Project()
+            project = ProjectInfo()
             project.add_node_type(first_type)
             project.add_node_type(second_type)
             self.assertTrue(len(project.node_types) == 2)
             self.assertEqual(project.node_types[first_type.uid].name, "MyType")
             self.assertEqual(project.node_types[second_type.uid].name, "MyType")
-            session_uid = project.create_session("default")
-            first_node_id = project.add_node(first_type, session_uid)
-            second_node_id = project.add_node(second_type, session_uid)
-            project.connect(first_node_id, "event", second_node_id, "handler")
+
+            session = project.create_session("default")
+
+            first_node = project.add_node(first_type, session)
+            second_node = project.add_node(second_type, session)
+
+            edge = project.connect(first_node, "event", second_node, "handler")
             self.assertTrue(len(project.edges) == 1)
-            project.remove_connection(project.edges.pop().uid)
+
+            project.remove_connection(edge)
             self.assertTrue(len(project.edges) == 0)
         except RuntimeError:
             self.fail("test_graph_properties01")
