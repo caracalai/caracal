@@ -70,8 +70,8 @@ class Project:
     def add_node_type(self, node_type):
         self.node_types[node_type.uid] = node_type
 
-    def remove_node_type(self, node_type):
-        del self.node_types[node_type.uid]
+    def remove_node_type(self, node_type_uid):
+        del self.node_types[node_type_uid]
 
     def contains_node_type(self, node_type_uid):
         return node_type_uid in self.node_types

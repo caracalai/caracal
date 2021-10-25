@@ -33,10 +33,10 @@ class TestProject(unittest.TestCase):
             self.assertEqual(project.node_types[first_type.uid].name, "MyType")
             self.assertEqual(project.node_types[second_type.uid].name, "MyType")
 
-            project.remove_node_type(first_type)
+            project.remove_node_type(first_type.uid)
             self.assertTrue(len(project.node_types) == 1)
         except RuntimeError:
-            self.fail("test_graph_properties01")
+            self.fail("test_graph_properties00")
 
     def test_properties(self):
         program = """
@@ -53,22 +53,21 @@ class TestProject(unittest.TestCase):
 
             project = Project()
             session_id = project.create_session("default")
-
             project.add_node_type(my_node_type)
-            my_node_uid = project.add_node(my_node_type, session_id)
-            my_node = project.node(my_node_uid)
-            my_node.set_property("threshold", 0.5)
+            my_node = project.add_node(my_node_type, session_id)
+            project.node(my_node).set_property("threshold", 0.5)
             project.serialize()
         except RuntimeError:
             self.fail("test_graph_properties01")
 
+
     def test_add_session(self):
         program = """
-                    node MyNode:
-                        properties:
-                            threshold?: float(0.8) // default value
-                            border_width: int(10)
-                    """
+                   node MyNode:
+                       properties:
+                           threshold?: float(0.8) // default value
+                           border_width: int(10)
+                   """
 
         try:
             parser = TypesParser()
@@ -83,7 +82,7 @@ class TestProject(unittest.TestCase):
             project.remove_session("test_session")
             project.serialize()
         except RuntimeError:
-            self.fail("test_graph_properties01")
+            self.fail("test_add_session")
 
     def test_node_connection(self):
         try:
@@ -117,4 +116,4 @@ class TestProject(unittest.TestCase):
             project.remove_connection(project.edges.pop().uid)
             self.assertTrue(len(project.edges) == 0)
         except RuntimeError:
-            self.fail("test_graph_properties01")
+            self.fail("test_node_connection")
