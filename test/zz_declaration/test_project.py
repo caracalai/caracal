@@ -1,6 +1,6 @@
 import unittest
 
-from broutonblocks.declaration import ProjectInfo
+from broutonblocks.declaration.projects import ProjectInfo
 
 
 class TestProject(unittest.TestCase):
