@@ -217,7 +217,7 @@ class ProjectInfo:
         if self.contains_node(node):
             for edge in [edg for edg in self.edges.values()]:
                 if node.uid == edge.dest_node or node.uid == edge.source_node:
-                    self.remove_edge(self.edges[edge.uid])
+                    self.remove_connection(self.edges[edge.uid])
             del self.nodes[node.uid]
         else:
             raise RuntimeError()
