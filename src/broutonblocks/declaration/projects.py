@@ -1,9 +1,9 @@
-from broutonblocks.typesparser import TypesParser
-
 import base64
 import copy
 import pickle
 import uuid
+
+from broutonblocks.typesparser import TypesParser
 
 
 class SessionInfo:
@@ -19,7 +19,7 @@ class SessionInfo:
 class NodeInfo:
     def __init__(self, node_type, session: SessionInfo):
         self.node_type = node_type
-        self.property_values = {}
+        self.property_values = {}  # TODO props didn't initialize without setter
         self.session = session
         self.uid = "{type_name}_{uuid}".format(
             type_name=self.node_type.name, uuid=str(uuid.uuid4())
@@ -69,7 +69,7 @@ class ProjectInfo:
                 self.node_types[node_type.uid] = node_type
             else:
                 raise RuntimeError()
-        return [node_type for node_type in types.values()]
+        return list(types.values())
 
     def remove_node_type(self, node_type) -> None:
         if self.contains_node_type(node_type):
@@ -78,7 +78,7 @@ class ProjectInfo:
             raise RuntimeError()
 
     def contains_node_type(self, node_type) -> bool:
-        return node_type in self.node_types.values()
+        return node_type.uid in self.node_types
 
     def can_connect(
         self,
@@ -186,7 +186,7 @@ class ProjectInfo:
 
     def remove_session(self, session: SessionInfo) -> None:
         if self.contains_session(session):
-            for node_uid in [node_uid for node_uid in self.nodes]:
+            for node_uid in list(self.nodes):
                 if self.nodes[node_uid].session.uid == self.sessions[session.uid]:
                     self.remove_node(self.nodes[node_uid])
             del self.sessions[session.uid]
@@ -194,7 +194,7 @@ class ProjectInfo:
             raise RuntimeError()
 
     def contains_session(self, session: SessionInfo) -> bool:
-        return session in self.sessions.values()
+        return session.uid in self.sessions
 
     def create_node(self, node_type, session: SessionInfo) -> NodeInfo:
         if self.contains_session(session):
@@ -205,7 +205,7 @@ class ProjectInfo:
             raise RuntimeError()
 
     def contains_node(self, node: NodeInfo) -> bool:
-        return node in self.nodes.values()
+        return node.uid in self.nodes
 
     def move_node(self, node: NodeInfo, dest_session: SessionInfo) -> None:
         if self.contains_node(node) and self.contains_session(dest_session):
@@ -215,7 +215,7 @@ class ProjectInfo:
 
     def remove_node(self, node: NodeInfo) -> None:
         if self.contains_node(node):
-            for edge in [edg for edg in self.edges.values()]:
+            for edge in list(self.edges.values()):
                 if node.uid == edge.dest_node or node.uid == edge.source_node:
                     self.remove_connection(self.edges[edge.uid])
             del self.nodes[node.uid]
