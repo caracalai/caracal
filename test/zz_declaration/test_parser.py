@@ -37,23 +37,24 @@ class TestParse(unittest.TestCase):
         parser = TypesParser()
         self.assertRaises(TypesParseError, parser.parse, "wrong program")
 
-    def test_complex_types(self):
-        try:
-            parser = TypesParser()
-            node_types = parser.parse(
-                """
-                node FirstNode:
-                    properties:
-                        threshold?: float(0.8) // default value
-                        border_width: int(10)
-
-                @namespace(value="abc")
-                node FirstNode:
-                    properties:
-                        threshold?: float(0.8) // default value
-                        border_width: int(10)
-                """
-            )
-            # node_types["FirstNode"]
-        except RuntimeError:
-            self.fail("test_complex_types")
+    # TODO this test do nothing
+    # def test_complex_types(self):
+    #     try:
+    #         parser = TypesParser()
+    #         node_types = parser.parse(
+    #             """
+    #             node FirstNode:
+    #                 properties:
+    #                     threshold?: float(0.8) // default value
+    #                     border_width: int(10)
+    #
+    #             @namespace(value="abc")
+    #             node FirstNode:
+    #                 properties:
+    #                     threshold?: float(0.8) // default value
+    #                     border_width: int(10)
+    #             """
+    #         )
+    #         # node_types["FirstNode"]
+    #     except RuntimeError:
+    #         self.fail("test_complex_types")
