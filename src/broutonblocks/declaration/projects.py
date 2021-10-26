@@ -59,13 +59,13 @@ class ProjectInfo:
         self.sessions = {}  # session-uid(name) -> SessionInfo
         self.node_types = {}  # type-uid -> NodeTypeDeclaration
         self.nodes = {}  # node-uid -> NodeInfo
-        self.edges = []  # Edges
+        self.edges = {}  # Edges
 
     def parse_node_types_from_declaration(self, declaration: str) -> list:
         parser = TypesParser()
         types = parser.parse(declaration)
         for node_type in types.values():
-            if node_type not in self.node_types.values():
+            if not self.contains_node_type(node_type):
                 self.node_types[node_type.uid] = node_type
             else:
                 raise RuntimeError()
@@ -78,7 +78,7 @@ class ProjectInfo:
             raise RuntimeError()
 
     def contains_node_type(self, node_type) -> bool:
-        return node_type in self.node_types.values()  # TODO: 1
+        return node_type in self.node_types.values()
 
     def can_connect(
         self,
@@ -89,7 +89,8 @@ class ProjectInfo:
     ) -> bool:
 
         edge = EdgeInfo(source_node, event_name, dest_node, handler_name)
-        all_edges = self.edges + [edge]
+        all_edges = self.edges.copy()
+        all_edges[edge.uid] = edge
 
         # a = self.node(edge.source_node_id).type
         if event_name not in self.nodes[edge.source_node.uid].node_type.events:
@@ -116,7 +117,7 @@ class ProjectInfo:
                 len(
                     [
                         edg
-                        for edg in all_edges
+                        for edg in all_edges.values()
                         if edg.handler_name == handler_name
                         and edg.dest_node.uid == dest_node.uid
                     ]
@@ -127,7 +128,7 @@ class ProjectInfo:
 
         while True:
             specialized = False
-            for edge in all_edges:
+            for edge in all_edges.values():
                 source_type = types_info[edge.source_node.uid]["events"][
                     edge.event_name
                 ].data_type
@@ -163,28 +164,31 @@ class ProjectInfo:
             raise RuntimeError()
 
         edge = EdgeInfo(source_node, event_name, dest_node, handler_name)
-        self.edges.append(edge)  # TODO: 2
+        self.edges[edge.uid] = edge
         return edge
 
     def remove_connection(self, edge: EdgeInfo) -> None:
         if self.contains_connection(edge):
-            self.edges = [edg for edg in self.edges if edg.uid != edge.uid]  # TODO: 3
+            del self.edges[edge.uid]
         else:
             raise RuntimeError()
 
     def contains_connection(self, edge: EdgeInfo) -> bool:
-        return edge in self.edges  # TODO: 4
+        return edge.uid in self.edges
 
     def create_session(self, name: str) -> SessionInfo:
         session = SessionInfo(self, name)
-        self.sessions[session.uid] = session
-        return session
+        if not self.contains_session(session):
+            self.sessions[session.uid] = session
+            return session
+        else:
+            raise RuntimeError()
 
     def remove_session(self, session: SessionInfo) -> None:
-        if session in self.sessions.values():
+        if self.contains_session(session):
             for node_uid in [node_uid for node_uid in self.nodes]:
                 if self.nodes[node_uid].session.uid == self.sessions[session.uid]:
-                    self.remove_node(node_uid)
+                    self.remove_node(self.nodes[node_uid])
             del self.sessions[session.uid]
         else:
             raise RuntimeError()
@@ -193,7 +197,7 @@ class ProjectInfo:
         return session in self.sessions.values()
 
     def create_node(self, node_type, session: SessionInfo) -> NodeInfo:
-        if session.uid in self.sessions:
+        if self.contains_session(session):
             node = NodeInfo(node_type, session)
             self.nodes[node.uid] = node
             return node
@@ -210,13 +214,11 @@ class ProjectInfo:
             raise RuntimeError()
 
     def remove_node(self, node: NodeInfo) -> None:
-        if node.uid in self.nodes:
+        if self.contains_node(node):
+            for edge in [edg for edg in self.edges.values()]:
+                if node.uid == edge.dest_node or node.uid == edge.source_node:
+                    self.remove_edge(self.edges[edge.uid])
             del self.nodes[node.uid]
-            self.edges = [
-                edg
-                for edg in self.edges
-                if edg.sourse_node.uid != node.uid or edg.dest_node.uid != node.uid
-            ]  # TODO: 5
         else:
             raise RuntimeError()
 
