@@ -38,14 +38,14 @@ class Session:
 
     def run_project(self, project: ProjectInfo):
         for node in project.nodes.values():
-            if node.session_uid == self.name:
+            if node.session.uid == self.name:
                 if node.node_type.name in self.node_type_impls:
                     self.node_type_impls[node.node_type.name](node.uid)
                 else:
                     raise NotImplementedError()
-        for edge in project.edges:
-            source_node = self.nodes[edge.source_node_uid]
-            dest_node = self.nodes[edge.dest_node_uid]
+        for edge in project.edges.values():
+            source_node = self.nodes[edge.source_node.uid]
+            dest_node = self.nodes[edge.dest_node.uid]
             handler = getattr(dest_node, edge.handler_name)
             event = source_node.events[edge.event_name]
             handler.connect(event)

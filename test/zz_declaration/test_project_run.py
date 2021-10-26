@@ -1,7 +1,7 @@
 import unittest
 
 from broutonblocks.declaration import MetaInfo
-from broutonblocks.declaration import Project
+from broutonblocks.declaration.projects import ProjectInfo
 import broutonblocks.declaration.datatypes as bbtypes
 from broutonblocks.execution import Event, handler, Node, Property, Session
 from broutonblocks.typesparser import TypesParser
@@ -65,19 +65,12 @@ class TestProject(unittest.TestCase):
 
 
         """
-        parser = TypesParser()
-        types = parser.parse(program)
-        first_type = types["Node1"]
-        second_type = types["Node2"]
-        third_type = types["ResultNode"]
-        project = Project()
-        project.add_node_type(first_type)
-        project.add_node_type(second_type)
-        project.add_node_type(third_type)
+        project = ProjectInfo()
+        first_type, second_type, third_type = project.parse_node_types_from_declaration(program)
         session_info = project.create_session("default")
-        node1 = project.add_node(first_type, session_info)
-        node2 = project.add_node(second_type, session_info)
-        node3 = project.add_node(third_type, session_info)
+        node1 = project.create_node(first_type, session_info)
+        node2 = project.create_node(second_type, session_info)
+        node3 = project.create_node(third_type, session_info)
         project.connect(node1, "value", node2, "handler1")
         project.connect(node2, "result", node3, "result")
 
