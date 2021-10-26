@@ -2,14 +2,13 @@ import itertools
 from antlr4.InputStream import InputStream
 from antlr4 import CommonTokenStream
 from broutonblocks.typesparser import BlockTypesLexer, BlockTypesParser
-from broutonblocks.declaration import *
-from broutonblocks.declaration import datatypes
+from broutonblocks.declaration import datatypes, nodetype
 from antlr4.error.ErrorStrategy import *
 
 
 class TypesParseError(Exception):
-    def __init__(self, originalError):
-        self.originalError = originalError
+    def __init__(self, original_error):
+        self.originalError = original_error
 
 
 class MyErrorStrategy2(DefaultErrorStrategy):
@@ -35,6 +34,7 @@ class MyErrorStrategy(DefaultErrorStrategy):
 
     def sync(self, recognizer):
         pass
+
 
 class TypesParser:
     def __init__(self):

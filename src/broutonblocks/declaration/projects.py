@@ -7,9 +7,9 @@ import uuid
 
 
 class SessionInfo:
-    def __init__(self, project_, name: str):
+    def __init__(self, project, name: str):
         self.name = name
-        self.project = project_
+        self.project = project
 
     @property
     def uid(self) -> str:
@@ -56,9 +56,9 @@ class EdgeInfo:
 
 class ProjectInfo:
     def __init__(self):
-        self.sessions = {}  # session-id -> SessionInfo
-        self.node_types = {}  # type-id -> NodeTypeDeclaration
-        self.nodes = {}  # node-id -> NodeInfo
+        self.sessions = {}  # session-uid(name) -> SessionInfo
+        self.node_types = {}  # type-uid -> NodeTypeDeclaration
+        self.nodes = {}  # node-uid -> NodeInfo
         self.edges = []  # Edges
 
     def parse_node_types_from_declaration(self, declaration: str) -> list:
@@ -71,30 +71,14 @@ class ProjectInfo:
                 raise RuntimeError()
         return [node_type for node_type in types.values()]
 
-    def add_node_type(self, node_type) -> None:
-        if node_type.uid not in self.node_types:
-            self.node_types[node_type.uid] = node_type
-        else:
-            raise RuntimeError()
-
     def remove_node_type(self, node_type) -> None:
-        if node_type.uid in self.node_types:
+        if self.contains_node_type(node_type):
             del self.node_types[node_type.uid]
         else:
             raise RuntimeError()
 
     def contains_node_type(self, node_type) -> bool:
-        return node_type in self.node_types.values()
-
-    @staticmethod
-    def deserialize(text: str) -> pickle:
-        return pickle.loads(base64.b64decode(text))
-
-    def serialize(self) -> base64:
-        return base64.b64encode(pickle.dumps(self)).decode("ascii")
-
-    def contains_node(self, node: NodeInfo) -> bool:
-        return node in self.nodes.values()
+        return node_type in self.node_types.values() # TODO: 1
 
     def can_connect(
         self,
@@ -130,15 +114,9 @@ class ProjectInfo:
         ):
             if (
                 len(
-                    list(
-                        filter(
-                            lambda e: e.handler_name == handler_name
-                            and e.dest_node.uid == dest_node.uid,
-                            all_edges,
-                        )
-                    )
-                )
-                > 1
+                    [edg for edg in all_edges
+                     if edg.handler_name == handler_name and edg.dest_node.uid == dest_node.uid]
+                ) > 1
             ):
                 return False
 
@@ -180,23 +158,17 @@ class ProjectInfo:
             raise RuntimeError()
 
         edge = EdgeInfo(source_node, event_name, dest_node, handler_name)
-        self.edges.append(edge)
+        self.edges.append(edge) # TODO: 2
         return edge
 
     def remove_connection(self, edge: EdgeInfo) -> None:
-        if edge in self.edges:
-            self.edges = [edg for edg in self.edges if edg.uid != edge.uid]
-        else:
-            raise RuntimeError()
-
-    def connection(self, edge: EdgeInfo) -> EdgeInfo:
         if self.contains_connection(edge):
-            return edge
+            self.edges = [edg for edg in self.edges if edg.uid != edge.uid] # TODO: 3
         else:
             raise RuntimeError()
 
     def contains_connection(self, edge: EdgeInfo) -> bool:
-        return edge in self.edges
+        return edge in self.edges # TODO: 4
 
     def create_session(self, name: str) -> SessionInfo:
         session = SessionInfo(self, name)
@@ -215,7 +187,7 @@ class ProjectInfo:
     def contains_session(self, session: SessionInfo) -> bool:
         return session in self.sessions.values()
 
-    def add_node(self, node_type, session: SessionInfo) -> NodeInfo:
+    def create_node(self, node_type, session: SessionInfo) -> NodeInfo:
         if session.uid in self.sessions:
             node = NodeInfo(node_type, session)
             self.nodes[node.uid] = node
@@ -223,13 +195,29 @@ class ProjectInfo:
         else:
             raise RuntimeError()
 
+    def contains_node(self, node: NodeInfo) -> bool:
+        return node in self.nodes.values()
+
+    def move_node(self, node: NodeInfo, dest_session: SessionInfo) -> None:
+        if self.contains_node(node) and self.contains_session(dest_session):
+            node.session = dest_session
+        else:
+            return RuntimeError()
+
     def remove_node(self, node: NodeInfo) -> None:
         if node.uid in self.nodes:
             del self.nodes[node.uid]
             self.edges = [
                 edg
                 for edg in self.edges
-                if edg.sourse_node.uid != node.uid and edg.dest_node.uid != node.uid
-            ]
+                if edg.sourse_node.uid != node.uid or edg.dest_node.uid != node.uid
+            ] #TODO: 5
         else:
             raise RuntimeError()
+
+    @staticmethod
+    def deserialize(text: str) -> pickle:
+        return pickle.loads(base64.b64decode(text))
+
+    def serialize(self) -> base64:
+        return base64.b64encode(pickle.dumps(self)).decode("ascii")
