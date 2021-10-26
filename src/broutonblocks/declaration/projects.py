@@ -207,7 +207,7 @@ class ProjectInfo:
         if self.contains_node(node) and self.contains_session(dest_session):
             node.session = dest_session
         else:
-            return RuntimeError()
+            raise RuntimeError()
 
     def remove_node(self, node: NodeInfo) -> None:
         if node.uid in self.nodes:

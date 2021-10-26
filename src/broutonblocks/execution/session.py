@@ -1,6 +1,6 @@
 import logging
 
-from broutonblocks.declaration.projects import Project
+from broutonblocks.declaration.projects import ProjectInfo
 from broutonblocks.execution.nodeserver import NodeServer
 
 
@@ -15,11 +15,11 @@ class Session:
         self.server_port = server_port
         self.external_nodes = external_nodes
         self.nodes = []
-        self.project = Project()
+        self.project = ProjectInfo()
         self.server = None
 
     def initialize(self, project_file, node_type_impls):
-        self.project = Project.deserialize(project_file)
+        self.project = ProjectInfo.deserialize(project_file)
 
         # reprs = {impl().type: impl for impl in node_type_impls}
 

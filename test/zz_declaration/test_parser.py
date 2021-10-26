@@ -3,7 +3,10 @@ import unittest
 from broutonblocks.typesparser import TypesParseError, TypesParser
 
 
-class CheckGraphExecution(unittest.TestCase):
+class TestParse(unittest.TestCase):
+    def __init__(self, method_name="runTest"):
+        super(TestParse, self).__init__(method_name)
+
     def test_first(self):
         parser = TypesParser()
         node_types = parser.parse(
@@ -51,6 +54,6 @@ class CheckGraphExecution(unittest.TestCase):
                         border_width: int(10)
                 """
             )
-            node_types["FirstNode"]
+            # node_types["FirstNode"]
         except RuntimeError:
             self.fail("test_complex_types")

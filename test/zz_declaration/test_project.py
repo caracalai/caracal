@@ -1,6 +1,6 @@
 import unittest
 
-from broutonblocks.declaration import ProjectInfo
+from broutonblocks.declaration.projects import ProjectInfo
 
 
 class TestProject(unittest.TestCase):
@@ -127,5 +127,34 @@ class TestProject(unittest.TestCase):
 
             project.remove_connection(edge)
             self.assertTrue(len(project.edges) == 0)
+        except RuntimeError:
+            self.fail("test_graph_properties01")
+
+    @unittest.expectedFailure
+    def test_node_connection_incompatible(self):
+        try:
+            my_type = """
+                    node MyType:
+                        events:
+                            event(value: float)
+
+                    @namespace(value="abc")
+                    node MyType:
+                        handlers:
+                            handler(value: int)
+                    """
+
+            project = ProjectInfo()
+            first_type, second_type = project.parse_node_types_from_declaration(my_type)
+            self.assertTrue(len(project.node_types) == 2)
+            self.assertEqual(project.node_types[first_type.uid].name, "MyType")
+            self.assertEqual(project.node_types[second_type.uid].name, "MyType")
+
+            session = project.create_session("default")
+
+            first_node = project.create_node(first_type, session)
+            second_node = project.create_node(second_type, session)
+
+            edge = project.connect(first_node, "event", second_node, "handler")
         except RuntimeError:
             self.fail("test_graph_properties01")
