@@ -81,11 +81,11 @@ class ProjectInfo:
         return node_type in self.node_types.values()
 
     def can_connect(
-            self,
-            source_node: NodeInfo,
-            event_name: str,
-            dest_node: NodeInfo,
-            handler_name: str,
+        self,
+        source_node: NodeInfo,
+        event_name: str,
+        dest_node: NodeInfo,
+        handler_name: str,
     ) -> bool:
 
         edge = EdgeInfo(source_node, event_name, dest_node, handler_name)
@@ -109,20 +109,20 @@ class ProjectInfo:
                 types_info[node.uid]["handlers"][h] = copy.deepcopy(t.data_type)
 
         if (
-                not self.node_types[self.nodes[dest_node.uid].node_type.uid]
-                        .handlers[handler_name]
-                        .receives_multiple
+            not self.node_types[self.nodes[dest_node.uid].node_type.uid]
+            .handlers[handler_name]
+            .receives_multiple
         ):
             if (
-                    len(
-                        [
-                            edg
-                            for edg in all_edges.values()
-                            if edg.handler_name == handler_name
-                               and edg.dest_node.uid == dest_node.uid
-                        ]
-                    )
-                    > 1
+                len(
+                    [
+                        edg
+                        for edg in all_edges.values()
+                        if edg.handler_name == handler_name
+                        and edg.dest_node.uid == dest_node.uid
+                    ]
+                )
+                > 1
             ):
                 return False
 
@@ -142,9 +142,9 @@ class ProjectInfo:
                     (edge.dest_node.uid, "handlers", edge.handler_name),
                 ]:
                     if (
-                            self.nodes[edge.dest_node.uid]
-                                    .node_type.handlers[edge.handler_name]
-                                    .receives_multiple
+                        self.nodes[edge.dest_node.uid]
+                        .node_type.handlers[edge.handler_name]
+                        .receives_multiple
                     ):
                         continue
 
@@ -153,11 +153,11 @@ class ProjectInfo:
         return True
 
     def connect(
-            self,
-            source_node: NodeInfo,
-            event_name: str,
-            dest_node: NodeInfo,
-            handler_name: str,
+        self,
+        source_node: NodeInfo,
+        event_name: str,
+        dest_node: NodeInfo,
+        handler_name: str,
     ) -> EdgeInfo:
         result = self.can_connect(source_node, event_name, dest_node, handler_name)
         if not result:
