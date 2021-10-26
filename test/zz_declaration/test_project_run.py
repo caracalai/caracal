@@ -66,7 +66,9 @@ class TestProject(unittest.TestCase):
 
         """
         project = ProjectInfo()
-        first_type, second_type, third_type = project.parse_node_types_from_declaration(program)
+        first_type, second_type, third_type = project.parse_node_types_from_declaration(
+            program
+        )
         session_info = project.create_session("default")
         node1 = project.create_node(first_type, session_info)
         node2 = project.create_node(second_type, session_info)
