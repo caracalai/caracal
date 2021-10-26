@@ -1,6 +1,6 @@
 import logging
 
-from broutonblocks.declaration.projects import Project
+from broutonblocks.declaration.projects import ProjectInfo
 from broutonblocks.execution.nodeserver import NodeServer
 
 current_session = None
@@ -18,7 +18,7 @@ class Session:
         self.name = name
         self.node_type_impls = {}
         self.nodes = {}
-        self.project = Project()
+        self.project = ProjectInfo()
         self.server = None
 
     def register_types(self, node_type_impls):
@@ -26,7 +26,7 @@ class Session:
             self.node_type_impls[t_.__name__] = t_
 
     def initialize(self, project_file, node_type_impls):
-        self.project = Project.deserialize(project_file)
+        self.project = ProjectInfo.deserialize(project_file)
 
         # reprs = {impl().type: impl for impl in node_type_impls}
 
@@ -36,7 +36,7 @@ class Session:
         #             found = True
         #             node_type_impl()
 
-    def run_project(self, project: Project):
+    def run_project(self, project: ProjectInfo):
         for node in project.nodes.values():
             if node.session_uid == self.name:
                 if node.node_type.name in self.node_type_impls:
