@@ -52,7 +52,7 @@ class TestProject(unittest.TestCase):
 
         try:
             project = ProjectInfo()
-            my_type, = project.parse_node_types_from_declaration(program)
+            (my_type,) = project.parse_node_types_from_declaration(program)
 
             session = project.create_session("default")
             session_2 = project.create_session("session_2")
@@ -83,7 +83,7 @@ class TestProject(unittest.TestCase):
 
         try:
             project = ProjectInfo()
-            my_type, = project.parse_node_types_from_declaration(program)
+            (my_type,) = project.parse_node_types_from_declaration(program)
 
             session = project.create_session("default")
             self.assertTrue(len(project.sessions) == 1)

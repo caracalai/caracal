@@ -78,7 +78,7 @@ class ProjectInfo:
             raise RuntimeError()
 
     def contains_node_type(self, node_type) -> bool:
-        return node_type in self.node_types.values() # TODO: 1
+        return node_type in self.node_types.values()  # TODO: 1
 
     def can_connect(
         self,
@@ -114,9 +114,14 @@ class ProjectInfo:
         ):
             if (
                 len(
-                    [edg for edg in all_edges
-                     if edg.handler_name == handler_name and edg.dest_node.uid == dest_node.uid]
-                ) > 1
+                    [
+                        edg
+                        for edg in all_edges
+                        if edg.handler_name == handler_name
+                        and edg.dest_node.uid == dest_node.uid
+                    ]
+                )
+                > 1
             ):
                 return False
 
@@ -158,17 +163,17 @@ class ProjectInfo:
             raise RuntimeError()
 
         edge = EdgeInfo(source_node, event_name, dest_node, handler_name)
-        self.edges.append(edge) # TODO: 2
+        self.edges.append(edge)  # TODO: 2
         return edge
 
     def remove_connection(self, edge: EdgeInfo) -> None:
         if self.contains_connection(edge):
-            self.edges = [edg for edg in self.edges if edg.uid != edge.uid] # TODO: 3
+            self.edges = [edg for edg in self.edges if edg.uid != edge.uid]  # TODO: 3
         else:
             raise RuntimeError()
 
     def contains_connection(self, edge: EdgeInfo) -> bool:
-        return edge in self.edges # TODO: 4
+        return edge in self.edges  # TODO: 4
 
     def create_session(self, name: str) -> SessionInfo:
         session = SessionInfo(self, name)
@@ -211,7 +216,7 @@ class ProjectInfo:
                 edg
                 for edg in self.edges
                 if edg.sourse_node.uid != node.uid or edg.dest_node.uid != node.uid
-            ] #TODO: 5
+            ]  # TODO: 5
         else:
             raise RuntimeError()
 
