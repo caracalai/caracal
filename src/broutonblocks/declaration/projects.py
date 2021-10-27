@@ -20,7 +20,7 @@ class SessionInfo:
 class NodeInfo:
     def __init__(self, node_type: NodeTypeDeclaration, session: SessionInfo):
         self.node_type = node_type
-        self.property_values = {}
+        self.property_values = {prop: self.node_type.properties[prop].default_value for prop in self.node_type.properties}
         self.session = session
         self.uid = "{type_name}_{uuid}".format(
             type_name=self.node_type.name, uuid=str(uuid.uuid4())
