@@ -47,7 +47,13 @@ class NodeInfo:
 
 
 class EdgeInfo:
-    def __init__(self, source_node: NodeInfo, event_name: str, dest_node: NodeInfo, handler_name: str):
+    def __init__(
+        self,
+        source_node: NodeInfo,
+        event_name: str,
+        dest_node: NodeInfo,
+        handler_name: str,
+    ):
         self.uid = str(uuid.uuid4())
         self.source_node = source_node
         self.event_name = event_name
