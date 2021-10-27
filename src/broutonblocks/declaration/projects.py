@@ -3,8 +3,8 @@ import copy
 import pickle
 import uuid
 
-from broutonblocks.typesparser import TypesParser
 from broutonblocks.declaration.nodetype import NodeTypeDeclaration
+from broutonblocks.typesparser import TypesParser
 
 
 class SessionInfo:
@@ -21,8 +21,7 @@ class NodeInfo:
     def __init__(self, node_type: NodeTypeDeclaration, session: SessionInfo):
         self.node_type = node_type
         self.property_values = {
-            prop: self.node_type.properties[prop].default_value
-            for prop in self.node_type.properties
+            prop: val.default_value for prop, val in self.node_type.properties.items()
         }
         self.session = session
         self.uid = "{type_name}_{uuid}".format(
