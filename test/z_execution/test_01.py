@@ -11,9 +11,7 @@ delay = 0.0
 
 
 class GeneratorFirst(Node):
-    def __init__(self, id_=None):
-        super().__init__(id_)
-        self.value = Event("value", bbtypes.Int())
+    value = Event("value", bbtypes.Int())
 
     def run(self):
         index = 0
@@ -28,9 +26,7 @@ class GeneratorFirst(Node):
 
 
 class GeneratorSecond(Node):
-    def __init__(self, id_=None):
-        super().__init__(id_)
-        self.value = Event("value", bbtypes.Int())
+    value = Event("value", bbtypes.Int())
 
     def run(self):
         index = 0
@@ -45,11 +41,9 @@ class GeneratorSecond(Node):
 
 
 class Summator(Node):
-    def __init__(self, id_=None):
-        super().__init__(id_)
-        self.result = Event("result", bbtypes.Int())
-        self.first_queue = collections.deque()
-        self.second_queue = collections.deque()
+    result = Event("result", bbtypes.Int())
+    first_queue = collections.deque()
+    second_queue = collections.deque()
 
     @handler("on_first", bbtypes.Int())
     def on_first(self, msg):

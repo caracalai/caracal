@@ -173,7 +173,7 @@ class Node:
         return attr
 
     def __init_attrs(self):
-        for attr_name in dir(self):
+        for attr_name in [attr for attr in dir(self) if attr[:2] != "__"]:
             attr = self.__getattribute__(attr_name)
             if isinstance(attr, Handler):
                 self.handlers[attr.declaration.name] = attr

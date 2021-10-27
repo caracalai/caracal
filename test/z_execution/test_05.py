@@ -15,25 +15,21 @@ from broutonblocks.execution import (
 
 port = 2001
 sent_array = [54, -21, 54, 43, 34, 5, 43, 2, -6, 2]
-threshold = 23
+threshold = 23.0
 result = list(filter(lambda x: x >= threshold, sent_array))
 test_node_result = None
 
 
 class Generator(Node):
-    def __init__(self):
-        super().__init__()
-        self.processed_batch = Event("processedBatch", bbtypes.List(bbtypes.Int()))
+    processed_batch = Event("processedBatch", bbtypes.List(bbtypes.Int()))
 
     def run(self):
         self.fire(self.processed_batch, sent_array)
 
 
 class Processor(Node):
-    def __init__(self):
-        super().__init__()
-        self.threshold = Property(bbtypes.Int(), default_value=0.7, optional=True)
-        self.result = Event("result", bbtypes.Object())
+    threshold = Property(bbtypes.Int(), default_value=0.7, optional=True)
+    result = Event("result", bbtypes.Object())
 
     @handler("onProcessBatch", bbtypes.List(bbtypes.Int()), False, MetaInfo())
     def on_process_batch(self, msg):
@@ -43,6 +39,8 @@ class Processor(Node):
 
 
 class TestNode(Node):
+    result = None
+
     @handler("receive_result", bbtypes.Object())
     def receive_result(self, msg):
         self.result = msg.value
@@ -62,7 +60,7 @@ def second_worker():
         detector.id = "detector"
         test_node = TestNode("test-node")
 
-        detector.threshold.value = threshold
+        detector.threshold = threshold
         processed_batch = ExternalEvent(
             "processedBatch", bbtypes.List(bbtypes.Int()), node_id="generator"
         )

@@ -1,18 +1,14 @@
 import unittest
 
 from broutonblocks.declaration import MetaInfo
-from broutonblocks.declaration.projects import ProjectInfo
 import broutonblocks.declaration.datatypes as bbtypes
+from broutonblocks.declaration.projects import ProjectInfo
 from broutonblocks.execution import Event, handler, Node, Property, Session
-from broutonblocks.typesparser import TypesParser
 
 
 class Node1(Node):
-    def __init__(self, uid=None):
-        super().__init__(uid)
-        self.threshold = Property(bbtypes.Int(), default_value=10, optional=True)
-        self.value = Event("value", bbtypes.Int())
-        self.session.add(self)
+    threshold = Property(bbtypes.Int(), default_value=10, optional=True)
+    value = Event("value", bbtypes.Int())
 
     def run(self):
         self.fire(self.value, 10)
@@ -22,10 +18,7 @@ result = -1
 
 
 class Node2(Node):
-    def __init__(self, id_=None):
-        super().__init__(id_)
-        self.result = Event("result", bbtypes.Int())
-        self.session.add(self)
+    result = Event("result", bbtypes.Int())
 
     @handler("handler1", bbtypes.Int(), False, MetaInfo())
     def handler1(self, msg):
@@ -33,9 +26,6 @@ class Node2(Node):
 
 
 class ResultNode(Node):
-    def __init__(self, id_=None):
-        super().__init__(id_)
-
     @handler("result", bbtypes.Int(), False, MetaInfo())
     def result(self, msg):
         global result

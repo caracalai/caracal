@@ -8,9 +8,9 @@ import zmq
 class NodeServer:
     def __init__(self, all_nodes_list, port=None):
         self.context = zmq.Context()
-        self.context.setsockopt(zmq.LINGER, 100)
+        # self.context.setsockopt(zmq.LINGER, 100)
         self.socket = self.context.socket(zmq.REP)
-        self.socket.setsockopt(zmq.LINGER, 100)
+        # self.socket.setsockopt(zmq.LINGER, 100)
         if port is not None:
             self.socket.bind("tcp://127.0.0.1:{port}".format(port=port))
             self.port = port
@@ -56,7 +56,7 @@ class NodeServer:
     def initialize_nodes(self):
         for node in self.nodes_info.values():
             sock = self.context.socket(zmq.REQ)
-            sock.setsockopt(zmq.LINGER, 100)
+            # sock.setsockopt(zmq.LINGER, 100)
             sock.connect(node["service_endpoint"])
 
             sock.send(json.dumps(self.nodes_info).encode("utf8"))
@@ -65,7 +65,7 @@ class NodeServer:
     def finish_nodes(self):
         for id_, node in self.nodes_info.items():
             sock = self.context.socket(zmq.REQ)
-            sock.setsockopt(zmq.LINGER, 100)
+            # sock.setsockopt(zmq.LINGER, 100)
             sock.connect(node["service_endpoint"])
             sock.send(json.dumps({"id": id_, "finish": "true"}).encode("utf8"))
             sock.close(linger=100)
@@ -73,7 +73,7 @@ class NodeServer:
     def start_nodes(self):
         for id_, node in self.nodes_info.items():
             sock = self.context.socket(zmq.REQ)
-            sock.setsockopt(zmq.LINGER, 100)
+            # sock.setsockopt(zmq.LINGER, 100)
             sock.connect(node["service_endpoint"])
             sock.send(json.dumps({"id": id_, "start": "true"}).encode("utf8"))
             sock.close(linger=100)
@@ -123,7 +123,7 @@ class NodeServer:
                     self.socket.send(json.dumps({"success": "true"}).encode("utf8"))
                     for id_, node in self.nodes_info.items():
                         sock = self.context.socket(zmq.REQ)
-                        sock.setsockopt(zmq.LINGER, 100)
+                        # sock.setsockopt(zmq.LINGER, 100)
                         sock.connect(node["service_endpoint"])
                         sock.send(
                             json.dumps({"id": id_, "terminate": "true"}).encode("utf8")

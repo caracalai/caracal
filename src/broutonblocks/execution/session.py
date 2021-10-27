@@ -46,7 +46,7 @@ class Session:
         for edge in project.edges.values():
             source_node = self.nodes[edge.source_node.uid]
             dest_node = self.nodes[edge.dest_node.uid]
-            handler = getattr(dest_node, edge.handler_name)
+            handler = dest_node.handlers[edge.handler_name]
             event = source_node.events[edge.event_name]
             handler.connect(event)
         self.run()

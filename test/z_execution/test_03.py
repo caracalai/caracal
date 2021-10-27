@@ -11,19 +11,15 @@ result = list(filter(lambda x: x >= threshold, sent_array))
 
 
 class Generator(Node):
-    def __init__(self):
-        super().__init__()
-        self.processed_batch = Event("processedBatch", bbtypes.List(bbtypes.Int()))
+    processed_batch = Event("processedBatch", bbtypes.List(bbtypes.Int()))
 
     def run(self):
         self.fire(self.processed_batch, sent_array)
 
 
 class Processor(Node):
-    def __init__(self):
-        super().__init__()
-        self.threshold = Property(bbtypes.Int(), default_value=0.7, optional=True)
-        self.result = Event("result", bbtypes.Object())
+    threshold = Property(bbtypes.Int(), default_value=0.7, optional=True)
+    result = Event("result", bbtypes.Object())
 
     @handler("onProcessBatch", bbtypes.List(bbtypes.Int()), False, MetaInfo())
     def on_process_batch(self, msg):
@@ -49,7 +45,7 @@ class CheckGraphExecution_03(unittest.TestCase):
             detector.id = "detector"
             test_node = TestNode("test-node")
 
-            detector.threshold.value = threshold
+            detector.threshold = threshold
             detector.on_process_batch.connect(processor.processed_batch)
             test_node.receive_result.connect(detector.result)
             session.run()
