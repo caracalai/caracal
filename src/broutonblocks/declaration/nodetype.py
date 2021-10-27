@@ -21,6 +21,10 @@ class PropertyDeclaration:
         self.optional = optional
         self.default_value = default_value
 
+    @property
+    def uid(self):
+        return "property"
+
 
 class MethodDeclaration:
     def __init__(self, name, data_type, info=None):
@@ -47,6 +51,10 @@ class HandlerDeclaration(MethodDeclaration):
             result += " [can be multiple]"
         return result
 
+    @property
+    def uid(self):
+        return self.name
+
 
 class EventDeclaration(MethodDeclaration):
     def __str__(self):
@@ -55,7 +63,7 @@ class EventDeclaration(MethodDeclaration):
 
     @property
     def uid(self):
-        return "property_{id}"
+        return self.name
 
 
 class NodeTypeDeclaration:
