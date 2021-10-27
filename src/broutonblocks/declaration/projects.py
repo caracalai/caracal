@@ -4,6 +4,7 @@ import pickle
 import uuid
 
 from broutonblocks.typesparser import TypesParser
+from broutonblocks.declaration.nodetype import NodeTypeDeclaration
 
 
 class SessionInfo:
@@ -17,9 +18,9 @@ class SessionInfo:
 
 
 class NodeInfo:
-    def __init__(self, node_type, session: SessionInfo):
+    def __init__(self, node_type: NodeTypeDeclaration, session: SessionInfo):
         self.node_type = node_type
-        self.property_values = {}  # TODO props didn't initialize without setter
+        self.property_values = {}
         self.session = session
         self.uid = "{type_name}_{uuid}".format(
             type_name=self.node_type.name, uuid=str(uuid.uuid4())
@@ -46,7 +47,7 @@ class NodeInfo:
 
 
 class EdgeInfo:
-    def __init__(self, source_node, event_name, dest_node, handler_name):
+    def __init__(self, source_node: NodeInfo, event_name: str, dest_node: NodeInfo, handler_name: str):
         self.uid = str(uuid.uuid4())
         self.source_node = source_node
         self.event_name = event_name
@@ -71,13 +72,13 @@ class ProjectInfo:
                 raise RuntimeError()
         return list(types.values())
 
-    def remove_node_type(self, node_type) -> None:
+    def remove_node_type(self, node_type: NodeTypeDeclaration) -> None:
         if self.contains_node_type(node_type):
             del self.node_types[node_type.uid]
         else:
             raise RuntimeError()
 
-    def contains_node_type(self, node_type) -> bool:
+    def contains_node_type(self, node_type: NodeTypeDeclaration) -> bool:
         return node_type.uid in self.node_types
 
     def can_connect(
