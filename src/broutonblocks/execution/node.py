@@ -2,6 +2,7 @@ from collections import namedtuple
 import json
 import logging
 import threading
+from typing import Callable
 import uuid
 
 from broutonblocks.declaration import nodetype
@@ -14,7 +15,14 @@ _Event = namedtuple("_Event", ["source_id", "event"])
 
 
 class Handler:
-    def __init__(self, name, type_, receives_multiple, info, function):
+    def __init__(
+        self,
+        name: str,
+        type_: list,
+        receives_multiple: bool,
+        info: nodetype.MetaInfo,
+        function: Callable,
+    ):
         self.declaration = nodetype.HandlerDeclaration(
             name, type_, receives_multiple, info
         )
@@ -29,7 +37,7 @@ class Handler:
         self.connected_events.append(event)
 
 
-def handler(name, type_, receives_multiple=False, info=None, function=None):
+def handler(name: str, type_, receives_multiple=False, info=None, function=None):
     if function:
         return Handler(name, type_, receives_multiple, info, function)
     else:
@@ -53,8 +61,10 @@ class Property:
 
 class Event:
     def __init__(self, name, type_, info=None):
-        self.declaration = nodetype.EventDeclaration(name, type_, info)
-        self.parent = None
+        self.declaration: nodetype.EventDeclaration = nodetype.EventDeclaration(
+            name, type_, info
+        )
+        self.parent: Node = None
 
     @property
     def node_id(self):
@@ -109,7 +119,7 @@ class Node:
         self.events_processor = None
         self.events_from_server_processor = None
         self.run_processor = None
-        self.__init_attrs()
+        self.__init_handlers()
 
     @property
     def name(self):
@@ -150,11 +160,17 @@ class Node:
             attr = object.__getattribute__(self, key)
             if isinstance(attr, Property):
                 attr.value = value
-
-                return
+                attr.parent = self
+                self.properties[key] = attr
+                print(type(attr))
+            elif isinstance(attr, Event):
+                attr.parent = self
+                self.events[key] = attr
+                print(type(attr))
+            else:
+                object.__setattr__(self, key, value)
         except AttributeError:
-            ...
-        object.__setattr__(self, key, value)
+            object.__setattr__(self, key, value)
 
     # def __getattribute__(self, item):
     #     result = super().__getattribute__(item)
@@ -172,18 +188,11 @@ class Node:
 
         return attr
 
-    def __init_attrs(self):
+    def __init_handlers(self):
         for attr_name in [attr for attr in dir(self) if attr[:2] != "__"]:
             attr = self.__getattribute__(attr_name)
             if isinstance(attr, Handler):
                 self.handlers[attr.declaration.name] = attr
-            if isinstance(attr, Property):
-                self.properties[attr_name] = attr
-            if isinstance(attr, Event):
-                self.events[attr_name] = attr
-
-        # if isinstance(result, Event):
-        #     result.parent = self
 
     def set_server_endpoint(self, server_endpoint):
         self.port = server_endpoint
@@ -370,67 +379,65 @@ class Node:
         logging.debug("Node {name}:process_events finished".format(name=self.id))
 
     def execute(self):
-        try:
-            # step0: publisher
-            self.pub_socket = self.context.socket(zmq.PUB)
-            self.pub_socket.setsockopt(zmq.LINGER, 100)
-            self.pub_port = self.pub_socket.bind_to_random_port("tcp://127.0.0.1")
-            logging.debug(
-                "Node {id}. Publisher connected to port={port}".format(
-                    id=self.id, port=self.pub_port
-                )
+        # step0: publisher
+        self.pub_socket = self.context.socket(zmq.PUB)
+        self.pub_socket.setsockopt(zmq.LINGER, 100)
+        self.pub_port = self.pub_socket.bind_to_random_port("tcp://127.0.0.1")
+        logging.debug(
+            "Node {id}. Publisher connected to port={port}".format(
+                id=self.id, port=self.pub_port
             )
+        )
 
-            # step1: initialize node
-            self.initialize()
+        # step1: initialize node
+        self.initialize()
 
-            # step2: initialize service socket
-            self.service_socket = self.context.socket(zmq.REP)
-            self.service_socket.setsockopt(zmq.LINGER, 100)
-            self.service_port = self.service_socket.bind_to_random_port("tcp://127.0.0.1")
-            logging.debug(
-                "Node {id}. Service connected to port={port}".format(
-                    id=self.id, port=self.service_port
-                )
+        # step2: initialize service socket
+        self.service_socket = self.context.socket(zmq.REP)
+        self.service_socket.setsockopt(zmq.LINGER, 100)
+        self.service_port = self.service_socket.bind_to_random_port("tcp://127.0.0.1")
+        logging.debug(
+            "Node {id}. Service connected to port={port}".format(
+                id=self.id, port=self.service_port
             )
+        )
 
-            # step3: register socket on the server
-            self.send_command(
-                json.dumps(
-                    {
-                        "command": "register",
-                        "id": self.id,
-                        "publisher_endpoint": "tcp://127.0.0.1:{port}".format(
-                            port=self.pub_port
-                        ),
-                        "service_endpoint": "tcp://127.0.0.1:{port}".format(
-                            port=self.service_port
-                        ),
-                    },
-                    sort_keys=True,
-                )
+        # step3: register socket on the server
+        self.send_command(
+            json.dumps(
+                {
+                    "command": "register",
+                    "id": self.id,
+                    "publisher_endpoint": "tcp://127.0.0.1:{port}".format(
+                        port=self.pub_port
+                    ),
+                    "service_endpoint": "tcp://127.0.0.1:{port}".format(
+                        port=self.service_port
+                    ),
+                },
+                sort_keys=True,
             )
-            answer = self.wait_answer_from_server()
+        )
+        answer = self.wait_answer_from_server()
 
-            self.initialize_listener(answer)
-            self.send_command(json.dumps({"command": "ready-to-work", "id": self.id}))
+        self.initialize_listener(answer)
+        self.send_command(json.dumps({"command": "ready-to-work", "id": self.id}))
 
-            self.wait_answer_from_server()
+        self.wait_answer_from_server()
 
-            logging.debug("Node {id}. initialized".format(id=self.id))
+        logging.debug("Node {id}. initialized".format(id=self.id))
 
-            self.events_processor = threading.Thread(target=self.process_events)
-            self.events_processor.start()
+        self.events_processor = threading.Thread(target=self.process_events)
+        self.events_processor.start()
 
-            self.events_from_server_processor = threading.Thread(
-                target=self.process_events_from_server
-            )
-            self.events_from_server_processor.start()
+        self.events_from_server_processor = threading.Thread(
+            target=self.process_events_from_server
+        )
+        self.events_from_server_processor.start()
 
-            self.run_processor = threading.Thread(target=self.run)
-            self.run_processor.start()
-        except Exception:
-            logging.debug("Node {id}. Execution exception".format(id=self.id))
+        self.run_processor = threading.Thread(target=self.run)
+        self.run_processor.start()
+        logging.debug("Node {id}. Execution exception".format(id=self.id))
 
     def __del__(self):
         if not self.context.closed:
