@@ -1,6 +1,7 @@
 import json
 import logging
 import threading
+import time
 
 import zmq
 
@@ -46,7 +47,7 @@ class NodeServer:
                     )
                 )
 
-        self.context.term()
+        # self.context.term()
         self.worker.join()
         self.stopped = False
 
@@ -141,6 +142,7 @@ class NodeServer:
 
                     if graph_node_ids.issubset(self.initialized_nodes):
                         logging.debug("Server: all nodes are ready. Starting nodes")
+                        time.sleep(1)
                         self.start_nodes()
                     continue
 
@@ -156,7 +158,7 @@ class NodeServer:
                 break
         logging.debug("Server: Finished execution...")
 
-    def __del__(self):
-        if not self.context.closed:
-            self.context.destroy(linger=100)
-        del self
+    # def __del__(self):
+    #     if not self.context.closed:
+    #         self.context.destroy(linger=100)
+    #     del self

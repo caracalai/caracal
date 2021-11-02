@@ -34,9 +34,7 @@ class Processor(Node):
 
     @handler("onProcessBatch", bbtypes.List(bbtypes.Int()), False, MetaInfo())
     def on_process_batch(self, msg):
-        self.fire(
-            self.result, list(filter(lambda x: x >= self.threshold.value, msg.value))
-        )
+        self.fire(self.result, list(filter(lambda x: x >= self.threshold, msg.value)))
 
 
 class TestNode(Node):
@@ -51,27 +49,29 @@ class TestNode(Node):
 
 def first_worker():
     with Session(server_port=port, external_nodes=["detector", "test-node"]) as session:
-        processor = Generator()
-        processor.id = "generator"
+        generator = Generator()
+        generator.id = "generator"
         session.run()
 
 
-# def second_worker():
-#     with Session(serves_server=False, server_port=port) as session:
-#         detector = Processor()
-#         detector.id = "detector"
-#         test_node = TestNode("test-node")
-#
-#         detector.threshold = threshold
-#         processed_batch = ExternalEvent(
-#             "processedBatch", bbtypes.List(bbtypes.Int()), node_id="generator"
-#         )
-#         detector.on_process_batch.connect(processed_batch)
-#         test_node.receive_result.connect(detector.result)
-#         session.run()
+def second_worker():
 
-# global test_node_result
-# test_node_result = test_node.result
+    with Session(serves_server=False, server_port=port) as session:
+        processor = Processor()
+        processor.threshold = 0.9
+        processor.id = "detector"
+        test_node = TestNode("test-node")
+
+        processor.threshold = threshold
+        processed_batch = ExternalEvent(
+            "processedBatch", bbtypes.List(bbtypes.Int()), node_id="generator"
+        )
+        processor.on_process_batch.connect(processed_batch)
+        test_node.receive_result.connect(processor.result)
+        session.run()
+
+    global test_node_result
+    test_node_result = test_node.result
 
 
 class CheckGraphExecution_05(unittest.TestCase):
@@ -81,9 +81,9 @@ class CheckGraphExecution_05(unittest.TestCase):
         worker = threading.Thread(target=first_worker)
         worker.start()
 
-        # worker2 = threading.Thread(target=second_worker)
-        # worker2.start()
+        worker2 = threading.Thread(target=second_worker)
+        worker2.start()
 
         worker.join()
-        # worker2.join()
+        worker2.join()
         self.assertEqual(result, test_node_result)

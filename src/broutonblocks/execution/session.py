@@ -1,4 +1,5 @@
 import logging
+import time
 
 from broutonblocks.declaration.projects import ProjectInfo
 from broutonblocks.execution.nodeserver import NodeServer
@@ -69,6 +70,7 @@ class Session:
 
             for node in self.nodes.values():
                 node.server_port = self.server_port
+                time.sleep(0.3)
                 node.start()
 
             for node in self.nodes.values():

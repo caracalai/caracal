@@ -109,8 +109,10 @@ class Node:
         self.handlers = {}
         self.events = {}
         self.properties = {}
-        self.session = session.current_session
         self.id = id_ if id_ is not None else str(uuid.uuid1())
+
+        self.session = session.current_session
+
         self.session.add(self)
         self.pub_port = None
         self.service_port = None
@@ -119,7 +121,7 @@ class Node:
         self.events_processor = None
         self.events_from_server_processor = None
         self.run_processor = None
-        self.__init_handlers()
+        self.__init_attrs()
 
     @property
     def name(self):
@@ -160,13 +162,8 @@ class Node:
             attr = object.__getattribute__(self, key)
             if isinstance(attr, Property):
                 attr.value = value
-                attr.parent = self
-                self.properties[key] = attr
-                print(type(attr))
-            elif isinstance(attr, Event):
-                attr.parent = self
-                self.events[key] = attr
-                print(type(attr))
+            #             attr.parent = self
+            #             self.properties[key] = attr
             else:
                 object.__setattr__(self, key, value)
         except AttributeError:
@@ -181,18 +178,26 @@ class Node:
     #         return result.value
     #
     #     return result
+    """ *** magic *** """
+
     def __getattribute__(self, item):
         attr = object.__getattribute__(self, item)
         if isinstance(attr, Property):
+            attr.parent = self
+            self.properties[item] = attr
             return attr.value
 
         return attr
 
-    def __init_handlers(self):
+    def __init_attrs(self):
         for attr_name in [attr for attr in dir(self) if attr[:2] != "__"]:
             attr = self.__getattribute__(attr_name)
             if isinstance(attr, Handler):
+                attr.parent = self
                 self.handlers[attr.declaration.name] = attr
+            elif isinstance(attr, Event):
+                attr.parent = self
+                self.events[attr.declaration.name] = attr
 
     def set_server_endpoint(self, server_endpoint):
         self.port = server_endpoint
@@ -276,6 +281,7 @@ class Node:
 
     def terminate(self):
         if not self.terminated:
+            logging.debug("Node terminated")
             self.terminated = True
             sock = self.context.socket(zmq.REQ)
             sock.setsockopt(zmq.LINGER, 100)
@@ -303,7 +309,7 @@ class Node:
 
         for input_node_id in input_node_ids:
             if input_node_id not in config:
-                pass
+                continue
             addr = config[input_node_id]["publisher_endpoint"]
             self.sub_socket.connect(addr)
 
@@ -374,6 +380,7 @@ class Node:
                 self.handlers[handler_name](message)
             except Exception as e:
                 logging.warning("Node {name}: Exception {e}".format(name=self.id, e=e))
+                logging.warning(e.args)
                 break
 
         logging.debug("Node {name}:process_events finished".format(name=self.id))
@@ -437,7 +444,7 @@ class Node:
 
         self.run_processor = threading.Thread(target=self.run)
         self.run_processor.start()
-        logging.debug("Node {id}. Execution exception".format(id=self.id))
+        logging.debug("Node {id}. Execution started".format(id=self.id))
 
     def __del__(self):
         if not self.context.closed:
