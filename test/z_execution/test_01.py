@@ -66,9 +66,7 @@ class Summator(Node):
 
 
 class TestNode(Node):
-    def __init__(self):
-        super(TestNode, self).__init__()
-        self.result = []
+    result = []
 
     @handler("receive_result", bbtypes.Int())
     def receive_result(self, msg):
@@ -80,7 +78,7 @@ class TestNode(Node):
 class CheckGraphExecution_01(unittest.TestCase):
     def setUp(self) -> None:
         with Session() as session:
-            logging.basicConfig(level=logging.CRITICAL)
+            logging.basicConfig(level=logging.DEBUG)
 
             self.generator_first = GeneratorFirst()
             self.generator_second = GeneratorSecond()

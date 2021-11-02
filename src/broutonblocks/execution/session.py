@@ -1,10 +1,17 @@
+import io
 import logging
+import sys
 import time
+import traceback
 
 from broutonblocks.declaration.projects import ProjectInfo
 from broutonblocks.execution.nodeserver import NodeServer
 
 current_session = None
+
+old_stdout = sys.stdout
+new_stdout = io.StringIO()
+sys.stdout = new_stdout
 
 
 class Session:
@@ -67,17 +74,21 @@ class Session:
                 self.server = NodeServer(all_nodes, self.server_port)
                 self.server_port = self.server.port
                 self.server.start()
-
-            for node in self.nodes.values():
-                node.server_port = self.server_port
+            logging.debug("Len of nodes values {}".format(len(self.nodes.values())))
+            for key in self.nodes:
+                logging.warning(self.nodes[key].session.name)
+                self.nodes[key].server_port = self.server_port
                 time.sleep(0.3)
-                node.start()
+                self.nodes[key].start()
 
             for node in self.nodes.values():
                 node.wait()
             if self.server is not None:
                 self.server.wait()
         except Exception as e:
+            traceback.print_exc()
+            output = new_stdout.getvalue()
+            logging.debug(output)
             logging.critical("Session exception " + str(e))
 
     def add(self, node):

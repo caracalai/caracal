@@ -23,9 +23,7 @@ class Processor(Node):
 
     @handler("onProcessBatch", bbtypes.List(bbtypes.Int()), False, MetaInfo())
     def on_process_batch(self, msg):
-        self.fire(
-            self.result, list(filter(lambda x: x >= self.threshold.value, msg.value))
-        )
+        self.fire(self.result, list(filter(lambda x: x >= self.threshold, msg.value)))
 
 
 class TestNode(Node):
@@ -38,7 +36,7 @@ class TestNode(Node):
 class CheckGraphExecution_03(unittest.TestCase):
     def test(self):
         with Session() as session:
-            logging.basicConfig(level=logging.CRITICAL)
+            logging.basicConfig(level=logging.DEBUG)
             processor = Generator()
             processor.id = "processor"
             detector = Processor()

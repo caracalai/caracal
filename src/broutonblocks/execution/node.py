@@ -100,7 +100,7 @@ class Node:
     def __init__(self, id_=None):
         self.stopped = False
         self.context = zmq.Context()
-        self.context.setsockopt(zmq.LINGER, 100)
+        # self.context.setsockopt(zmq.LINGER, 100)
         self.sub_socket = None
         self.pub_socket = None
         self.service_socket = None
@@ -226,15 +226,18 @@ class Node:
                 processor.join()
 
     def close_all_sockets(self):
-        for socket in [self.sub_socket, self.pub_socket, self.service_socket]:
-            try:
-                socket.close(linger=100)
-            except Exception as e:
-                print(
-                    "Trying to close down socket: "
-                    "{} resulted in error: {}".format(socket, e)
-                )
-        self.context.term()
+        # TODO check destroy
+        # for socket in [self.sub_socket, self.pub_socket, self.service_socket]:
+        #     try:
+        #         #socket.close(linger=100)
+        #         socket.close()
+        #
+        #     except Exception as e:
+        #         logging.warning(
+        #             "Trying to close down socket: "
+        #             "{} resulted in error: {}".format(socket, e)
+        #         )
+        self.context.destroy()
 
     def register_event(self, name):
         raise Exception("register_event")
@@ -252,7 +255,8 @@ class Node:
         sock.connect(self.server_endpoint)
         sock.send(json.dumps({"command": "generate-next-message-index"}).encode("utf8"))
         msg = json.loads(sock.recv())
-        sock.close(linger=100)
+        # sock.close(linger=100)
+        sock.close()
         return int(msg["index"])
 
     def fire(self, event, value, msg_id=None):
@@ -282,14 +286,15 @@ class Node:
     def terminate(self):
         if not self.terminated:
             logging.debug("Node terminated")
-            self.terminated = True
+            # self.terminated = True
             sock = self.context.socket(zmq.REQ)
             sock.setsockopt(zmq.LINGER, 100)
 
             sock.connect(self.server_endpoint)
             sock.send(json.dumps({"command": "terminate"}).encode("utf8"))
             json.loads(sock.recv())
-            sock.close(linger=100)
+            # sock.close(linger=100)
+            sock.close()
 
     def wait_answer_from_server(self):
         msg = self.service_socket.recv()
@@ -335,7 +340,8 @@ class Node:
         sock.setsockopt(zmq.LINGER, 100)
         sock.connect(self.server_endpoint)
         sock.send(request.encode("utf8"))
-        sock.close(linger=100)
+        # sock.close(linger=100)
+        sock.close()
 
     def process_events_from_server(self):
         while not self.stopped and not self.terminated:
@@ -448,5 +454,6 @@ class Node:
 
     def __del__(self):
         if not self.context.closed:
-            self.context.destroy(linger=100)
+            # self.context.destroy(linger=100)
+            self.context.destroy()
         del self

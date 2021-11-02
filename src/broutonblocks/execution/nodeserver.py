@@ -158,7 +158,7 @@ class NodeServer:
                 break
         logging.debug("Server: Finished execution...")
 
-    # def __del__(self):
-    #     if not self.context.closed:
-    #         self.context.destroy(linger=100)
-    #     del self
+    def __del__(self):
+        if not self.context.closed:
+            self.context.destroy(linger=100)
+        del self

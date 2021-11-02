@@ -14,18 +14,14 @@ result = list(map(lambda x: map_func(x), sent_array))
 
 
 class InitialList(Node):
-    def __init__(self, id_=None):
-        super().__init__(id_)
-        self.values = Event("values", bbtypes.List(bbtypes.Int()))
+    values = Event("values", bbtypes.List(bbtypes.Int()))
 
     def run(self):
         self.fire(self.values, sent_array)
 
 
 class Exp(Node):
-    def __init__(self, id_=None):
-        super().__init__(id_)
-        self.result = Event("result", bbtypes.List(bbtypes.Int()))
+    result = Event("result", bbtypes.List(bbtypes.Int()))
 
     @handler("value", bbtypes.List(bbtypes.Int()))
     def on_process_value(self, msg):
@@ -33,11 +29,9 @@ class Exp(Node):
 
 
 class Map(Node):
-    def __init__(self, id_=None):
-        super().__init__(id_)
-        self.map_value = Event("map_value", bbtypes.Object())
-        self.result = Event("result", bbtypes.List(bbtypes.Object()))
-        self.requests = {}
+    map_value = Event("map_value", bbtypes.Object())
+    result = Event("result", bbtypes.List(bbtypes.Object()))
+    requests = {}
 
     @handler("initial_values", bbtypes.List(bbtypes.Int()))
     def set_initial_values(self, msg):
@@ -64,7 +58,7 @@ class TestNode(Node):
 class CheckGraphExecution_02(unittest.TestCase):
     def setUp(self) -> None:
         with Session() as session:
-            logging.basicConfig(level=logging.CRITICAL)
+            logging.basicConfig(level=logging.DEBUG)
             self.listNode = InitialList("initial-list")
             self.mapNode = Map("map")
             self.expNode = Exp("exp")

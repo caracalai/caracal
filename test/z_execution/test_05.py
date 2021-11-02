@@ -1,5 +1,5 @@
 import logging
-import threading
+import multiprocessing
 import unittest
 
 from broutonblocks.declaration import MetaInfo
@@ -48,18 +48,17 @@ class TestNode(Node):
 
 
 def first_worker():
-    with Session(server_port=port, external_nodes=["detector", "test-node"]) as session:
+    with Session(server_port=port, external_nodes=["processor", "test-node"]) as session:
         generator = Generator()
         generator.id = "generator"
         session.run()
 
 
-def second_worker():
-
-    with Session(serves_server=False, server_port=port) as session:
+def second_worker(return_dict):
+    with Session(name="second", serves_server=False, server_port=port) as session:
         processor = Processor()
         processor.threshold = 0.9
-        processor.id = "detector"
+        processor.id = "processor"
         test_node = TestNode("test-node")
 
         processor.threshold = threshold
@@ -70,20 +69,21 @@ def second_worker():
         test_node.receive_result.connect(processor.result)
         session.run()
 
-    global test_node_result
-    test_node_result = test_node.result
+    return_dict["result"] = test_node.result
 
 
 class CheckGraphExecution_05(unittest.TestCase):
     def test(self):
         logging.basicConfig(level=logging.DEBUG)
 
-        worker = threading.Thread(target=first_worker)
+        manager = multiprocessing.Manager()
+        return_dict = manager.dict()
+        worker = multiprocessing.Process(target=first_worker)
         worker.start()
 
-        worker2 = threading.Thread(target=second_worker)
+        worker2 = multiprocessing.Process(target=second_worker, args=(return_dict,))
         worker2.start()
 
         worker.join()
         worker2.join()
-        self.assertEqual(result, test_node_result)
+        self.assertEqual(result, return_dict["result"])
