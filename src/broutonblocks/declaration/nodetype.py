@@ -69,7 +69,7 @@ class NodeTypeDeclaration:
     @property
     def namespace(self):
         try:
-            return self.attributes["namespace"].values["value"]
+            return self.attributes["namespace"].values["name"]
         except Exception:
             pass
         return "global"
