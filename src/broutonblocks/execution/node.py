@@ -1,9 +1,11 @@
 from collections import namedtuple
 import json
 import logging
+import queue
 import threading
 from typing import Callable
 import uuid
+
 
 from broutonblocks.declaration import nodetype
 from broutonblocks.execution import session
@@ -117,6 +119,9 @@ class Node:
         self.pub_port = None
         self.service_port = None
         self.terminated = False
+
+        self.events_list = queue.Queue()
+        self.message_to_handlers = queue.Queue()
 
         self.events_processor = None
         self.events_from_server_processor = None
@@ -270,14 +275,15 @@ class Node:
                 return
             if msg_id is None:
                 msg_id = self.message_id()
-            msg = ProtoSerializer().serialize_message(msg_id, value)
-            prefix = "{id}|{event} ".format(id=self.id, event=event).encode("utf8")
-            logging.debug(
-                "Node {name}: fire event {event}".format(
-                    name=self.id, event=str(prefix[:-1])
-                )
-            )
-            self.pub_socket.send(prefix + msg.SerializeToString(), zmq.DONTWAIT)
+            self.events_list.put((event, value, msg_id))
+            # msg = ProtoSerializer().serialize_message(msg_id, value)
+            # prefix = "{id}|{event} ".format(id=self.id, event=event).encode("utf8")
+            # logging.debug(
+            #     "Node {name}: fire event {event}".format(
+            #         name=self.id, event=str(prefix[:-1])
+            #     )
+            # )
+            # self.pub_socket.send(prefix + msg.SerializeToString(), zmq.DONTWAIT)
         except Exception:
             logging.warning(
                 "Node {name}:could not send message exception".format(name=self.id)
@@ -349,6 +355,7 @@ class Node:
             json.loads(msg)
             self.service_socket.send(json.dumps({"success": True}).encode("utf8"))
             self.stopped = True
+            # self.events_processor.join()
             self.close_all_sockets()
             self.run_processor.join()
             break
@@ -361,29 +368,34 @@ class Node:
         if len(self.event2handler) == 0:
             logging.debug("Node {name}:process_events finished".format(name=self.id))
             return
-        while not self.stopped and not self.terminated:
+        while not self.terminated:
+            # logging.debug("Node {name}: stopped {stopped}"
+            # .format(name=self.id, stopped=self.stopped))
             try:
                 logging.debug(
                     "Node {name}: waiting for the next event...".format(name=self.id)
                 )
-                msg = self.sub_socket.recv()
-                logging.debug("Node {name}: received new event".format(name=self.id))
-                index = msg.find(b" ")
-                source_id, event = msg[:index].decode("utf8").split("|")
-                binary_msg = basictypes_pb2.Message()
-                binary_msg.ParseFromString(msg[index + 1 :])
+                while not self.message_to_handlers.empty():
+                    handler_name, message = self.message_to_handlers.get()
+                    self.handlers[handler_name](message)
+                # msg = self.sub_socket.recv()
+                # logging.debug("Node {name}: received new event".format(name=self.id))
+                # index = msg.find(b" ")
+                # source_id, event = msg[:index].decode("utf8").split("|")
+                # binary_msg = basictypes_pb2.Message()
+                # binary_msg.ParseFromString(msg[index + 1:])
+                #
+                # msg_id, msg_value = ProtoSerializer().deserialize_message(binary_msg)
+                # message = Message(msg_id, msg_value)
+                # handler_name = self.event2handler[
+                #     _Event(source_id=source_id, event=event)
+                # ]  # noqa
+                # logging.debug(
+                #     "Node {name}: received event {event}".format(
+                #         name=self.id, event=event
+                #     )
+                # )
 
-                msg_id, msg_value = ProtoSerializer().deserialize_message(binary_msg)
-                message = Message(msg_id, msg_value)
-                handler_name = self.event2handler[
-                    _Event(source_id=source_id, event=event)
-                ]  # noqa
-                logging.debug(
-                    "Node {name}: received event {event}".format(
-                        name=self.id, event=event
-                    )
-                )
-                self.handlers[handler_name](message)
             except Exception as e:
                 logging.warning("Node {name}: Exception {e}".format(name=self.id, e=e))
                 logging.warning(e.args)
@@ -443,13 +455,56 @@ class Node:
         self.events_processor = threading.Thread(target=self.process_events)
         self.events_processor.start()
 
-        self.events_from_server_processor = threading.Thread(
-            target=self.process_events_from_server
-        )
-        self.events_from_server_processor.start()
+        # self.events_from_server_processor = threading.Thread(
+        #     target=self.process_events_from_server
+        # )
+        # self.events_from_server_processor.start()
 
         self.run_processor = threading.Thread(target=self.run)
         self.run_processor.start()
+
+        while not self.terminated:
+            try:
+                msg = self.service_socket.recv(zmq.NOBLOCK)
+                json.loads(msg)
+                self.service_socket.send(json.dumps({"success": True}).encode("utf8"))
+                self.terminated = True
+                self.close_all_sockets()
+            except Exception:
+                ...
+            while True:
+                try:
+                    msg = self.sub_socket.recv(zmq.NOBLOCK)
+                    logging.debug("Node {name}: received new event".format(name=self.id))
+                    index = msg.find(b" ")
+                    source_id, event = msg[:index].decode("utf8").split("|")
+                    binary_msg = basictypes_pb2.Message()
+                    binary_msg.ParseFromString(msg[index + 1 :])
+
+                    msg_id, msg_value = ProtoSerializer().deserialize_message(binary_msg)
+                    message = Message(msg_id, msg_value)
+                    handler_name = self.event2handler[
+                        _Event(source_id=source_id, event=event)
+                    ]  # noqa
+                    logging.debug(
+                        "Node {name}: received event {event}".format(
+                            name=self.id, event=event
+                        )
+                    )
+                    self.message_to_handlers.put((handler_name, message))
+                except Exception:
+                    break
+            while not self.events_list.empty():
+                event, value, msg_id = self.events_list.get()
+                msg = ProtoSerializer().serialize_message(msg_id, value)
+                prefix = "{id}|{event} ".format(id=self.id, event=event).encode("utf8")
+                logging.debug(
+                    "Node {name}: fire event {event}".format(
+                        name=self.id, event=str(prefix[:-1])
+                    )
+                )
+                self.pub_socket.send(prefix + msg.SerializeToString(), zmq.DONTWAIT)
+
         logging.debug("Node {id}. Execution started".format(id=self.id))
 
     def __del__(self):

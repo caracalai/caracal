@@ -142,7 +142,6 @@ class NodeServer:
 
                     if graph_node_ids.issubset(self.initialized_nodes):
                         logging.debug("Server: all nodes are ready. Starting nodes")
-                        time.sleep(1)
                         self.start_nodes()
                     continue
 

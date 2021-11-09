@@ -78,7 +78,6 @@ class Session:
             for key in self.nodes:
                 logging.warning(self.nodes[key].session.name)
                 self.nodes[key].server_port = self.server_port
-                time.sleep(0.3)
                 self.nodes[key].start()
 
             for node in self.nodes.values():

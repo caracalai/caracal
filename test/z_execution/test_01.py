@@ -78,7 +78,7 @@ class TestNode(Node):
 class CheckGraphExecution_01(unittest.TestCase):
     def setUp(self) -> None:
         with Session() as session:
-            logging.basicConfig(level=logging.DEBUG)
+            # logging.basicConfig(level=logging.DEBUG)
 
             self.generator_first = GeneratorFirst()
             self.generator_second = GeneratorSecond()

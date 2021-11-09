@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - readme_tests
+      - execution-fixes
 
 jobs:
   run-tests:
