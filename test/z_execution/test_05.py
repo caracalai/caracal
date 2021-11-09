@@ -32,7 +32,6 @@ class Generator(Node):
 class Processor(Node):
     threshold = Property(bbtypes.Int(), default_value=0.7, optional=True)
     result = Event("result", bbtypes.Object())
-
     @handler("onProcessBatch", bbtypes.List(bbtypes.Int()), False, MetaInfo())
     def on_process_batch(self, msg):
         self.fire(self.result, list(filter(lambda x: x >= self.threshold, msg.value)))
@@ -57,10 +56,12 @@ def first_worker():
 
 def second_worker(return_dict):
     with Session(name="second", serves_server=False, server_port=port) as session:
+        logging.basicConfig(level=logging.CRITICAL)
         processor = Processor()
         processor.threshold = 0.9
         processor.id = "processor"
         test_node = TestNode("test-node")
+        logging.critical(str(processor.node_type))
 
         processor.threshold = threshold
         processed_batch = ExternalEvent(
