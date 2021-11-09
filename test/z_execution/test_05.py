@@ -32,6 +32,7 @@ class Generator(Node):
 class Processor(Node):
     threshold = Property(bbtypes.Int(), default_value=0.7, optional=True)
     result = Event("result", bbtypes.Object())
+
     @handler("onProcessBatch", bbtypes.List(bbtypes.Int()), False, MetaInfo())
     def on_process_batch(self, msg):
         self.fire(self.result, list(filter(lambda x: x >= self.threshold, msg.value)))
