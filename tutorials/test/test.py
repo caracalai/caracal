@@ -12,7 +12,7 @@ class Summator(Node):
 
 
 if __name__ == "__main__":
-    with Session("") as session:
+    with Session(name="default", serves_server=False, server_port=2001) as session:
         s = Summator()
         print(s.prop1)  # prints None
         print(s.event1)
