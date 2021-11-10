@@ -12,20 +12,18 @@ import broutonblocks.declaration.datatypes as bbtypes
 port = 2001
 
 TYPES = {
-    'Integer': 'int',
-    'Float': 'float',
-    'Boolean': 'boolean',
-    'String': 'string',
-
-    'Tuple': 'tuple',
-    'List': 'list',
-
-    'BinaryFile': 'binaryfile',
-    'Objece': 'object',
-    'VideoStream': 'videostream',
-    'Image': 'image',
-    'Rect': 'rect',
-    'Void': 'void',
+    "Integer": "int",
+    "Float": "float",
+    "Boolean": "boolean",
+    "String": "string",
+    "Tuple": "tuple",
+    "List": "list",
+    "BinaryFile": "binaryfile",
+    "Objece": "object",
+    "VideoStream": "videostream",
+    "Image": "image",
+    "Rect": "rect",
+    "Void": "void",
 }
 
 
