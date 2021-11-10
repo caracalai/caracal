@@ -55,7 +55,18 @@ def upload_node_types(file, *args):
                     )
             result += "\thandlers:\n"
             for key, value in node.handlers.items():
-                result += "\t\t{name}: {type}\n".format(name=key, type=value)
+                handler = (
+                    "\t\t{name}(value: {type})\n".format(
+                        name=key, type=str(value.declaration.data_type).replace("Integer", "int")
+                    )
+                        .replace("Binary", "binaryfile")
+                        .lower()
+                )
+                if value.declaration.receives_multiple:
+                    result += handler[:handler.find("(")] + "+" + handler[handler.find("("):-1] + "\n"
+                else:
+                    result += handler
+
             result += "\tevents:\n"
             for key, value in node.node_type.events.items():
                 result += (
