@@ -91,7 +91,13 @@ class ProjectInfo:
             raise RuntimeError()
 
     def contains_node_type(self, node_type: NodeTypeDeclaration) -> bool:
-        return node_type.uid in self.node_types
+        return bool(
+            [
+                nt
+                for nt in self.node_types.values()
+                if nt.name == node_type.name and nt.namespace == node_type.namespace
+            ]
+        )
 
     def can_connect(
         self,
