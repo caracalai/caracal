@@ -14,10 +14,7 @@ class SessionInfo:
     def __init__(self, project, name: str):
         self.name = name
         self.project = project
-
-    @property
-    def uid(self) -> str:
-        return self.name
+        self.uid: str = str(uuid.uuid4())
 
 
 class NodeInfo:
@@ -94,7 +91,13 @@ class ProjectInfo:
             raise RuntimeError()
 
     def contains_node_type(self, node_type: NodeTypeDeclaration) -> bool:
-        return node_type.uid in self.node_types
+        return bool(
+            [
+                nt
+                for nt in self.node_types.values()
+                if nt.name == node_type.name and nt.namespace == node_type.namespace
+            ]
+        )
 
     def can_connect(
         self,
@@ -210,7 +213,7 @@ class ProjectInfo:
             raise RuntimeError()
 
     def contains_session(self, session: SessionInfo) -> bool:
-        return session.uid in self.sessions
+        return bool([s for s in self.sessions.values() if s.name == session.name])
 
     def create_node(
         self, node_type: NodeTypeDeclaration, session: SessionInfo
