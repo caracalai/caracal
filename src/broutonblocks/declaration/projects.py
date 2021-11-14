@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import base64
 import copy
 import pickle
@@ -205,7 +207,9 @@ class ProjectInfo:
     def contains_session(self, session: SessionInfo) -> bool:
         return session.uid in self.sessions
 
-    def create_node(self, node_type, session: SessionInfo) -> NodeInfo:
+    def create_node(
+        self, node_type: NodeTypeDeclaration, session: SessionInfo
+    ) -> NodeInfo:
         if self.contains_session(session):
             node = NodeInfo(node_type, session)
             self.nodes[node.uid] = node
@@ -232,8 +236,8 @@ class ProjectInfo:
             raise RuntimeError()
 
     @staticmethod
-    def deserialize(text: str) -> pickle:
+    def deserialize(text: str) -> ProjectInfo:
         return pickle.loads(base64.b64decode(text))
 
-    def serialize(self) -> base64:
+    def serialize(self) -> str:
         return base64.b64encode(pickle.dumps(self)).decode("ascii")
