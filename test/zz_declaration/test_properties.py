@@ -35,7 +35,7 @@ class CheckProperties(unittest.TestCase):
             parser = typesparser.TypesParser()
             node_types = parser.parse(self._program)
             self.assertTrue(len(node_types) == 1, "Incorrect number of node types")
-            myNode = node_types["MyNode"]
+            myNode = node_types[list(node_types.values())[0].uid]
             self.assertTrue(
                 len(myNode.properties) == 6, "Incorrect number of declaration"
             )

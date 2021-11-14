@@ -14,10 +14,7 @@ class SessionInfo:
     def __init__(self, project, name: str):
         self.name = name
         self.project = project
-
-    @property
-    def uid(self) -> str:
-        return self.name
+        self.uid: str = str(uuid.uuid4())
 
 
 class NodeInfo:
@@ -210,7 +207,7 @@ class ProjectInfo:
             raise RuntimeError()
 
     def contains_session(self, session: SessionInfo) -> bool:
-        return session.uid in self.sessions
+        return bool([s for s in self.sessions.values() if s.name == session.name])
 
     def create_node(
         self, node_type: NodeTypeDeclaration, session: SessionInfo

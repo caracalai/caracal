@@ -73,15 +73,7 @@ class NodeTypeDeclaration:
         self.name = None
         self.attributes = {}
         self.project_info = None
-
-    @property
-    def uid(self):
-        uid = ""
-        if self.NAMESPACE_ATTRIBUTE in self.attributes:
-            uid += f"{self.namespace}:"
-        uid += self.name
-
-        return uid
+        self.uid: str = str(uuid.uuid4())
 
     @property
     def namespace(self):
