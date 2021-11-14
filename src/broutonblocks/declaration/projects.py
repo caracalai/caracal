@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import copy
 import pickle
+from typing import List
 import uuid
 
 from broutonblocks.declaration.nodetype import NodeTypeDeclaration
@@ -71,12 +72,16 @@ class ProjectInfo:
         self.node_types = {}  # type-uid -> NodeTypeDeclaration
         self.nodes = {}  # node-uid -> NodeInfo
         self.edges = {}  # Edges
+        self.uid = str(uuid.uuid4())
 
-    def parse_node_types_from_declaration(self, declaration: str) -> list:
+    def parse_node_types_from_declaration(
+        self, declaration: str
+    ) -> List[NodeTypeDeclaration]:
         parser = TypesParser()
         types = parser.parse(declaration)
         for node_type in types.values():
             if not self.contains_node_type(node_type):
+                node_type.project_info = self
                 self.node_types[node_type.uid] = node_type
             else:
                 raise RuntimeError()
