@@ -68,12 +68,10 @@ class EdgeInfo:
 
 class ProjectInfo:
     def __init__(self):
-        self.sessions: Dict[str, SessionInfo] = {}  # session-uid(name) -> SessionInfo
-        self.node_types: Dict[
-            str, NodeTypeDeclaration
-        ] = {}  # type-uid -> NodeTypeDeclaration
-        self.nodes: Dict[str, NodeInfo] = {}  # node-uid -> NodeInfo
-        self.edges: Dict[str, EdgeInfo] = {}  # Edges
+        self.sessions: Dict[str, SessionInfo] = {}
+        self.node_types: Dict[str, NodeTypeDeclaration] = {}
+        self.nodes: Dict[str, NodeInfo] = {}
+        self.edges: Dict[str, EdgeInfo] = {}
         self.uid: str = str(uuid.uuid4())
 
     def parse_node_types_from_declaration(
