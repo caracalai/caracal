@@ -3,7 +3,7 @@ from __future__ import annotations
 import base64
 import copy
 import pickle
-from typing import List
+from typing import Dict, List
 import uuid
 
 from broutonblocks.declaration.nodetype import NodeTypeDeclaration
@@ -68,11 +68,13 @@ class EdgeInfo:
 
 class ProjectInfo:
     def __init__(self):
-        self.sessions = {}  # session-uid(name) -> SessionInfo
-        self.node_types = {}  # type-uid -> NodeTypeDeclaration
-        self.nodes = {}  # node-uid -> NodeInfo
-        self.edges = {}  # Edges
-        self.uid = str(uuid.uuid4())
+        self.sessions: Dict[str, SessionInfo] = {}  # session-uid(name) -> SessionInfo
+        self.node_types: Dict[
+            str, NodeTypeDeclaration
+        ] = {}  # type-uid -> NodeTypeDeclaration
+        self.nodes: Dict[str, NodeInfo] = {}  # node-uid -> NodeInfo
+        self.edges: Dict[str, EdgeInfo] = {}  # Edges
+        self.uid: str = str(uuid.uuid4())
 
     def parse_node_types_from_declaration(
         self, declaration: str
