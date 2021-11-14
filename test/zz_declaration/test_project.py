@@ -53,7 +53,10 @@ class TestProject(unittest.TestCase):
             self.assertTrue(
                 project.contains_node_type(foo_type)
                 and project.contains_node_type(bar_type)
-                and project.contains_node_type(baz_type),
+                and project.contains_node_type(baz_type)
+                and foo_type.project_info.uid == project.uid
+                and foo_type.project_info.uid == project.uid
+                and baz_type.project_info.uid == project.uid,
                 "Wrong type creation in project",
             )
 
