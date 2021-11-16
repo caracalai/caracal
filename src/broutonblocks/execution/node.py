@@ -39,6 +39,7 @@ class Handler:
         if self.connected_events and not self.receives_multiple:
             raise Exception()
         self.connected_events.append(event)
+        #
 
 
 def handler(name: str, type_, receives_multiple=False, info=None, function=None):

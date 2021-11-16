@@ -1,13 +1,12 @@
+from broutonblocks.declaration import MetaInfo
+import broutonblocks.declaration.datatypes as bbtypes
 from broutonblocks.execution import (
     Event,
-    ExternalEvent,
     handler,
     Node,
     Property,
     Session,
 )
-from broutonblocks.declaration import MetaInfo, nodetype
-import broutonblocks.declaration.datatypes as bbtypes
 
 port = 2001
 
@@ -28,7 +27,7 @@ TYPES = {
 
 
 def upload_node_types(file, *args):
-    with Session(name="second", serves_server=False, server_port=port) as session:
+    with Session(name="second", serves_server=False, server_port=port):
         list_node = []
         for node in args:
             list_node.append(node())
@@ -57,8 +56,10 @@ def upload_node_types(file, *args):
                 handler = "\t\t{name}({value_list})\n".format(
                     value_list=", ".join(
                         [
-                            "value{index}: {type}".format(index=idx, type=type)
-                            for idx, type in enumerate(
+                            "value{index}: {arg_types}".format(
+                                index=idx, arg_types=arg_types
+                            )
+                            for idx, arg_types in enumerate(
                                 value.declaration.data_type.item_types, start=1
                             )
                         ]
