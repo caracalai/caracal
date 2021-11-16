@@ -36,6 +36,8 @@ class Handler:
         self.function(self.parent, *args)
 
     def connect(self, event):
+        if self.connected_events and not self.receives_multiple:
+            raise Exception()
         self.connected_events.append(event)
 
 
