@@ -57,14 +57,12 @@ def first_worker():
 
 def second_worker(return_dict):
     with Session(name="second", serves_server=False, server_port=port) as session:
-        logging.basicConfig(level=logging.CRITICAL)
+        logging.basicConfig(level=logging.DEBUG)
         processor = Processor()
-        processor.threshold = 0.9
         processor.id = "processor"
         test_node = TestNode("test-node")
-        logging.critical(str(processor.node_type))
 
-        processor.threshold = threshold
+        processor.threshold = 23
         processed_batch = ExternalEvent(
             "processedBatch", bbtypes.List(bbtypes.Int()), node_id="generator"
         )

@@ -74,6 +74,7 @@ class NodeTypeDeclaration:
         self.name = None
         self.attributes = {}
 
+    # TODO
     @property
     def namespace(self):
         try:
