@@ -46,7 +46,7 @@ def upload_node_types(file, *args):
                     )
                     .replace("Integer", "int")
                     .replace("Binary", "binaryfile")
-                    .lower()
+                    .lower(),
                 )
                 if value.declaration.default_value is not None:
                     result = result[:-1] + "({value})\n".format(
@@ -54,24 +54,27 @@ def upload_node_types(file, *args):
                     )
             result += "\thandlers:\n"
             for key, value in node.handlers.items():
-                handler = (
-                    "\t\t{name}({value_list})\n".format(
-                        value_list=', '.join([
-                            'value{index}: {type}'.format(index=idx, type=type)
-                            for idx, type in enumerate(value.declaration.data_type.item_types, start=1)])
-                            .replace("Integer", "int")
-                            .replace("Binary", "binaryfile")
-                            .replace('(', '')
-                            .replace(')', '')
-                            .lower(),
-                        name=key
+                handler = "\t\t{name}({value_list})\n".format(
+                    value_list=", ".join(
+                        [
+                            "value{index}: {type}".format(index=idx, type=type)
+                            for idx, type in enumerate(
+                                value.declaration.data_type.item_types, start=1
+                            )
+                        ]
                     )
+                    .replace("Integer", "int")
+                    .replace("Binary", "binaryfile")
+                    .replace("(", "")
+                    .replace(")", "")
+                    .lower(),
+                    name=key,
                 )
                 if value.declaration.receives_multiple:
                     result += (
                         handler[: handler.find("(")]
                         + "+"
-                        + handler[handler.find("("): -1]
+                        + handler[handler.find("(") : -1]
                         + "\n"
                     )
                 else:
@@ -79,13 +82,12 @@ def upload_node_types(file, *args):
 
             result += "\tevents:\n"
             for key, value in node.node_type.events.items():
-                result += (
-                    "\t\t{name}(value: {type})\n".format(
-                        name=key, type=str(value)
-                        .replace("Integer", "int")
-                        .replace("Binary", "binaryfile")
-                        .lower()
-                    )
+                result += "\t\t{name}(value: {type})\n".format(
+                    name=key,
+                    type=str(value)
+                    .replace("Integer", "int")
+                    .replace("Binary", "binaryfile")
+                    .lower(),
                 )
             dump.write(result)
 
@@ -103,7 +105,12 @@ if __name__ == "__main__":
         threshold = Property(bbtypes.Int(), default_value=0.7, optional=True)
         result = Event("result", bbtypes.Object())
 
-        @handler("onProcessBatch", bbtypes.Tuple(bbtypes.Int(), bbtypes.Boolean()), False, MetaInfo())
+        @handler(
+            "onProcessBatch",
+            bbtypes.Tuple(bbtypes.Int(), bbtypes.Boolean()),
+            False,
+            MetaInfo(),
+        )
         def on_process_batch(self, msg):
             self.fire(self.result, list(filter(lambda x: x >= self.threshold, msg.value)))
 
