@@ -10,21 +10,6 @@ from broutonblocks.execution import (
 
 port = 2001
 
-TYPES = {
-    "Integer": "int",
-    "Float": "float",
-    "Boolean": "boolean",
-    "String": "string",
-    "Tuple": "tuple",
-    "List": "list",
-    "BinaryFile": "binaryfile",
-    "Objece": "object",
-    "VideoStream": "videostream",
-    "Image": "image",
-    "Rect": "rect",
-    "Void": "void",
-}
-
 
 def upload_node_types(file, *args):
     with Session(name="second", serves_server=False, server_port=port):
@@ -35,7 +20,7 @@ def upload_node_types(file, *args):
         dump = open(file, "w+")
 
         for node in list_node:
-            result = "node {name}\n".format(name=node.name)
+            result = "node {name}:\n".format(name=node.name)
             result += "\tproperties:\n"
             for key, value in node.properties.items():
                 result += "\t\t{name}: {type}\n".format(
