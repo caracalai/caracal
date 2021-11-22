@@ -1,7 +1,7 @@
 import json
 import logging
 import unittest
-import  pickle
+import pickle
 
 from broutonblocks.declaration import MetaInfo
 from broutonblocks.declaration.projects import ProjectInfo
@@ -40,7 +40,7 @@ class TestNode(Node):
 class CheckGraphExecution_06(unittest.TestCase):
     def test(self):
         upload_node_types("type.txt", Generator, Processor, TestNode)
-        project = ProjectInfo().deserialize(open('project.json').read())
+        project = ProjectInfo().deserialize(open("project.json").read())
         # with Session() as session:
         #     logging.basicConfig(level=logging.DEBUG)
         #     processor = Generator()
