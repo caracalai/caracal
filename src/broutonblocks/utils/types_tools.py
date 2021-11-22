@@ -36,7 +36,7 @@ def upload_node_types(file, *args):
                     properties = properties[:-1] + "({value})\n".format(
                         value=value.declaration.default_value
                     )
-            result += properties if properties != '\tproperties:\n' else ''
+            result += properties if properties != "\tproperties:\n" else ""
             handlers = "\thandlers:\n"
             for key, value in node.handlers.items():
                 handlers += "\t\t{name}({value_list})\n".format(
@@ -64,7 +64,7 @@ def upload_node_types(file, *args):
                         + handlers[handlers.find("(") : -1]
                         + "\n"
                     )
-            result += handlers if handlers != '\thandlers:\n' else ''
+            result += handlers if handlers != "\thandlers:\n" else ""
             events = "\tevents:\n"
             for key, value in node.node_type.events.items():
                 events += "\t\t{name}(value: {type})\n".format(
@@ -74,7 +74,7 @@ def upload_node_types(file, *args):
                     .replace("Binary", "binaryfile")
                     .lower(),
                 )
-            result += events if events != '\tevents:\n' else ''
+            result += events if events != "\tevents:\n" else ""
             dump.write(result)
         dump.close()
 
