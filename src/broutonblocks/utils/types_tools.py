@@ -21,9 +21,9 @@ def upload_node_types(file, *args):
 
         for node in list_node:
             result = "node {name}:\n".format(name=node.name)
-            result += "\tproperties:\n"
+            properties = "\tproperties:\n"
             for key, value in node.properties.items():
-                result += "\t\t{name}: {type}\n".format(
+                properties += "\t\t{name}: {type}\n".format(
                     name=key,
                     type=value.declaration.data_type.name.format(
                         name=key, type=str(value)
@@ -33,12 +33,13 @@ def upload_node_types(file, *args):
                     .lower(),
                 )
                 if value.declaration.default_value is not None:
-                    result = result[:-1] + "({value})\n".format(
+                    properties = properties[:-1] + "({value})\n".format(
                         value=value.declaration.default_value
                     )
-            result += "\thandlers:\n"
+            result += properties if properties != '\tproperties:\n' else ''
+            handlers = "\thandlers:\n"
             for key, value in node.handlers.items():
-                handler = "\t\t{name}({value_list})\n".format(
+                handlers += "\t\t{name}({value_list})\n".format(
                     value_list=", ".join(
                         [
                             "value{index}: {arg_types}".format(
@@ -57,25 +58,25 @@ def upload_node_types(file, *args):
                     name=key,
                 )
                 if value.declaration.receives_multiple:
-                    result += (
-                        handler[: handler.find("(")]
+                    handlers += (
+                        handlers[: handlers.find("(")]
                         + "+"
-                        + handler[handler.find("(") : -1]
+                        + handlers[handlers.find("(") : -1]
                         + "\n"
                     )
-                else:
-                    result += handler
-
-            result += "\tevents:\n"
+            result += handlers if handlers != '\thandlers:\n' else ''
+            events = "\tevents:\n"
             for key, value in node.node_type.events.items():
-                result += "\t\t{name}(value: {type})\n".format(
+                events += "\t\t{name}(value: {type})\n".format(
                     name=key,
                     type=str(value)
                     .replace("Integer", "int")
                     .replace("Binary", "binaryfile")
                     .lower(),
                 )
+            result += events if events != '\tevents:\n' else ''
             dump.write(result)
+        dump.close()
 
 
 if __name__ == "__main__":

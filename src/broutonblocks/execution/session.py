@@ -16,7 +16,7 @@ sys.stdout = new_stdout
 
 class Session:
     def __init__(
-        self, name="default", serves_server=True, server_port=None, external_nodes=None
+        self, name="global", serves_server=True, server_port=None, external_nodes=None
     ):
         if external_nodes is None:
             external_nodes = []
