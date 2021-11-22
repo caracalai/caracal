@@ -1,8 +1,7 @@
 import json
 import logging
 import unittest
-import pickle
-import codecs
+import  pickle
 
 from broutonblocks.declaration import MetaInfo
 from broutonblocks.declaration.projects import ProjectInfo
@@ -16,7 +15,7 @@ result = list(filter(lambda x: x >= threshold, sent_array))
 
 
 class Generator(Node):
-    processed_batch = Event("processedBatch", bbtypes.Int())
+    processed_batch = Event("processedBatch", bbtypes.Tuple(bbtypes.Int()))
 
     def run(self):
         self.fire(self.processed_batch, sent_array)
@@ -41,10 +40,17 @@ class TestNode(Node):
 class CheckGraphExecution_06(unittest.TestCase):
     def test(self):
         upload_node_types("type.txt", Generator, Processor, TestNode)
-        file = open('project', 'rb')
-        project = pickle.loads(file.read())
-        file.close()
-        with Session() as session:
-            session.register_types([Generator, Processor, TestNode])
-            session.run_project(project)
-            self.assertEqual(result, session.nodes[])
+        project = ProjectInfo().deserialize(open('project.json').read())
+        # with Session() as session:
+        #     logging.basicConfig(level=logging.DEBUG)
+        #     processor = Generator()
+        #     processor.id = "processor"
+        #     detector = Processor()
+        #     detector.id = "detector"
+        #     test_node = TestNode("test-node")
+        #
+        #     detector.threshold = threshold
+        #     detector.on_process_batch.connect(processor.processed_batch)
+        #     test_node.receive_result.connect(detector.result)
+        #     session.run()
+        #     self.assertEqual(result, test_node.result)
