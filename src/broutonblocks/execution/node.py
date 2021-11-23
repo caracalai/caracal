@@ -192,11 +192,7 @@ class Node:
     def __getattribute__(self, item):
         attr = object.__getattribute__(self, item)
         if isinstance(attr, Property):
-            attr.parent = self
-            self.properties[item] = attr
-            attr.declaration.name = item
-            return attr.value
-
+            return attr.valuу
         return attr
 
     def __init_attrs(self):
@@ -208,6 +204,11 @@ class Node:
             elif isinstance(attr, Event):
                 attr.parent = self
                 self.events[attr.declaration.name] = attr
+            elif isinstance(attr, Property):
+                attr.parent = self
+                self.properties[attr_name] = attr
+                attr.declaration.name = attr_name
+
 
     def set_server_endpoint(self, server_endpoint):
         self.port = server_endpoint

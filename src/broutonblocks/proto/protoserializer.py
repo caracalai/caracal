@@ -19,11 +19,11 @@ class ProtoSerializer:
                 basictypes_pb2.TupleValue,
                 basictypes_pb2.ListValue,
             ]:
-                if value.type_url == "type.googleapis.com/%s" % t.DESCRIPTOR.full_name:
+                if value.type_url == f"type.googleapis.com/{t.DESCRIPTOR.full_name}":
                     unpacked_message = t()
                     if value.Unpack(unpacked_message):
                         return self.deserialize_value(unpacked_message)
-                    raise RuntimeError("Couldn't deserialize {value}".format(value=value))
+                    raise RuntimeError(f"Couldn't deserialize {value}")
 
         if isinstance(value, basictypes_pb2.IntValue):
             return value.value
@@ -49,7 +49,7 @@ class ProtoSerializer:
             if isinstance(value, basictypes_pb2.TupleValue):
                 items = tuple(items)
             return items
-        raise RuntimeError("Undefined value: {value}".format(value=value))
+        raise RuntimeError(f"Undefined value: {value}")
 
     def serialize_value(self, value):
         if isinstance(value, str):

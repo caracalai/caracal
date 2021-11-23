@@ -13,7 +13,7 @@ class NodeServer:
         self.socket = self.context.socket(zmq.REP)
         # self.socket.setsockopt(zmq.LINGER, 100)
         if port is not None:
-            self.socket.bind("tcp://127.0.0.1:{port}".format(port=port))
+            self.socket.bind(f"tcp://127.0.0.1:{port}")
             self.port = port
         else:
             self.port = self.socket.bind_to_random_port("tcp://127.0.0.1")

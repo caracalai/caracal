@@ -24,9 +24,7 @@ class NodeInfo:
             prop: val.default_value for prop, val in self.node_type.properties.items()
         }
         self.session = session
-        self.uid = "{type_name}_{uuid}".format(
-            type_name=self.node_type.name, uuid=str(uuid.uuid4())
-        )
+        self.uid = f"{self.node_type.name}_{str(uuid.uuid4())}"
 
     def set_property(self, name: str, value) -> None:
         if name not in self.node_type.properties.keys():

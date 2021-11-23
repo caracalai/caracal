@@ -62,7 +62,12 @@ class HandlerDeclaration(MethodDeclaration):
 
     def __str__(self):
         result = f"{self.name}+" if self.receives_multiple else f"{self.name}"
-        result += f'{tuple(f"value{idx}: {arg_type}" for idx, arg_type in enumerate(self.argument_types, start=1))}'
+        result += str(
+            tuple(
+                f"value{idx}: {arg_type}"
+                for idx, arg_type in enumerate(self.argument_types, start=1)
+            )
+        )
         return result.replace("'", "").replace(",)", ")")
 
 
@@ -73,7 +78,12 @@ class EventDeclaration(MethodDeclaration):
 
     def __str__(self):
         result = f"{self.name}"
-        result += f'{tuple(f"value{idx}: {arg_type}" for idx, arg_type in enumerate(self.argument_types, start=1))} '
+        result += str(
+            tuple(
+                f"value{idx}: {arg_type}"
+                for idx, arg_type in enumerate(self.argument_types, start=1)
+            )
+        )
         return result.replace("'", "").replace(",)", ")")
 
 

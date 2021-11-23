@@ -32,7 +32,7 @@ class UICluster(NodeCluster):
             return DragAndDropImageWebView()
         if name == "ShowDetectedFaceWebView":
             return ShowDetectedFaceWebView()
-        raise RuntimeError("Undefined type {type}".format(type=name))
+        raise RuntimeError(f"Undefined type {name}")
 
 
 if __name__ == "__main__":

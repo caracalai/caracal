@@ -67,7 +67,7 @@ class TypesParser:
         for name, tp in scalar_types.items():
             if complex_type_name == name:
                 return tp(*typelist)
-        raise RuntimeError("Type {type} not found".format(type=complex_type_name))
+        raise RuntimeError(f"Type {complex_type_name} not found")
 
     def _handle_func_arguments(self, func_arguments_tree):
         arg_names = []

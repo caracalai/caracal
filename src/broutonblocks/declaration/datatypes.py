@@ -50,9 +50,7 @@ class Object(TypeBase):
         if type(self) is not Object and type(other) is not Object:
             if type(other) == type(self):
                 return True
-        raise Exception(
-            "{}.contains({}): Method is not implemented".format(self.name, other.name)
-        )
+        raise Exception(f"{self.name}.contains({other.name}): Method is not implemented")
 
     @property
     def name(self):
@@ -167,7 +165,7 @@ class List(Object):
 
     @property
     def name(self):
-        return "list({basicType})".format(basicType=self.basic_type.name)
+        return f"list({self.basic_type.name})"
 
 
 class DataSource(Object):
@@ -214,7 +212,7 @@ class Tuple(Object):
 
     @property
     def name(self):
-        return "tuple({args})".format(args=", ".join([x.name for x in self.item_types]))
+        return f'tuple({", ".join([x.name for x in self.item_types])})'
 
     def intersect(self, other):
         if type(other) == Object:
