@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - readme_tests
+      - execution-fixes
+      - pre-alpha-version
 
 jobs:
   run-tests:

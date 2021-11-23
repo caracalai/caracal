@@ -33,6 +33,7 @@ class NodeInfo:
             raise RuntimeError("Couldn't set property")
 
         prop_type = self.node_type.properties[name].data_type
+        # TODO: rename prop_type method cheking type value
         if not prop_type.contains_value(value):
             raise RuntimeError("Couldn't set property")
 

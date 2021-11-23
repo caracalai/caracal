@@ -56,7 +56,7 @@ class Object(TypeBase):
 
     @property
     def name(self):
-        return "Object"
+        return "object"
 
 
 class Void(Object):
@@ -68,7 +68,7 @@ class Void(Object):
 
     @property
     def name(self):
-        return "Void"
+        return "void"
 
 
 class Float(Object):
@@ -80,7 +80,7 @@ class Float(Object):
 
     @property
     def name(self):
-        return "Float"
+        return "float"
 
 
 class Int(Object):
@@ -92,7 +92,7 @@ class Int(Object):
 
     @property
     def name(self):
-        return "Integer"
+        return "int"
 
 
 class Boolean(Object):
@@ -104,7 +104,7 @@ class Boolean(Object):
 
     @property
     def name(self):
-        return "Boolean"
+        return "boolean"
 
 
 class String(Object):
@@ -116,7 +116,7 @@ class String(Object):
 
     @property
     def name(self):
-        return "String"
+        return "string"
 
 
 class Image(Object):
@@ -125,7 +125,7 @@ class Image(Object):
 
     @property
     def name(self):
-        return "Image"
+        return "image"
 
 
 class BinaryArray(Object):
@@ -134,7 +134,7 @@ class BinaryArray(Object):
 
     @property
     def name(self):
-        return "Binary"
+        return "binaryfile"
 
 
 class VideoStream(Object):
@@ -143,7 +143,7 @@ class VideoStream(Object):
 
     @property
     def name(self):
-        return "VideoStream"
+        return "videostream"
 
 
 class Rect(Object):
@@ -152,7 +152,7 @@ class Rect(Object):
 
     @property
     def name(self):
-        return "Rect"
+        return "rect"
 
 
 class List(Object):
@@ -167,7 +167,7 @@ class List(Object):
 
     @property
     def name(self):
-        return "List({basicType})".format(basicType=self.basic_type.name)
+        return "list({basicType})".format(basicType=self.basic_type.name)
 
 
 class DataSource(Object):
@@ -179,7 +179,7 @@ class DataSource(Object):
 
     @property
     def name(self):
-        return "DataSource"
+        return "datasource"
 
 
 class Tuple(Object):
@@ -214,7 +214,7 @@ class Tuple(Object):
 
     @property
     def name(self):
-        return "Tuple({args})".format(args=", ".join([x.name for x in self.item_types]))
+        return "tuple({args})".format(args=", ".join([x.name for x in self.item_types]))
 
     def intersect(self, other):
         if type(other) == Object:
