@@ -10,8 +10,7 @@ threshold = 23
 result = list(filter(lambda x: x >= threshold, sent_array))
 
 
-class Generator(Node):
-    processed_batch = Event("processedBatch", bbtypes.List(bbtypes.Int()))
+class Generator(Node):    processed_batch = Event("processedBatch", bbtypes.Tuple(bbtypes.Int()))
 
     def run(self):
         self.fire(self.processed_batch, sent_array)
@@ -21,7 +20,7 @@ class Processor(Node):
     threshold = Property(bbtypes.Int(), default_value=0.7, optional=True)
     result = Event("result", bbtypes.Object())
 
-    @handler("onProcessBatch", bbtypes.List(bbtypes.Int()), False, MetaInfo())
+    @handler("onProcessBatch", bbtypes.Tuple(bbtypes.Int()), False, MetaInfo())
     def on_process_batch(self, msg):
         self.fire(self.result, list(filter(lambda x: x >= self.threshold, msg.value)))
 

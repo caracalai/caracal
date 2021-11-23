@@ -16,7 +16,7 @@ class MetaInfo:
 
 
 class PropertyDeclaration:
-    def __init__(self, data_type, optional, default_value=None):
+    def __init__(self, data_type, optional, default_value=None,):
         self.data_type = data_type
         self.optional = optional
         self.default_value = default_value
@@ -24,6 +24,12 @@ class PropertyDeclaration:
     @property
     def uid(self):
         return "property"
+
+    def __str__(self):
+        if self.default_value is None:
+            return f'{self.name}: {self.data_type}'
+        else:
+            return f'{self.name}: {self.data_type}({self.default_value})'
 
 
 class MethodDeclaration:
@@ -40,16 +46,16 @@ class MethodDeclaration:
         return self.data_type.item_types
 
 
+
 class HandlerDeclaration(MethodDeclaration):
     def __init__(self, name, data_type, receives_multiple, info=None):
         super(HandlerDeclaration, self).__init__(name, data_type, info)
         self.receives_multiple = receives_multiple
 
     def __str__(self):
-        result = "{type}".format(type=self.data_type)
-        if self.receives_multiple:
-            result += " [can be multiple]"
-        return result
+        result = f'{self.name}+' if self.receives_multiple else f'{self.name}'
+        result += f'{tuple(f"value{idx}: {arg_type}" for idx, arg_type in enumerate(self.argument_types, start=1))}'
+        return result.replace("'", '').replace(',)', ')')
 
     @property
     def uid(self):
@@ -64,6 +70,11 @@ class EventDeclaration(MethodDeclaration):
     @property
     def uid(self):
         return self.name
+
+    def __str__(self):
+        result = f'{self.name}'
+        result += f'{tuple(f"value{idx}: {arg_type}" for idx, arg_type in enumerate(self.argument_types, start=1))}'
+        return result.replace("'", '').replace(',)', ')')
 
 
 class NodeTypeDeclaration:
@@ -91,15 +102,21 @@ class NodeTypeDeclaration:
 
     def __str__(self):
         result = "node {name}\n".format(name=self.name)
-        result += "\tdeclaration:\n"
-        for key, value in self.properties.items():
-            result += "\t\t{name}: {type}\n".format(name=key, type=value)
-        result += "\thandlers:\n"
-        for key, value in self.handlers.items():
-            result += "\t\t{name}: {type}\n".format(name=key, type=value)
-        result += "\tevents:\n"
-        for key, value in self.events.items():
-            result += "\t\t{name}: {type}\n".format(name=key, type=value)
+        properties = "\tproperties:\n"
+        for value in self.properties.values():
+            properties += "\t\t{prop}\n".format(prop=str(value))
+        if properties != "\tproperties:\n":
+            result += properties
+        handlers = "\thandlers:\n"
+        for value in self.handlers.values():
+            handlers += "\t\t{handler}\n".format(handler=str(value))
+        if properties != "\thandlers:\n":
+            result += handlers
+        events = "\tevents:\n"
+        for value in self.events.values():
+            events += "\t\t{event}\n".format(event=str(value))
+        if properties != "\tevents:\n":
+            result += events
         return result
 
     # def serialize(self):

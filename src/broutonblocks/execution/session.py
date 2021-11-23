@@ -29,6 +29,13 @@ class Session:
         self.project = ProjectInfo()
         self.server = None
 
+    @staticmethod
+    def convert_used_node_types_to_text_declaration(session):
+        result = ''
+        for node in session.nodes.values():
+            result += str(node.node_type) + '\n'
+        return result
+
     def register_types(self, node_type_impls):
         for t_ in node_type_impls:
             self.node_type_impls[t_.__name__] = t_

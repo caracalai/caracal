@@ -138,6 +138,7 @@ class Node:
     @property
     def node_type(self):
         result = nodetype.NodeTypeDeclaration()
+        result.name = self.name
         for _, item in self.handlers.items():
             result.handlers[item.declaration.uid] = item.declaration
         for _, item in self.properties.items():
@@ -193,6 +194,7 @@ class Node:
         if isinstance(attr, Property):
             attr.parent = self
             self.properties[item] = attr
+            attr.declaration.name = item
             return attr.value
 
         return attr
