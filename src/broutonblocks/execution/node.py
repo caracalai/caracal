@@ -192,7 +192,7 @@ class Node:
     def __getattribute__(self, item):
         attr = object.__getattribute__(self, item)
         if isinstance(attr, Property):
-            return attr.valuу
+            return attr.value
         return attr
 
     def __init_attrs(self):
