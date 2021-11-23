@@ -31,9 +31,9 @@ class Session:
 
     @staticmethod
     def convert_used_node_types_to_text_declaration(session):
-        result = ''
+        result = ""
         for node in session.nodes.values():
-            result += str(node.node_type) + '\n'
+            result += str(node.node_type) + "\n"
         return result
 
     def register_types(self, node_type_impls):

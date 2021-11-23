@@ -10,7 +10,8 @@ threshold = 23
 result = list(filter(lambda x: x >= threshold, sent_array))
 
 
-class Generator(Node):    processed_batch = Event("processedBatch", bbtypes.Tuple(bbtypes.Int()))
+class Generator(Node):
+    processed_batch = Event("processedBatch", bbtypes.Tuple(bbtypes.Int()))
 
     def run(self):
         self.fire(self.processed_batch, sent_array)
