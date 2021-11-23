@@ -53,7 +53,7 @@ class Session:
 
     def run_project(self, project: ProjectInfo):
         for node in project.nodes.values():
-            if node.session.uid == self.name:
+            if node.session.name == self.name:
                 if node.node_type.name in self.node_type_impls:
                     self.node_type_impls[node.node_type.name](node.uid)
                 else:
