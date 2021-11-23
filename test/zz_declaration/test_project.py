@@ -53,7 +53,10 @@ class TestProject(unittest.TestCase):
             self.assertTrue(
                 project.contains_node_type(foo_type)
                 and project.contains_node_type(bar_type)
-                and project.contains_node_type(baz_type),
+                and project.contains_node_type(baz_type)
+                and foo_type.project_info.uid == project.uid
+                and foo_type.project_info.uid == project.uid
+                and baz_type.project_info.uid == project.uid,
                 "Wrong type creation in project",
             )
 
@@ -79,12 +82,12 @@ class TestProject(unittest.TestCase):
                 "Wrong session declaration",
             )
             self.assertEqual(
-                project.sessions[session.name].name,
+                project.sessions[session.uid].name,
                 session.name,
                 "Wrong session declaration",
             )
             self.assertEqual(
-                project.sessions[session_2.name].name,
+                project.sessions[session_2.uid].name,
                 session_2.name,
                 "Wrong session declaration",
             )
@@ -118,7 +121,7 @@ class TestProject(unittest.TestCase):
                 "Wrong node declaration (node didn't related to project)",
             )
             self.assertEqual(
-                project.sessions[session.name].name,
+                project.sessions[session.uid].name,
                 session.name,
                 "Wrong node declaration (node didn't related to session)",
             )
@@ -130,7 +133,7 @@ class TestProject(unittest.TestCase):
                 "(node moved out of project or removed)",
             )
             self.assertEqual(
-                project.sessions[session_2.name].name,
+                project.sessions[session_2.uid].name,
                 session_2.name,
                 "Wrong node moving between sessions (unexpected session mutation)",
             )

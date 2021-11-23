@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import base64
 import copy
 import pickle
+from typing import Dict, List
 import uuid
 
 from broutonblocks.declaration.nodetype import NodeTypeDeclaration
@@ -11,10 +14,7 @@ class SessionInfo:
     def __init__(self, project, name: str):
         self.name = name
         self.project = project
-
-    @property
-    def uid(self) -> str:
-        return self.name
+        self.uid: str = str(uuid.uuid4())
 
 
 class NodeInfo:
@@ -66,16 +66,20 @@ class EdgeInfo:
 
 class ProjectInfo:
     def __init__(self):
-        self.sessions = {}  # session-uid(name) -> SessionInfo
-        self.node_types = {}  # type-uid -> NodeTypeDeclaration
-        self.nodes = {}  # node-uid -> NodeInfo
-        self.edges = {}  # Edges
+        self.sessions: Dict[str, SessionInfo] = {}
+        self.node_types: Dict[str, NodeTypeDeclaration] = {}
+        self.nodes: Dict[str, NodeInfo] = {}
+        self.edges: Dict[str, EdgeInfo] = {}
+        self.uid: str = str(uuid.uuid4())
 
-    def parse_node_types_from_declaration(self, declaration: str) -> list:
+    def parse_node_types_from_declaration(
+        self, declaration: str
+    ) -> List[NodeTypeDeclaration]:
         parser = TypesParser()
         types = parser.parse(declaration)
         for node_type in types.values():
             if not self.contains_node_type(node_type):
+                node_type.project_info = self
                 self.node_types[node_type.uid] = node_type
             else:
                 raise RuntimeError()
@@ -88,7 +92,13 @@ class ProjectInfo:
             raise RuntimeError()
 
     def contains_node_type(self, node_type: NodeTypeDeclaration) -> bool:
-        return node_type.uid in self.node_types
+        return bool(
+            [
+                nt
+                for nt in self.node_types.values()
+                if nt.name == node_type.name and nt.namespace == node_type.namespace
+            ]
+        )
 
     def can_connect(
         self,
@@ -204,9 +214,11 @@ class ProjectInfo:
             raise RuntimeError()
 
     def contains_session(self, session: SessionInfo) -> bool:
-        return session.uid in self.sessions
+        return bool([s for s in self.sessions.values() if s.name == session.name])
 
-    def create_node(self, node_type, session: SessionInfo) -> NodeInfo:
+    def create_node(
+        self, node_type: NodeTypeDeclaration, session: SessionInfo
+    ) -> NodeInfo:
         if self.contains_session(session):
             node = NodeInfo(node_type, session)
             self.nodes[node.uid] = node
@@ -233,8 +245,8 @@ class ProjectInfo:
             raise RuntimeError()
 
     @staticmethod
-    def deserialize(text: str) -> pickle:
+    def deserialize(text: str) -> ProjectInfo:
         return pickle.loads(base64.b64decode(text))
 
-    def serialize(self) -> base64:
+    def serialize(self) -> str:
         return base64.b64encode(pickle.dumps(self)).decode("ascii")

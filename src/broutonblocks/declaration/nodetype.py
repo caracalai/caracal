@@ -1,3 +1,6 @@
+import uuid
+
+
 class ProgrammingLanguage:
     Python = (0,)
     Cpp = (1,)
@@ -55,6 +58,7 @@ class HandlerDeclaration(MethodDeclaration):
     def __init__(self, name, data_type, receives_multiple, info=None):
         super(HandlerDeclaration, self).__init__(name, data_type, info)
         self.receives_multiple = receives_multiple
+        self.uid = str(uuid.uuid4())
 
     def __str__(self):
         result = f"{self.name}+" if self.receives_multiple else f"{self.name}"
@@ -78,27 +82,44 @@ class EventDeclaration(MethodDeclaration):
 
 
 class NodeTypeDeclaration:
+    NAMESPACE_ATTRIBUTE = "namespace"
+    GLOBAL_NAMESPACE_NAME = "global"
+
     def __init__(self):
         self.handlers = {}
         self.events = {}
         self.properties = {}
         self.name = None
         self.attributes = {}
+        self.project_info = None
+        self.uid: str = str(uuid.uuid4())
 
     # TODO
     @property
     def namespace(self):
-        try:
-            return self.attributes["namespace"].values["value"]
-        except Exception:
-            pass
-        return "global"
+        if self.NAMESPACE_ATTRIBUTE in self.attributes:
+            return self.attributes[self.NAMESPACE_ATTRIBUTE].values["name"]
+        return self.GLOBAL_NAMESPACE_NAME
 
-    @property
-    def uid(self):
-        if self.namespace == "global":
-            return self.name
-        return ":".join([self.namespace, self.name])
+    @namespace.setter
+    def namespace(self, val):
+        old_node_type_key = self.uid
+
+        if self.NAMESPACE_ATTRIBUTE not in self.attributes:
+            self.attributes[self.NAMESPACE_ATTRIBUTE] = Attribute()
+        self.attributes[self.NAMESPACE_ATTRIBUTE].values["name"] = val
+
+        if (
+            self.project_info is not None
+        ):  # if the object is used outside of a ProjectInfo object
+            self.project_info.node_types[self.uid] = self.project_info.node_types.pop(
+                old_node_type_key
+            )
+
+    @namespace.deleter
+    def namespace(self):
+        if self.NAMESPACE_ATTRIBUTE in self.attributes:
+            del self.attributes[self.NAMESPACE_ATTRIBUTE]
 
     def __str__(self):
         result = "node {name}\n".format(name=self.name)
