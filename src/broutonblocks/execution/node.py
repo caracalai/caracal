@@ -209,7 +209,6 @@ class Node:
                 self.properties[attr_name] = attr
                 attr.declaration.name = attr_name
 
-
     def set_server_endpoint(self, server_endpoint):
         self.port = server_endpoint
 
