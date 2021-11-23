@@ -65,10 +65,6 @@ class HandlerDeclaration(MethodDeclaration):
         result += f'{tuple(f"value{idx}: {arg_type}" for idx, arg_type in enumerate(self.argument_types, start=1))}'
         return result.replace("'", "").replace(",)", ")")
 
-    @property
-    def uid(self):
-        return self.name
-
 
 class EventDeclaration(MethodDeclaration):
     @property

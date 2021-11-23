@@ -6,6 +6,7 @@ on:
       - readme_tests
       - execution-fixes
       - pre-alpha-version
+      - main
 
 jobs:
   run-tests:
