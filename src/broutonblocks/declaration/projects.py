@@ -7,6 +7,7 @@ from typing import Dict, List
 import uuid
 
 from broutonblocks.declaration.nodetype import NodeTypeDeclaration
+
 from broutonblocks.typesparser import TypesParser
 
 

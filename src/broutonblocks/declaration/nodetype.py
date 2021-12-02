@@ -1,6 +1,5 @@
 import uuid
 
-
 class ProgrammingLanguage:
     Python = (0,)
     Cpp = (1,)
@@ -100,7 +99,6 @@ class NodeTypeDeclaration:
         self.project_info = None
         self.uid: str = str(uuid.uuid4())
 
-    # TODO
     @property
     def namespace(self):
         if self.NAMESPACE_ATTRIBUTE in self.attributes:
@@ -128,7 +126,9 @@ class NodeTypeDeclaration:
             del self.attributes[self.NAMESPACE_ATTRIBUTE]
 
     def __str__(self):
-        result = "node {name}\n".format(name=self.name)
+        result = "@namespace(name={namespace})\nnode {name}\n".format(namespace=
+                                                                      self.namespace,
+                                                                      name=self.name)
         properties = "\tproperties:\n"
         for value in self.properties.values():
             properties += "\t\t{prop}\n".format(prop=str(value))
@@ -142,9 +142,10 @@ class NodeTypeDeclaration:
         events = "\tevents:\n"
         for value in self.events.values():
             events += "\t\t{event}\n".format(event=str(value))
-        if properties != "\tevents:\n":
+        if events != "\tevents:\n":
             result += events
         return result
+
 
     # def serialize(self):
     #     result = {"name": self.name}
