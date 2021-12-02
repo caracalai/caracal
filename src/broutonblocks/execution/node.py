@@ -17,12 +17,12 @@ _Event = namedtuple("_Event", ["source_id", "event"])
 
 class Handler:
     def __init__(
-            self,
-            name: str,
-            type_: list,
-            receives_multiple: bool,
-            info: nodetype.MetaInfo,
-            function: Callable,
+        self,
+        name: str,
+        type_: list,
+        receives_multiple: bool,
+        info: nodetype.MetaInfo,
+        function: Callable,
     ):
         self.declaration = nodetype.HandlerDeclaration(
             name, type_, receives_multiple, info
@@ -44,6 +44,7 @@ def handler(name: str, type_, receives_multiple=False, info=None, function=None)
     if function:
         return Handler(name, type_, receives_multiple, info, function)
     else:
+
         def wrapper(func):
             return Handler(name, type_, receives_multiple, info, func)
 
@@ -148,18 +149,24 @@ class Node:
     def get_declaration(node):
         result = nodetype.NodeTypeDeclaration()
         result.name = node.__name__
-        items = [it for it in node.__dict__.keys()
-                 if not it.startswith('__') and not callable(it)]
+        items = [
+            it
+            for it in node.__dict__.keys()
+            if not it.startswith("__") and not callable(it)
+        ]
         for item in items:
             if isinstance(node.__dict__[item], Handler):
-                result.handlers[node.__dict__[item].declaration.uid] = \
-                    node.__dict__[item].declaration
+                result.handlers[node.__dict__[item].declaration.uid] = node.__dict__[
+                    item
+                ].declaration
             if isinstance(node.__dict__[item], Property):
-                result.properties[node.__dict__[item].declaration.uid] = \
-                    node.__dict__[item].declaration
+                result.properties[node.__dict__[item].declaration.uid] = node.__dict__[
+                    item
+                ].declaration
             if isinstance(node.__dict__[item], Event):
-                result.events[node.__dict__[item].declaration.uid] = \
-                    node.__dict__[item].declaration
+                result.events[node.__dict__[item].declaration.uid] = node.__dict__[
+                    item
+                ].declaration
         return result
 
     @property
@@ -499,7 +506,7 @@ class Node:
                     index = msg.find(b" ")
                     source_id, event = msg[:index].decode("utf8").split("|")
                     binary_msg = basictypes_pb2.Message()
-                    binary_msg.ParseFromString(msg[index + 1:])
+                    binary_msg.ParseFromString(msg[index + 1 :])
 
                     msg_id, msg_value = ProtoSerializer().deserialize_message(binary_msg)
                     message = Message(msg_id, msg_value)
