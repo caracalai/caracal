@@ -7,7 +7,6 @@ from typing import Dict, List
 import uuid
 
 from broutonblocks.declaration.nodetype import NodeTypeDeclaration
-
 from broutonblocks.typesparser import TypesParser
 
 
@@ -83,6 +82,17 @@ class ProjectInfo:
             else:
                 raise RuntimeError()
         return list(types.values())
+
+    @staticmethod
+    def from_session(session):
+        result = ProjectInfo()
+        session_info = result.create_session(session.name)
+        for t in [t.node_type for t in session.nodes]:
+            result.node_types[t.node_type.uid] = t
+        for node in [node for node in session.nodes.values()]:
+            result.create_node(node.node_type, session_info)
+        for edge_uid, edg in [(edg_uid, edg) for edg_uid, edg in session.edge]:
+            temp_edg =
 
     def remove_node_type(self, node_type: NodeTypeDeclaration) -> None:
         if self.contains_node_type(node_type):
