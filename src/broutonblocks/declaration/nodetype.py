@@ -25,7 +25,6 @@ class PropertyDeclaration:
         optional,
         name=None,
         default_value=None,
-
     ):
         self.name = name
         self.data_type = data_type

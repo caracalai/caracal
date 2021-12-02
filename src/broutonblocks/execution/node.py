@@ -44,6 +44,7 @@ def handler(name: str, type_, receives_multiple=False, info=None, function=None)
     if function:
         return Handler(name, type_, receives_multiple, info, function)
     else:
+
         def wrapper(func):
             return Handler(name, type_, receives_multiple, info, func)
 
