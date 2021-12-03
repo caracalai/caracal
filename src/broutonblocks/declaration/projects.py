@@ -87,12 +87,21 @@ class ProjectInfo:
     def from_session(session):
         result = ProjectInfo()
         session_info = result.create_session(session.name)
-        for t in [t.node_type for t in session.nodes]:
-            result.node_types[t.node_type.uid] = t
         for node in [node for node in session.nodes.values()]:
-            result.create_node(node.node_type, session_info)
-        for edge_uid, edg in [(edg_uid, edg) for edg_uid, edg in session.edge]:
-            temp_edg =
+            result.node_types[node.node_type.uid] = node.node_type
+        for node in [node for node in session.nodes.values()]:
+            result.nodes[node.id] = NodeInfo(node.node_type, session_info)
+            result.nodes[node.id].uid = node.id
+        for node in [n for n in session.nodes.values()]:
+            for hand in node.handlers.values():
+                for event in hand.connected_events:
+                    result.connect(
+                        result.nodes[event.node_id],
+                        event.declaration.name,
+                        result.nodes[node.id],
+                        hand.declaration.name,
+                    )
+        return result
 
     def remove_node_type(self, node_type: NodeTypeDeclaration) -> None:
         if self.contains_node_type(node_type):

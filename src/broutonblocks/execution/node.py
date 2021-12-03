@@ -35,7 +35,7 @@ class Handler:
         self.function(self.parent, *args)
 
     def connect(self, event):
-        if self.connected_events and not self.receives_multiple:
+        if self.connected_events and not self.declaration.receives_multiple:
             raise Exception()
         self.connected_events.append(event)
 
@@ -127,15 +127,16 @@ class Node:
         self.events_processor = None
         self.events_from_server_processor = None
         self.run_processor = None
+        self.node_type = Node.get_declaration(self.__class__)
         self.__init_attrs()
 
     @property
     def name(self):
         return self.__class__.__name__
 
-    @property
-    def node_type(self):
-        return Node.get_declaration(self.__class__)
+    # @property
+    # def node_type(self):
+    #     return Node.get_declaration(self.__class__)
 
     @staticmethod
     def get_declaration(node):
@@ -148,7 +149,7 @@ class Node:
         ]
         for item in items:
             if isinstance(node.__dict__[item], Handler):
-                result.handlers[node.__dict__[item].declaration.uid] = node.__dict__[
+                result.handlers[node.__dict__[item].declaration.name] = node.__dict__[
                     item
                 ].declaration
             if isinstance(node.__dict__[item], Property):
