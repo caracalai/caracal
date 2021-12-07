@@ -43,14 +43,6 @@ class Session:
     def initialize(self, project_file, node_type_impls):
         self.project = ProjectInfo.deserialize(project_file)
 
-        # reprs = {impl().type: impl for impl in node_type_impls}
-
-        # for node in project.nodes:
-        #     for node_type_impl in node_type_impls:
-        #         if node.type == node_type_impl.type:
-        #             found = True
-        #             node_type_impl()
-
     def run_project(self, project: ProjectInfo):
         for node in project.nodes.values():
             if node.session.name == self.name:
@@ -76,8 +68,6 @@ class Session:
                 for node in self.nodes.values():
                     all_nodes.append(node.id)
                 all_nodes = list(set(all_nodes))
-                # logging.debug("session all nodes = {nodes}"
-                # .format(nodes=self.all_nodes))
                 self.server = NodeServer(all_nodes, self.server_port)
                 self.server_port = self.server.port
                 self.server.start()
