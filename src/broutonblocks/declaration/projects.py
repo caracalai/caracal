@@ -268,4 +268,3 @@ class ProjectInfo:
                         hand.declaration.name,
                     )
         return result
-
