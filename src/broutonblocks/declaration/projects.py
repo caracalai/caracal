@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import base64
 import copy
 import pickle
 from typing import Dict, List
@@ -268,4 +267,3 @@ class ProjectInfo:
                         hand.declaration.name,
                     )
         return result
-
