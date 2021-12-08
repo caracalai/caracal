@@ -6,7 +6,6 @@ import threading
 from typing import Callable
 import uuid
 
-
 from broutonblocks.declaration import nodetype
 from broutonblocks.execution import session
 from broutonblocks.proto import basictypes_pb2
@@ -36,10 +35,9 @@ class Handler:
         self.function(self.parent, *args)
 
     def connect(self, event):
-        if self.connected_events and not self.receives_multiple:
+        if self.connected_events and not self.declaration.receives_multiple:
             raise Exception()
         self.connected_events.append(event)
-        #
 
 
 def handler(name: str, type_, receives_multiple=False, info=None, function=None):
@@ -105,7 +103,6 @@ class Node:
     def __init__(self, id_=None):
         self.stopped = False
         self.context = zmq.Context()
-        # self.context.setsockopt(zmq.LINGER, 100)
         self.sub_socket = None
         self.pub_socket = None
         self.service_socket = None
@@ -129,22 +126,36 @@ class Node:
         self.events_processor = None
         self.events_from_server_processor = None
         self.run_processor = None
+        self.node_type = Node.get_declaration(self.__class__)
         self.__init_attrs()
 
     @property
     def name(self):
         return self.__class__.__name__
 
-    @property
-    def node_type(self):
+    @staticmethod
+    def get_declaration(node):
         result = nodetype.NodeTypeDeclaration()
-        result.name = self.name
-        for _, item in self.handlers.items():
-            result.handlers[item.declaration.uid] = item.declaration
-        for _, item in self.properties.items():
-            result.properties[item.declaration.uid] = item.declaration
-        for _, item in self.events.items():
-            result.events[item.declaration.uid] = item.declaration
+        result.name = node.__name__
+        items = [
+            it
+            for it in node.__dict__.keys()
+            if not it.startswith("__") and not callable(it)
+        ]
+        for item in items:
+            if isinstance(node.__dict__[item], Handler):
+                result.handlers[node.__dict__[item].declaration.name] = node.__dict__[
+                    item
+                ].declaration
+            if isinstance(node.__dict__[item], Property):
+                result.properties[node.__dict__[item].declaration.uid] = node.__dict__[
+                    item
+                ].declaration
+                result.properties[node.__dict__[item].declaration.uid].name = item
+            if isinstance(node.__dict__[item], Event):
+                result.events[node.__dict__[item].declaration.uid] = node.__dict__[
+                    item
+                ].declaration
         return result
 
     @property
@@ -154,17 +165,6 @@ class Node:
     @property
     def service_endpoint(self):
         return "tcp://127.0.0.1:{port}".format(port=self.service_port)
-
-    # def __setattr__(self, name, value):
-    #     if isinstance(value, Property):
-    #         value.parent = self
-    #     if isinstance(value, Event):
-    #         value.parent = self
-    #         self.events[value.declaration.name] = value
-    #     if isinstance(value, Handler):
-    #         value.parent = self
-    #         self.handlers[value.declaration.name] = value
-    #     super().__setattr__(name, value)
 
     def __setattr__(self, key, value):
         try:
@@ -177,17 +177,6 @@ class Node:
                 object.__setattr__(self, key, value)
         except AttributeError:
             object.__setattr__(self, key, value)
-
-    # def __getattribute__(self, item):
-    #     result = super().__getattribute__(item)
-    #     if isinstance(result, Handler):
-    #         self.handlers[result.declaration.name] = result
-    #         result.parent = self
-    #     if isinstance(result, Property):
-    #         return result.value
-    #
-    #     return result
-    """ *** magic *** """
 
     def __getattribute__(self, item):
         attr = object.__getattribute__(self, item)
@@ -236,17 +225,6 @@ class Node:
                 processor.join()
 
     def close_all_sockets(self):
-        # TODO check destroy
-        # for socket in [self.sub_socket, self.pub_socket, self.service_socket]:
-        #     try:
-        #         #socket.close(linger=100)
-        #         socket.close()
-        #
-        #     except Exception as e:
-        #         logging.warning(
-        #             "Trying to close down socket: "
-        #             "{} resulted in error: {}".format(socket, e)
-        #         )
         self.context.destroy()
 
     def register_event(self, name):
@@ -265,7 +243,6 @@ class Node:
         sock.connect(self.server_endpoint)
         sock.send(json.dumps({"command": "generate-next-message-index"}).encode("utf8"))
         msg = json.loads(sock.recv())
-        # sock.close(linger=100)
         sock.close()
         return int(msg["index"])
 
@@ -297,14 +274,12 @@ class Node:
     def terminate(self):
         if not self.terminated:
             logging.debug("Node terminated")
-            # self.terminated = True
             sock = self.context.socket(zmq.REQ)
             sock.setsockopt(zmq.LINGER, 100)
 
             sock.connect(self.server_endpoint)
             sock.send(json.dumps({"command": "terminate"}).encode("utf8"))
             json.loads(sock.recv())
-            # sock.close(linger=100)
             sock.close()
 
     def wait_answer_from_server(self):
@@ -351,7 +326,6 @@ class Node:
         sock.setsockopt(zmq.LINGER, 100)
         sock.connect(self.server_endpoint)
         sock.send(request.encode("utf8"))
-        # sock.close(linger=100)
         sock.close()
 
     def process_events_from_server(self):
@@ -360,7 +334,6 @@ class Node:
             json.loads(msg)
             self.service_socket.send(json.dumps({"success": True}).encode("utf8"))
             self.stopped = True
-            # self.events_processor.join()
             self.close_all_sockets()
             self.run_processor.join()
             break
@@ -374,8 +347,6 @@ class Node:
             logging.debug("Node {name}:process_events finished".format(name=self.id))
             return
         while not self.terminated:
-            # logging.debug("Node {name}: stopped {stopped}"
-            # .format(name=self.id, stopped=self.stopped))
             try:
                 logging.debug(
                     "Node {name}: waiting for the next event...".format(name=self.id)
@@ -383,23 +354,6 @@ class Node:
                 while not self.message_to_handlers.empty():
                     handler_name, message = self.message_to_handlers.get()
                     self.handlers[handler_name](message)
-                # msg = self.sub_socket.recv()
-                # logging.debug("Node {name}: received new event".format(name=self.id))
-                # index = msg.find(b" ")
-                # source_id, event = msg[:index].decode("utf8").split("|")
-                # binary_msg = basictypes_pb2.Message()
-                # binary_msg.ParseFromString(msg[index + 1:])
-                #
-                # msg_id, msg_value = ProtoSerializer().deserialize_message(binary_msg)
-                # message = Message(msg_id, msg_value)
-                # handler_name = self.event2handler[
-                #     _Event(source_id=source_id, event=event)
-                # ]  # noqa
-                # logging.debug(
-                #     "Node {name}: received event {event}".format(
-                #         name=self.id, event=event
-                #     )
-                # )
 
             except Exception as e:
                 logging.warning("Node {name}: Exception {e}".format(name=self.id, e=e))
@@ -460,11 +414,6 @@ class Node:
         self.events_processor = threading.Thread(target=self.process_events)
         self.events_processor.start()
 
-        # self.events_from_server_processor = threading.Thread(
-        #     target=self.process_events_from_server
-        # )
-        # self.events_from_server_processor.start()
-
         self.run_processor = threading.Thread(target=self.run)
         self.run_processor.start()
 
@@ -514,6 +463,5 @@ class Node:
 
     def __del__(self):
         if not self.context.closed:
-            # self.context.destroy(linger=100)
             self.context.destroy()
         del self

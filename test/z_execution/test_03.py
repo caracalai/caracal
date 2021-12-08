@@ -37,14 +37,14 @@ class CheckGraphExecution_03(unittest.TestCase):
     def test(self):
         with Session() as session:
             logging.basicConfig(level=logging.DEBUG)
-            processor = Generator()
+            generator = Generator()
+            generator.id = "generator"
+            processor = Processor()
             processor.id = "processor"
-            detector = Processor()
-            detector.id = "detector"
             test_node = TestNode("test-node")
 
-            detector.threshold = threshold
-            detector.on_process_batch.connect(processor.processed_batch)
-            test_node.receive_result.connect(detector.result)
+            processor.threshold = threshold
+            processor.on_process_batch.connect(generator.processed_batch)
+            test_node.receive_result.connect(processor.result)
             session.run()
             self.assertEqual(result, test_node.result)

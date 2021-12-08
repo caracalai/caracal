@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import base64
 import copy
 import pickle
 from typing import Dict, List
@@ -69,19 +68,6 @@ class ProjectInfo:
         self.nodes: Dict[str, NodeInfo] = {}
         self.edges: Dict[str, EdgeInfo] = {}
         self.uid: str = str(uuid.uuid4())
-
-    def parse_node_types_from_declaration(
-        self, declaration: str
-    ) -> List[NodeTypeDeclaration]:
-        parser = TypesParser()
-        types = parser.parse(declaration)
-        for node_type in types.values():
-            if not self.contains_node_type(node_type):
-                node_type.project_info = self
-                self.node_types[node_type.uid] = node_type
-            else:
-                raise RuntimeError()
-        return list(types.values())
 
     def remove_node_type(self, node_type: NodeTypeDeclaration) -> None:
         if self.contains_node_type(node_type):
@@ -243,8 +229,41 @@ class ProjectInfo:
             raise RuntimeError()
 
     @staticmethod
-    def deserialize(text: str) -> ProjectInfo:
-        return pickle.loads(base64.b64decode(text))
+    def deserialize(data: str) -> ProjectInfo:
+        return pickle.loads(data)
 
     def serialize(self) -> str:
-        return base64.b64encode(pickle.dumps(self)).decode("ascii")
+        return pickle.dumps(self)
+
+    def parse_node_types_from_declaration(
+        self, declaration: str
+    ) -> List[NodeTypeDeclaration]:
+        parser = TypesParser()
+        types = parser.parse(declaration)
+        for node_type in types.values():
+            if not self.contains_node_type(node_type):
+                node_type.project_info = self
+                self.node_types[node_type.uid] = node_type
+            else:
+                raise RuntimeError()
+        return list(types.values())
+
+    @staticmethod
+    def from_session(session):
+        result = ProjectInfo()
+        session_info = result.create_session(session.name)
+        for node in [node for node in session.nodes.values()]:
+            result.node_types[node.node_type.uid] = node.node_type
+        for node in [node for node in session.nodes.values()]:
+            result.nodes[node.id] = NodeInfo(node.node_type, session_info)
+            result.nodes[node.id].uid = node.id
+        for node in [n for n in session.nodes.values()]:
+            for hand in node.handlers.values():
+                for event in hand.connected_events:
+                    result.connect(
+                        result.nodes[event.node_id],
+                        event.declaration.name,
+                        result.nodes[node.id],
+                        hand.declaration.name,
+                    )
+        return result
