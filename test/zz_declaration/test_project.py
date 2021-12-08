@@ -1,6 +1,6 @@
 import unittest
 
-from broutonblocks.declaration.projects import ProjectInfo
+from caracal.declaration.projects import ProjectInfo
 
 type_decl = """
                    @namespace(name="foo")

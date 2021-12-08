@@ -1,8 +1,8 @@
 import itertools
 from antlr4.InputStream import InputStream
 from antlr4 import CommonTokenStream
-from broutonblocks.typesparser import BlockTypesLexer, BlockTypesParser
-from broutonblocks.declaration import datatypes, nodetype
+from caracal.typesparser import BlockTypesLexer, BlockTypesParser
+from caracal.declaration import datatypes, nodetype
 from antlr4.error.ErrorStrategy import *
 
 

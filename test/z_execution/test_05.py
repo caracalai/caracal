@@ -2,9 +2,9 @@ import logging
 import multiprocessing
 import unittest
 
-from broutonblocks.declaration import MetaInfo
-import broutonblocks.declaration.datatypes as bbtypes
-from broutonblocks.execution import (
+from caracal.declaration import MetaInfo
+import caracal.declaration.datatypes as caratypes
+from caracal.execution import (
     Event,
     ExternalEvent,
     handler,
@@ -22,18 +22,18 @@ test_node_result = None
 
 
 class Generator(Node):
-    threshold = Property(bbtypes.Int(), default_value=0.7, optional=True)
-    processed_batch = Event("processedBatch", bbtypes.List(bbtypes.Int()))
+    threshold = Property(caratypes.Int(), default_value=0.7, optional=True)
+    processed_batch = Event("processedBatch", caratypes.List(caratypes.Int()))
 
     def run(self):
         self.fire(self.processed_batch, sent_array)
 
 
 class Processor(Node):
-    threshold = Property(bbtypes.Int(), default_value=0.7, optional=True)
-    result = Event("result", bbtypes.Object())
+    threshold = Property(caratypes.Int(), default_value=0.7, optional=True)
+    result = Event("result", caratypes.Object())
 
-    @handler("onProcessBatch", bbtypes.List(bbtypes.Int()), False, MetaInfo())
+    @handler("onProcessBatch", caratypes.List(caratypes.Int()), False, MetaInfo())
     def on_process_batch(self, msg):
         self.fire(self.result, list(filter(lambda x: x >= self.threshold, msg.value)))
 
@@ -41,7 +41,7 @@ class Processor(Node):
 class TestNode(Node):
     result = None
 
-    @handler("receive_result", bbtypes.Object())
+    @handler("receive_result", caratypes.Object())
     def receive_result(self, msg):
         self.result = msg.value
         logging.debug(msg.value)
@@ -64,7 +64,7 @@ def second_worker(return_dict):
 
         processor.threshold = 23
         processed_batch = ExternalEvent(
-            "processedBatch", bbtypes.List(bbtypes.Int()), node_id="generator"
+            "processedBatch", caratypes.List(caratypes.Int()), node_id="generator"
         )
         processor.on_process_batch.connect(processed_batch)
         test_node.receive_result.connect(processor.result)

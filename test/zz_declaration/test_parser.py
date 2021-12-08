@@ -1,8 +1,8 @@
 from typing import Dict
 import unittest
 
-from broutonblocks.declaration.nodetype import NodeTypeDeclaration
-from broutonblocks.typesparser import TypesParseError, TypesParser
+from caracal.declaration.nodetype import NodeTypeDeclaration
+from caracal.typesparser import TypesParseError, TypesParser
 
 
 class TestParse(unittest.TestCase):

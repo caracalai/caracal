@@ -2,7 +2,7 @@
 # from bblocks.typesparser import typesparser
 # import unittest
 # import bblocks.execution.session
-# import bblocks.declaration.datatypes as bbtypes
+# import bblocks.declaration.datatypes as caratypes
 # from bblocks.execution.node import *
 #
 # sent_value = 10
@@ -10,7 +10,7 @@
 # class Sender(Node):
 #     def __init__(self):
 #         super(Sender, self).__init__()
-#         self.send = Event("send", bbtypes.Int)
+#         self.send = Event("send", caratypes.Int)
 #
 #     def run(self):
 #         self.fire(self.send, sent_value)
@@ -19,9 +19,9 @@
 # class Receiver(Node):
 #     def __init__(self):
 #         super(Receiver, self).__init__()
-#         self.result = Event("result", bbtypes.Object())
+#         self.result = Event("result", caratypes.Object())
 #
-#     @handler("receive", bbtypes.Int)
+#     @handler("receive", caratypes.Int)
 #     def receive(self, msg):
 #         self.fire(self.result, msg.value ** 2)
 #
@@ -31,7 +31,7 @@
 #         super().__init__(id)
 #         self.result = None
 #
-#     @handler("receive_result", bbtypes.Object())
+#     @handler("receive_result", caratypes.Object())
 #     def receive_result(self, msg):
 #         self.result = msg.value
 #         self.terminate()

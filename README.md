@@ -1,12 +1,12 @@
-<h1 align="center">BroutonBlocks - Rapid AI prototyping and development platform.  </h1>
+<h1 align="center">Caracal - Rapid AI prototyping and development platform.  </h1>
 
 <p align="center">
-<img align="center" src="https://broutonblocks.com/img/blocks3.35b077cf.png" alt="Program in BroutonBlocks" width="400"/>
+<img align="center" src="https://caracal.ai/img/blocks3.35b077cf.png" alt="Program in Caracal" width="400"/>
 </p>
-<p align="center"><b>No-Code framework to make AI prototyping, diagnostics and development faster.</b></p>
+<p align="center"><b>Low-Code framework to make AI prototyping, diagnostics and development faster.</b></p>
 
 <p align="center">
-  <a href="https://docs.broutonblocks.com/">Docs</a>
+  <a href="https://docs.caracal.com/">Docs</a>
   |
   <a href="">Join Discord</a>
   |
@@ -18,16 +18,16 @@
 </p>
 
 ## What is it?
-BroutonBlocks contains
+Caracal contains
  - Canva, webapp proving No-Code funtionality that helps to set up the AI project structure visually.
  - Collection of open-sourced blocks which can be used in your project.
- - SDKs for development of custom blocks in C++, <a href="https://github.com/BroutonBlocks/bblocks-python">Python</a> and Node.js.
+ - SDKs for development of custom blocks in C++, <a href="https://github.com/caracalai/caracal">Python</a> and Node.js.
 
 ## Installing from PyPI
 ### Windows, MAC OS and Linux
 BroutonBlocks is available as a PyPI package. To install it using pip package manager, run:
 ```sh
-$ pip install git+https://github.com/BroutonBlocks/bblocks-python.git
+$ pip install git+https://github.com/caracalai/caracal.git
 ```
 
 ## Getting started
@@ -51,4 +51,4 @@ python -m unittest discover --verbose
 
 
 
-Made with :heart: by founders of <a href="https://broutonlab.com">BroutonLab</a>.
+Made with :heart: by founders of <a href="https://caracal.ai">BroutonLab</a>.

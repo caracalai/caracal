@@ -4,7 +4,7 @@ with open("README.md", "r") as f:
     long_description = f.read()
 
 setuptools.setup(
-    name="broutonblocks",
+    name="caracal",
     version="0.0.1",
     long_description=long_description,
     author="BroutonLab team",
@@ -13,7 +13,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    author_email="hello@broutonblocks.com",
+    author_email="hello@caracal.com",
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
     install_requires=[
