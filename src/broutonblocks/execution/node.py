@@ -53,7 +53,9 @@ def handler(name: str, type_, receives_multiple=False, info=None, function=None)
 
 class Property:
     def __init__(self, type_, optional, default_value=None):
-        self.declaration = nodetype.PropertyDeclaration(type_, optional, default_value)
+        self.declaration = nodetype.PropertyDeclaration(
+            type_, optional, None, default_value
+        )
         self.parent = None
         self.value = default_value
 
