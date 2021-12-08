@@ -13,6 +13,7 @@ class IntGenerator(Node):
         super().__init__(id_)
         self.results = []
         self.batch_results = []
+
     generated_val = Event("generated_val", caratypes.Tuple(caratypes.Int()))
     generated_batch = Event("generated_batch", caratypes.List(caratypes.Int()))
 
@@ -76,6 +77,7 @@ class FloatGenerator(Node):
         super().__init__(id_)
         self.results = []
         self.batch_results = []
+
     generated_val = Event("generated_val", caratypes.Tuple(caratypes.Int()))
     generated_batch = Event("generated_batch", caratypes.List(caratypes.Int()))
 
@@ -84,7 +86,7 @@ class FloatGenerator(Node):
         batch = []
         for i in range(100):
             timer_start = time.time()
-            value += .003
+            value += 0.003
             self.fire(self.generated_val, value)
             self.results.append(time.time() - timer_start)
             batch.append(value)
@@ -139,13 +141,17 @@ class StringGenerator(Node):
         super().__init__(id_)
         self.results = []
         self.batch_results = []
+
     generated_val = Event("generated_val", caratypes.Tuple(caratypes.Int()))
     generated_batch = Event("generated_batch", caratypes.List(caratypes.Int()))
 
     def run(self):
         batch = []
         for i in range(100):
-            value = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(63))
+            value = "".join(
+                random.SystemRandom().choice(string.ascii_uppercase + string.digits)
+                for _ in range(63)
+            )
             timer_start = time.time()
             self.fire(self.generated_val, value)
             self.results.append(time.time() - timer_start)
@@ -201,6 +207,7 @@ class BoolGenerator(Node):
         super().__init__(id_)
         self.results = []
         self.batch_results = []
+
     generated_val = Event("generated_val", caratypes.Tuple(caratypes.Int()))
     generated_batch = Event("generated_batch", caratypes.List(caratypes.Int()))
 
@@ -218,7 +225,7 @@ class BoolGenerator(Node):
                 self.batch_results.append(timer_end - timer_start)
                 batch = []
 
-        value = 'end'
+        value = "end"
         self.fire(self.generated_val, value)
         logging.warning("serialization avg time:")
         logging.warning(sum(self.results) / len(self.results))
@@ -241,7 +248,7 @@ class BoolReceiver(Node):
         timer_end = time.time()
         self.results.append(timer_end - self.timer_start)
         self.timer_start = time.time()
-        if msg.value == 'end':
+        if msg.value == "end":
             logging.warning("deserialization avg time:")
             logging.warning(sum(self.results) / len(self.results))
             logging.warning(len(self.results))
@@ -267,7 +274,11 @@ class DeserializationTypesTest(unittest.TestCase):
             receiver.on_received_value.connect(generator.generated_val)
             receiver.on_received_batch.connect(generator.generated_batch)
             session.run()
-            self.assertLess(sum(receiver.results)/len(receiver.results), 0.05, "Too long deserialization")
+            self.assertLess(
+                sum(receiver.results) / len(receiver.results),
+                0.05,
+                "Too long deserialization",
+            )
 
     def test_floats(self):
         with Session() as session:
@@ -277,7 +288,11 @@ class DeserializationTypesTest(unittest.TestCase):
             receiver.on_received_value.connect(generator.generated_val)
             receiver.on_received_batch.connect(generator.generated_batch)
             session.run()
-            self.assertLess(sum(receiver.results) / len(receiver.results), 0.05, "Too long deserialization")
+            self.assertLess(
+                sum(receiver.results) / len(receiver.results),
+                0.05,
+                "Too long deserialization",
+            )
 
     def test_strings(self):
         with Session() as session:
@@ -289,7 +304,11 @@ class DeserializationTypesTest(unittest.TestCase):
             session.run()
             # TODO have some questions about deserialization time of strings
             # on my hard there is 0.5s deserialization of 64 symbols string
-            self.assertLess(sum(receiver.results) / len(receiver.results), 1, "Too long deserialization")
+            self.assertLess(
+                sum(receiver.results) / len(receiver.results),
+                1,
+                "Too long deserialization",
+            )
 
     def test_bools(self):
         with Session() as session:
@@ -299,7 +318,12 @@ class DeserializationTypesTest(unittest.TestCase):
             receiver.on_received_value.connect(generator.generated_val)
             receiver.on_received_batch.connect(generator.generated_batch)
             session.run()
-            self.assertLess(sum(receiver.results) / len(receiver.results), 0.05, "Too long deserialization")
+            self.assertLess(
+                sum(receiver.results) / len(receiver.results),
+                0.05,
+                "Too long deserialization",
+            )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
