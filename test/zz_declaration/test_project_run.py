@@ -1,14 +1,14 @@
 import unittest
 
-from broutonblocks.declaration import MetaInfo
-import broutonblocks.declaration.datatypes as bbtypes
-from broutonblocks.declaration.projects import ProjectInfo
-from broutonblocks.execution import Event, handler, Node, Property, Session
+from caracal.declaration import MetaInfo
+import caracal.declaration.datatypes as caratypes
+from caracal.declaration.projects import ProjectInfo
+from caracal.execution import Event, handler, Node, Property, Session
 
 
 class Node1(Node):
-    threshold = Property(bbtypes.Int(), default_value=10, optional=True)
-    value = Event("value", bbtypes.Int())
+    threshold = Property(caratypes.Int(), default_value=10, optional=True)
+    value = Event("value", caratypes.Int())
 
     def run(self):
         self.fire(self.value, 10)
@@ -18,15 +18,15 @@ result = -1
 
 
 class Node2(Node):
-    result = Event("result", bbtypes.Int())
+    result = Event("result", caratypes.Int())
 
-    @handler("handler1", bbtypes.Int(), False, MetaInfo())
+    @handler("handler1", caratypes.Int(), False, MetaInfo())
     def handler1(self, msg):
         self.fire(self.result, msg.value + 10)
 
 
 class ResultNode(Node):
-    @handler("result", bbtypes.Int(), False, MetaInfo())
+    @handler("result", caratypes.Int(), False, MetaInfo())
     def result(self, msg):
         global result
         result = msg.value

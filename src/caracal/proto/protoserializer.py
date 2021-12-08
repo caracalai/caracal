@@ -1,5 +1,5 @@
-from broutonblocks.execution import basictypes
-from broutonblocks.proto import basictypes_pb2
+from caracal.execution import basictypes
+from caracal.proto import basictypes_pb2
 from google.protobuf.any_pb2 import Any
 import numpy as np
 

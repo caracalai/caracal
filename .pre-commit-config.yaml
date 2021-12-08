@@ -1,6 +1,6 @@
 # Apply to all files without commiting:
 #   pre-commit run --all-files
-exclude: ^(src/broutonblocks/typesparser/|tutorials)
+exclude: ^(src/caracal/typesparser/|tutorials)
 repos:
   - repo: https://github.com/psf/black
     rev: 21.9b0
@@ -17,7 +17,7 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
       - id: flake8
-        exclude: ^(src/broutonblocks/typesparser/|tutorials)
+        exclude: ^(src/caracal/typesparser/|tutorials)
         args: ["--config=setup.cfg"]
         additional_dependencies:
           [

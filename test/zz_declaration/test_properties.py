@@ -1,6 +1,6 @@
 import unittest
 
-from broutonblocks.typesparser import typesparser
+from caracal.typesparser import typesparser
 
 
 class CheckProperties(unittest.TestCase):

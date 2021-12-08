@@ -3,15 +3,15 @@ import logging
 import time
 import unittest
 
-import broutonblocks.declaration.datatypes as bbtypes
-from broutonblocks.execution import Event, handler, Node, Session
+import caracal.declaration.datatypes as caratypes
+from caracal.execution import Event, handler, Node, Session
 
 item_count = 20
 delay = 0.0
 
 
 class GeneratorFirst(Node):
-    value = Event("value", bbtypes.Int())
+    value = Event("value", caratypes.Int())
 
     def run(self):
         index = 0
@@ -26,7 +26,7 @@ class GeneratorFirst(Node):
 
 
 class GeneratorSecond(Node):
-    value = Event("value", bbtypes.Int())
+    value = Event("value", caratypes.Int())
 
     def run(self):
         index = 0
@@ -41,16 +41,16 @@ class GeneratorSecond(Node):
 
 
 class Summator(Node):
-    result = Event("result", bbtypes.Int())
+    result = Event("result", caratypes.Int())
     first_queue = collections.deque()
     second_queue = collections.deque()
 
-    @handler("on_first", bbtypes.Int())
+    @handler("on_first", caratypes.Int())
     def on_first(self, msg):
         self.first_queue.append(msg.value)
         self.process_queues()
 
-    @handler("on_second", bbtypes.Int())
+    @handler("on_second", caratypes.Int())
     def on_second(self, msg):
         self.second_queue.append(msg.value)
         self.process_queues()
@@ -68,7 +68,7 @@ class Summator(Node):
 class TestNode(Node):
     result = []
 
-    @handler("receive_result", bbtypes.Int())
+    @handler("receive_result", caratypes.Int())
     def receive_result(self, msg):
         self.result.append(msg.value)
         if len(self.result) == item_count:

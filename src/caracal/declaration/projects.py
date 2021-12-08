@@ -5,8 +5,8 @@ import pickle
 from typing import Dict, List
 import uuid
 
-from broutonblocks.declaration.nodetype import NodeTypeDeclaration
-from broutonblocks.typesparser import TypesParser
+from caracal.declaration.nodetype import NodeTypeDeclaration
+from caracal.typesparser import TypesParser
 
 
 class SessionInfo:

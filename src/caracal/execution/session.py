@@ -4,8 +4,8 @@ import sys
 import time
 import traceback
 
-from broutonblocks.declaration.projects import ProjectInfo
-from broutonblocks.execution.nodeserver import NodeServer
+from caracal.declaration.projects import ProjectInfo
+from caracal.execution.nodeserver import NodeServer
 
 current_session = None
 

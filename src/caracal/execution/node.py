@@ -6,10 +6,10 @@ import threading
 from typing import Callable
 import uuid
 
-from broutonblocks.declaration import nodetype
-from broutonblocks.execution import session
-from broutonblocks.proto import basictypes_pb2
-from broutonblocks.proto.protoserializer import ProtoSerializer
+from caracal.declaration import nodetype
+from caracal.execution import session
+from caracal.proto import basictypes_pb2
+from caracal.proto.protoserializer import ProtoSerializer
 import zmq
 
 _Event = namedtuple("_Event", ["source_id", "event"])

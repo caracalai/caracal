@@ -1,9 +1,9 @@
 import logging
 import unittest
 
-from broutonblocks.declaration import MetaInfo
-import broutonblocks.declaration.datatypes as bbtypes
-from broutonblocks.execution import Event, handler, Node, Property, Session
+from caracal.declaration import MetaInfo
+import caracal.declaration.datatypes as caratypes
+from caracal.execution import Event, handler, Node, Property, Session
 
 sent_array = [54, -21, 54, 43, 34, 5, 43, 2, -6, 2]
 threshold = 23
@@ -11,23 +11,23 @@ result = list(filter(lambda x: x >= threshold, sent_array))
 
 
 class Generator(Node):
-    processed_batch = Event("processedBatch", bbtypes.Tuple(bbtypes.Int()))
+    processed_batch = Event("processedBatch", caratypes.Tuple(caratypes.Int()))
 
     def run(self):
         self.fire(self.processed_batch, sent_array)
 
 
 class Processor(Node):
-    threshold = Property(bbtypes.Int(), default_value=0.7, optional=True)
-    result = Event("result", bbtypes.Object())
+    threshold = Property(caratypes.Int(), default_value=0.7, optional=True)
+    result = Event("result", caratypes.Object())
 
-    @handler("onProcessBatch", bbtypes.Tuple(bbtypes.Int()), False, MetaInfo())
+    @handler("onProcessBatch", caratypes.Tuple(caratypes.Int()), False, MetaInfo())
     def on_process_batch(self, msg):
         self.fire(self.result, list(filter(lambda x: x >= self.threshold, msg.value)))
 
 
 class TestNode(Node):
-    @handler("receive_result", bbtypes.Object())
+    @handler("receive_result", caratypes.Object())
     def receive_result(self, msg):
         self.result = msg.value
         self.terminate()
