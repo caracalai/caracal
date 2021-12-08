@@ -44,7 +44,7 @@ class TestNode(Node):
     @handler("receive_result", caratypes.Object())
     def receive_result(self, msg):
         self.result = msg.value
-        logging.debug(msg.value)
+        logging.warning(msg.value)
         self.terminate()
 
 
@@ -75,7 +75,7 @@ def second_worker(return_dict):
 
 class CheckGraphExecution_05(unittest.TestCase):
     def test(self):
-        logging.basicConfig(level=logging.DEBUG)
+        logging.basicConfig(level=logging.WARNING)
 
         manager = multiprocessing.Manager()
         return_dict = manager.dict()

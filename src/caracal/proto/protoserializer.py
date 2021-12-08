@@ -15,6 +15,7 @@ class ProtoSerializer:
                 basictypes_pb2.ImageValue,
                 basictypes_pb2.BooleanValue,
                 basictypes_pb2.IntValue,
+                basictypes_pb2.FloatValue,
                 basictypes_pb2.CameraValue,
                 basictypes_pb2.TupleValue,
                 basictypes_pb2.ListValue,
@@ -30,6 +31,8 @@ class ProtoSerializer:
         if isinstance(value, basictypes_pb2.FloatValue):
             return value.value
         if isinstance(value, basictypes_pb2.StringValue):
+            return value.value
+        if isinstance(value, basictypes_pb2.BooleanValue):
             return value.value
         # if isinstance(value, basictypes.Image):
         #     result = basictypes_pb2.ImageValue()
