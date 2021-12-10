@@ -1,4 +1,4 @@
-<h1 align="center">Caracal - Rapid AI prototyping and development platform.  </h1>
+<h1 align="center">Caracal -Release Your AI-Powered Products To the Market Faster.  </h1>
 
 <p align="center">
 <img align="center" src="https://caracal.ai/img/blocks3.35b077cf.png" alt="Program in Caracal" width="400"/>
