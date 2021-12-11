@@ -19,7 +19,7 @@ class Generator(Node):
 
 class Processor(Node):
     threshold = Property(caratypes.Int(), default_value=0.7, optional=True)
-    result = Event("result", caratypes.Object())
+    result = Event("result", caratypes.Tuple(caratypes.Object()))
 
     @handler("onProcessBatch", caratypes.Tuple(caratypes.Int()), False, MetaInfo())
     def on_process_batch(self, msg):
@@ -27,7 +27,7 @@ class Processor(Node):
 
 
 class TestNode(Node):
-    @handler("receive_result", caratypes.Object())
+    @handler("receive_result", caratypes.Tuple(caratypes.Object()))
     def receive_result(self, msg):
         self.result = msg.value
         self.terminate()

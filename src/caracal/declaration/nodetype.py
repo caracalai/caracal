@@ -129,7 +129,7 @@ class NodeTypeDeclaration:
             del self.attributes[self.NAMESPACE_ATTRIBUTE]
 
     def __str__(self):
-        result = "@namespace(name={namespace})\nnode {name}\n".format(
+        result = "@namespace(name=\"{namespace}\")\nnode {name}:\n".format(
             namespace=self.namespace, name=self.name
         )
         properties = "\tproperties:\n"
@@ -140,7 +140,7 @@ class NodeTypeDeclaration:
         handlers = "\thandlers:\n"
         for value in self.handlers.values():
             handlers += "\t\t{handler}\n".format(handler=str(value))
-        if properties != "\thandlers:\n":
+        if handlers != "\thandlers:\n":
             result += handlers
         events = "\tevents:\n"
         for value in self.events.values():
