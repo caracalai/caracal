@@ -129,7 +129,7 @@ class NodeTypeDeclaration:
             del self.attributes[self.NAMESPACE_ATTRIBUTE]
 
     def __str__(self):
-        result = "@namespace(name=\"{namespace}\")\nnode {name}:\n".format(
+        result = '@namespace(name="{namespace}")\nnode {name}:\n'.format(
             namespace=self.namespace, name=self.name
         )
         properties = "\tproperties:\n"
