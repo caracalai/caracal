@@ -172,10 +172,12 @@ class Node:
     def __setattr__(self, key, value):
         try:
             attr = object.__getattribute__(self, key)
-            if key in self.__class__.__dict__ and isinstance(self.__class__.__dict__[key], Property):
-               self.__dict__['properties'][key] = copy.copy(self.__class__.__dict__[key])
-               self.__dict__[key] = value
-               self.__dict__['properties'][key].value = value
+            if key in self.__class__.__dict__ and isinstance(
+                self.__class__.__dict__[key], Property
+            ):
+                self.__dict__["properties"][key] = copy.copy(self.__class__.__dict__[key])
+                self.__dict__[key] = value
+                self.__dict__["properties"][key].value = value
             else:
                 object.__setattr__(self, key, value)
         except AttributeError:
@@ -197,11 +199,15 @@ class Node:
                 self.__dict__[attr_name] = copy.copy(attr)
                 self.__dict__[attr_name].parent = self
                 self.events[attr.declaration.name] = self.__dict__[attr_name]
-            elif attr_name in self.__class__.__dict__ and isinstance(self.__class__.__dict__[attr_name], Property):
-                self.__dict__['properties'][attr_name] = copy.copy(self.__class__.__dict__[attr_name])
-                self.__dict__['properties'][attr_name].parent = self
-                self.__dict__['properties'][attr_name].declaration.name = attr_name
-                self.__dict__[attr_name] = self.__dict__['properties'][attr_name].value
+            elif attr_name in self.__class__.__dict__ and isinstance(
+                self.__class__.__dict__[attr_name], Property
+            ):
+                self.__dict__["properties"][attr_name] = copy.copy(
+                    self.__class__.__dict__[attr_name]
+                )
+                self.__dict__["properties"][attr_name].parent = self
+                self.__dict__["properties"][attr_name].declaration.name = attr_name
+                self.__dict__[attr_name] = self.__dict__["properties"][attr_name].value
 
     def set_server_endpoint(self, server_endpoint):
         self.port = server_endpoint
