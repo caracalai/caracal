@@ -1,5 +1,5 @@
-import copy
 from collections import namedtuple
+import copy
 import json
 import logging
 import queue
@@ -36,8 +36,8 @@ class Handler:
         self.function(self.parent, *args)
 
     def connect(self, event):
-        if self.connected_events and not self.declaration.receives_multiple:
-            raise Exception()
+        if event.declaration.data_type.intersect(self.declaration.data_type) is None:
+            raise TypeError
         self.connected_events.append(event)
 
 
@@ -171,7 +171,6 @@ class Node:
 
     def __setattr__(self, key, value):
         try:
-            attr = object.__getattribute__(self, key)
             if key in self.__class__.__dict__ and isinstance(
                 self.__class__.__dict__[key], Property
             ):
