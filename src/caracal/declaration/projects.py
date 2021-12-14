@@ -85,11 +85,11 @@ class ProjectInfo:
         )
 
     def can_connect(
-            self,
-            source_node: NodeInfo,
-            event_name: str,
-            dest_node: NodeInfo,
-            handler_name: str,
+        self,
+        source_node: NodeInfo,
+        event_name: str,
+        dest_node: NodeInfo,
+        handler_name: str,
     ) -> bool:
         if event_name not in self.nodes[source_node.uid].node_type.events:
             return False
@@ -97,8 +97,12 @@ class ProjectInfo:
         if handler_name not in self.nodes[dest_node.uid].node_type.handlers:
             return False
 
-        if source_node.node_type.events[event_name].data_type.intersect(
-                dest_node.node_type.handlers[handler_name].data_type) is None:
+        if (
+            source_node.node_type.events[event_name].data_type.intersect(
+                dest_node.node_type.handlers[handler_name].data_type
+            )
+            is None
+        ):
             return False
 
         return True
