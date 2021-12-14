@@ -1,12 +1,6 @@
 name: testing
 
-on:
-  push:
-    branches:
-      - readme_tests
-      - execution-fixes
-      - pre-alpha-version
-      - main
+on: [push, pull_request]
 
 jobs:
   run-tests:
