@@ -29,7 +29,7 @@ class Handler:
             name, type_, receives_multiple, info
         )
         self.function = function
-        self.connected_events = []
+        self.connected_events = set()
         self.parent = None
 
     def __call__(self, *args):
@@ -38,7 +38,7 @@ class Handler:
     def connect(self, event):
         if event.declaration.data_type.intersect(self.declaration.data_type) is None:
             raise TypeError
-        self.connected_events.append(event)
+        self.connected_events.add(event)
 
 
 def handler(name: str, type_, receives_multiple=False, info=None, function=None):
@@ -109,7 +109,7 @@ class Node:
         self.sub_socket = None
         self.pub_socket = None
         self.service_socket = None
-        self.event2handler = {}
+        self.event2handler = []
         self.port = ""
         self.handlers = {}
         self.events = {}
@@ -318,9 +318,12 @@ class Node:
                 for event in handler.connected_events:
                     if event.node_id != input_node_id:
                         continue
-                    self.event2handler[
-                        _Event(event=event.declaration.name, source_id=event.node_id)
-                    ] = handler.declaration.name
+                    self.event2handler.append(
+                        (
+                            _Event(event=event.declaration.name, source_id=event.node_id),
+                            handler.declaration.name,
+                        )
+                    )
                     topic = "{source_id}|{event}".format(
                         source_id=event.node_id, event=event.declaration.name
                     )
@@ -447,8 +450,12 @@ class Node:
 
                     msg_id, msg_value = ProtoSerializer().deserialize_message(binary_msg)
                     message = Message(msg_id, msg_value)
-                    handler_name = self.event2handler[
-                        _Event(source_id=source_id, event=event)
+                    handler_name = [
+                        hand_name
+                        for event_name, hand_name in self.event2handler
+                        if _Event(source_id=source_id, event=event) == event_name
+                    ][
+                        0
                     ]  # noqa
                     logging.debug(
                         "Node {name}: received event {event}".format(
