@@ -1,4 +1,4 @@
-from collections import namedtuple, OrderedDict, deque
+from collections import deque, namedtuple, OrderedDict
 import copy
 import json
 import logging
@@ -37,10 +37,16 @@ class Handler:
         if self.declaration.receives_multiple:
             if not self.events_queues:
                 for event in self.connected_events:
-                    self.events_queues[_Event(source_id=event.parent.id, event=event.declaration.name)] = deque()
-                self.events_queues[_Event(source_id=msg.source_uid, event=msg.event)].append(msg)
+                    self.events_queues[
+                        _Event(source_id=event.parent.id, event=event.declaration.name)
+                    ] = deque()
+                self.events_queues[
+                    _Event(source_id=msg.source_uid, event=msg.event)
+                ].append(msg)
             else:
-                self.events_queues[_Event(source_id=msg.source_uid, event=msg.event)].append(msg)
+                self.events_queues[
+                    _Event(source_id=msg.source_uid, event=msg.event)
+                ].append(msg)
                 while all(self.events_queues.values()):
                     msgs = [elem.popleft() for elem in self.events_queues.values()]
                     ids = [msg.id for msg in msgs]
@@ -48,9 +54,9 @@ class Handler:
                         self.function(self.parent, Message(id_=set(ids), value=msgs))
                     else:
                         for msg in [msg for msg in msgs if msg.id == max(ids)]:
-                            self.events_queues[_Event(source_id=msg.source_uid, event=msg.event)].appendleft(
-                                msg
-                            )
+                            self.events_queues[
+                                _Event(source_id=msg.source_uid, event=msg.event)
+                            ].appendleft(msg)
         else:
             self.function(self.parent, msg)
 
@@ -470,7 +476,7 @@ class Node:
                     binary_msg.ParseFromString(msg[index + 1 :])
 
                     msg_id, msg_value = ProtoSerializer().deserialize_message(binary_msg)
-                    message = Message(source_id, event,msg_id, msg_value)
+                    message = Message(source_id, event, msg_id, msg_value)
                     handler_name = [
                         hand_name
                         for event_name, hand_name in self.event2handler
