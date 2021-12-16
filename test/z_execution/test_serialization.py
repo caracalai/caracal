@@ -1,11 +1,11 @@
 import logging
+import random
 import string
 import time
 import unittest
-import random
 
-from caracal.execution import Property, Event, Node, handler, Session
 from caracal.declaration import datatypes as caratypes
+from caracal.execution import Event, handler, Node, Session
 
 
 class IntGenerator(Node):

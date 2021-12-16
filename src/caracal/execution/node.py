@@ -1,4 +1,5 @@
-from collections import namedtuple
+from collections import deque, namedtuple, OrderedDict
+import copy
 import json
 import logging
 import queue
@@ -28,16 +29,41 @@ class Handler:
             name, type_, receives_multiple, info
         )
         self.function = function
-        self.connected_events = []
+        self.connected_events = set()
         self.parent = None
+        self.events_queues = OrderedDict()
 
-    def __call__(self, *args):
-        self.function(self.parent, *args)
+    def __call__(self, msg):
+        if self.declaration.receives_multiple:
+            if not self.events_queues:
+                for event in self.connected_events:
+                    self.events_queues[
+                        _Event(source_id=event.parent.id, event=event.declaration.name)
+                    ] = deque()
+                self.events_queues[
+                    _Event(source_id=msg.source_uid, event=msg.event)
+                ].append(msg)
+            else:
+                self.events_queues[
+                    _Event(source_id=msg.source_uid, event=msg.event)
+                ].append(msg)
+                while all(self.events_queues.values()):
+                    msgs = [elem.popleft() for elem in self.events_queues.values()]
+                    ids = [msg.id for msg in msgs]
+                    if len(set(ids)) == 1:
+                        self.function(self.parent, Message(id_=set(ids), value=msgs))
+                    else:
+                        for msg in [msg for msg in msgs if msg.id == max(ids)]:
+                            self.events_queues[
+                                _Event(source_id=msg.source_uid, event=msg.event)
+                            ].appendleft(msg)
+        else:
+            self.function(self.parent, msg)
 
     def connect(self, event):
-        if self.connected_events and not self.declaration.receives_multiple:
-            raise Exception()
-        self.connected_events.append(event)
+        if event.declaration.data_type.intersect(self.declaration.data_type) is None:
+            raise TypeError
+        self.connected_events.add(event)
 
 
 def handler(name: str, type_, receives_multiple=False, info=None, function=None):
@@ -96,8 +122,10 @@ class ExternalEvent(Event):
 
 
 class Message:
-    def __init__(self, id_=None, value=None):
+    def __init__(self, source_uid=None, event=None, id_=None, value=None):
         self.id = id_
+        self.source_uid = source_uid
+        self.event = event
         self.value = value
 
 
@@ -108,7 +136,7 @@ class Node:
         self.sub_socket = None
         self.pub_socket = None
         self.service_socket = None
-        self.event2handler = {}
+        self.event2handler = []
         self.port = ""
         self.handlers = {}
         self.events = {}
@@ -170,35 +198,43 @@ class Node:
 
     def __setattr__(self, key, value):
         try:
-            attr = object.__getattribute__(self, key)
-            if isinstance(attr, Property):
-                attr.value = value
-            #             attr.parent = self
-            #             self.properties[key] = attr
+            if key in self.__class__.__dict__ and isinstance(
+                self.__class__.__dict__[key], Property
+            ):
+                self.__dict__["properties"][key] = copy.copy(self.__class__.__dict__[key])
+                self.__dict__[key] = value
+                self.__dict__["properties"][key].value = value
             else:
                 object.__setattr__(self, key, value)
         except AttributeError:
             object.__setattr__(self, key, value)
 
-    def __getattribute__(self, item):
-        attr = object.__getattribute__(self, item)
-        if isinstance(attr, Property):
-            return attr.value
-        return attr
+    # def __getattribute__(self, item):
+    #     attr = object.__getattribute__(self, item)
+    #     if isinstance(attr, Property):
+    #         return attr.value
+    #     return attr
 
     def __init_attrs(self):
         for attr_name in [attr for attr in dir(self) if attr[:2] != "__"]:
             attr = self.__getattribute__(attr_name)
             if isinstance(attr, Handler):
                 attr.parent = self
-                self.handlers[attr.declaration.name] = attr
+                self.handlers[attr.declaration.name] = copy.copy(attr)
+                self.__dict__[attr_name] = self.handlers[attr.declaration.name]
             elif isinstance(attr, Event):
                 attr.parent = self
-                self.events[attr.declaration.name] = attr
-            elif isinstance(attr, Property):
-                attr.parent = self
-                self.properties[attr_name] = attr
-                attr.declaration.name = attr_name
+                self.events[attr.declaration.name] = copy.copy(attr)
+                self.__dict__[attr_name] = self.events[attr.declaration.name]
+            elif attr_name in self.__class__.__dict__ and isinstance(
+                self.__class__.__dict__[attr_name], Property
+            ):
+                self.__dict__["properties"][attr_name] = copy.copy(
+                    self.__class__.__dict__[attr_name]
+                )
+                self.__dict__["properties"][attr_name].parent = self
+                self.__dict__["properties"][attr_name].declaration.name = attr_name
+                self.__dict__[attr_name] = self.__dict__["properties"][attr_name].value
 
     def set_server_endpoint(self, server_endpoint):
         self.port = server_endpoint
@@ -310,9 +346,12 @@ class Node:
                 for event in handler.connected_events:
                     if event.node_id != input_node_id:
                         continue
-                    self.event2handler[
-                        _Event(event=event.declaration.name, source_id=event.node_id)
-                    ] = handler.declaration.name
+                    self.event2handler.append(
+                        (
+                            _Event(event=event.declaration.name, source_id=event.node_id),
+                            handler.declaration.name,
+                        )
+                    )
                     topic = "{source_id}|{event}".format(
                         source_id=event.node_id, event=event.declaration.name
                     )
@@ -438,16 +477,19 @@ class Node:
                     binary_msg.ParseFromString(msg[index + 1 :])
 
                     msg_id, msg_value = ProtoSerializer().deserialize_message(binary_msg)
-                    message = Message(msg_id, msg_value)
-                    handler_name = self.event2handler[
-                        _Event(source_id=source_id, event=event)
-                    ]  # noqa
+                    message = Message(source_id, event, msg_id, msg_value)
+                    handler_names = [
+                        hand_name
+                        for event_name, hand_name in self.event2handler
+                        if _Event(source_id=source_id, event=event) == event_name
+                    ]
                     logging.debug(
                         "Node {name}: received event {event}".format(
                             name=self.id, event=event
                         )
                     )
-                    self.message_to_handlers.put((handler_name, message))
+                    for hand_name in handler_names:
+                        self.message_to_handlers.put((hand_name, message))
                 except Exception:
                     break
             while not self.events_list.empty():

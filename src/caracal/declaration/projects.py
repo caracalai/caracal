@@ -91,69 +91,20 @@ class ProjectInfo:
         dest_node: NodeInfo,
         handler_name: str,
     ) -> bool:
-
-        edge = EdgeInfo(source_node, event_name, dest_node, handler_name)
-        all_edges = self.edges.copy()
-        all_edges[edge.uid] = edge
-
-        # a = self.node(edge.source_node_id).type
-        if event_name not in self.nodes[edge.source_node.uid].node_type.events:
+        if event_name not in self.nodes[source_node.uid].node_type.events:
             return False
 
-        if handler_name not in self.nodes[edge.dest_node.uid].node_type.handlers:
+        if handler_name not in self.nodes[dest_node.uid].node_type.handlers:
             return False
-
-        types_info = {}
-        for _, node in self.nodes.items():
-            types_info[node.uid] = {}
-            types_info[node.uid]["events"] = copy.deepcopy(node.node_type.events)
-
-            types_info[node.uid]["handlers"] = {}
-            for h, t in node.node_type.handlers.items():
-                types_info[node.uid]["handlers"][h] = copy.deepcopy(t.data_type)
 
         if (
-            not self.node_types[self.nodes[dest_node.uid].node_type.uid]
-            .handlers[handler_name]
-            .receives_multiple
+            source_node.node_type.events[event_name].data_type.intersect(
+                dest_node.node_type.handlers[handler_name].data_type
+            )
+            is None
         ):
-            if (
-                len(
-                    [
-                        edg
-                        for edg in all_edges.values()
-                        if edg.handler_name == handler_name
-                        and edg.dest_node.uid == dest_node.uid
-                    ]
-                )
-                > 1
-            ):
-                return False
+            return False
 
-        while True:
-            specialized = False
-            for edge in all_edges.values():
-                source_type = types_info[edge.source_node.uid]["events"][
-                    edge.event_name
-                ].data_type
-                dest_type = types_info[edge.dest_node.uid]["handlers"][edge.handler_name]
-                intersected_type = source_type.intersect(dest_type)
-                if intersected_type is None:
-                    return False
-
-                for _node_uid, _connector_type, _connector_name in [
-                    (edge.source_node.uid, "events", edge.event_name),
-                    (edge.dest_node.uid, "handlers", edge.handler_name),
-                ]:
-                    if (
-                        self.nodes[edge.dest_node.uid]
-                        .node_type.handlers[edge.handler_name]
-                        .receives_multiple
-                    ):
-                        continue
-
-            if not specialized:
-                break
         return True
 
     def connect(
