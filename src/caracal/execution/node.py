@@ -478,19 +478,18 @@ class Node:
 
                     msg_id, msg_value = ProtoSerializer().deserialize_message(binary_msg)
                     message = Message(source_id, event, msg_id, msg_value)
-                    handler_name = [
+                    handler_names = [
                         hand_name
                         for event_name, hand_name in self.event2handler
                         if _Event(source_id=source_id, event=event) == event_name
-                    ][
-                        0
-                    ]  # noqa
+                    ]
                     logging.debug(
                         "Node {name}: received event {event}".format(
                             name=self.id, event=event
                         )
                     )
-                    self.message_to_handlers.put((handler_name, message))
+                    for hand_name in handler_names:
+                        self.message_to_handlers.put((hand_name, message))
                 except Exception:
                     break
             while not self.events_list.empty():
