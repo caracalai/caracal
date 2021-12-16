@@ -209,22 +209,23 @@ class Node:
         except AttributeError:
             object.__setattr__(self, key, value)
 
-    def __getattribute__(self, item):
-        attr = object.__getattribute__(self, item)
-        if isinstance(attr, Property):
-            return attr.value
-        return attr
+    # def __getattribute__(self, item):
+    #     attr = object.__getattribute__(self, item)
+    #     if isinstance(attr, Property):
+    #         return attr.value
+    #     return attr
 
     def __init_attrs(self):
         for attr_name in [attr for attr in dir(self) if attr[:2] != "__"]:
             attr = self.__getattribute__(attr_name)
             if isinstance(attr, Handler):
                 attr.parent = self
-                self.handlers[attr.declaration.name] = attr
+                self.handlers[attr.declaration.name] = copy.copy(attr)
+                self.__dict__[attr_name] = self.handlers[attr.declaration.name]
             elif isinstance(attr, Event):
-                self.__dict__[attr_name] = copy.copy(attr)
-                self.__dict__[attr_name].parent = self
-                self.events[attr.declaration.name] = self.__dict__[attr_name]
+                attr.parent = self
+                self.events[attr.declaration.name] = copy.copy(attr)
+                self.__dict__[attr_name] = self.events[attr.declaration.name]
             elif attr_name in self.__class__.__dict__ and isinstance(
                 self.__class__.__dict__[attr_name], Property
             ):
