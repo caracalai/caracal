@@ -5,6 +5,7 @@ from caracal.execution import Node, Event, handler, Session
 
 result = 0
 
+
 class TicksGen(Node):
     tick = Event("tick", datatypes.Tuple(datatypes.Int()))
 
