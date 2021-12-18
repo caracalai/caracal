@@ -6,7 +6,7 @@
 <p align="center"><b>Low-Code framework to make AI prototyping, diagnostics and development faster.</b></p>
 
 <p align="center">
-  <a href="https://docs.caracal.com/">Docs</a>
+  <a href="https://docs.caracal.ai/">Docs</a>
   |
   <a href="">Join Discord</a>
   |
