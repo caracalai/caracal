@@ -59,8 +59,8 @@ BLOCKCOMMENT
 LINECOMMENT
 
 rule names:
-block_types
-block_type_definition
+caracal_types
+caracal_type_definition
 attributes
 attribute
 attr_param
@@ -83,7 +83,7 @@ handler
 func_arguments
 argument
 handler_name
-block_type
+caracal_type
 ident
 pred
 logical_expr

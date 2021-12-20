@@ -1,7 +1,7 @@
 import itertools
 from antlr4.InputStream import InputStream
 from antlr4 import CommonTokenStream
-from caracal.typesparser import BlockTypesLexer, BlockTypesParser
+from caracal.typesparser import CaracalTypesLexer, CaracalTypesParser
 from caracal.declaration import datatypes, nodetype
 from antlr4.error.ErrorStrategy import *
 
@@ -40,9 +40,9 @@ class TypesParser:
     def __init__(self):
         self.tree_ = None
 
-    def _handle_block_type(self, block_type_tree):
-        complex_type_name = block_type_tree.children[0].getText().lower()
-        typelist = [self._handle_block_type(item) for item in block_type_tree.children[2::2]]
+    def _handle_caracal_type(self, caracal_type_tree):
+        complex_type_name = caracal_type_tree.children[0].getText().lower()
+        typelist = [self._handle_caracal_type(item) for item in caracal_type_tree.children[2::2]]
 
         scalar_types = {
             "object": datatypes.Object,
@@ -74,26 +74,26 @@ class TypesParser:
         arg_types = []
         for argument in func_arguments_tree.children[::2]:
             arg_names.append(argument.children[0].getText().lower())
-            arg_types.append(self._handle_block_type(argument.children[2]))
+            arg_types.append(self._handle_caracal_type(argument.children[2]))
         result = datatypes.Tuple(*arg_types)
         result.names = arg_names
         return result
 
     def _handle_literal(self, literal_tree):
-        if literal_tree.symbol.type == BlockTypesParser.BlockTypesParser.STRING_LITERAL:
+        if literal_tree.symbol.type == CaracalTypesParser.CaracalTypesParser.STRING_LITERAL:
             return literal_tree.getText()[1:-1]
-        if literal_tree.symbol.type == BlockTypesParser.BlockTypesParser.FLOAT:
+        if literal_tree.symbol.type == CaracalTypesParser.CaracalTypesParser.FLOAT:
             return float(literal_tree.getText())
-        if literal_tree.symbol.type == BlockTypesParser.BlockTypesParser.INTEGER:
+        if literal_tree.symbol.type == CaracalTypesParser.CaracalTypesParser.INTEGER:
             return int(literal_tree.getText())
         raise TypesParseError("Could not parse literal")
 
     def _handle_property(self, property_tree):
         name_subtree = property_tree.children[0].children
         name = name_subtree[0].getText()
-        is_optional = len(name_subtree) > 1 and name_subtree[1].symbol.type == BlockTypesParser.BlockTypesParser.QUESTION_MARK
+        is_optional = len(name_subtree) > 1 and name_subtree[1].symbol.type == CaracalTypesParser.CaracalTypesParser.QUESTION_MARK
 
-        property_type = self._handle_block_type(property_tree.children[2])
+        property_type = self._handle_caracal_type(property_tree.children[2])
         if len(property_tree.children) > 3:
             prop_initialization_tree = property_tree.children[3]
             prop_initialization_value_tree = prop_initialization_tree.children[1]
@@ -104,18 +104,18 @@ class TypesParser:
 
     def _handle_all_properties_section(self, tree):
         result = {}
-        properties_section_list = list(filter(lambda x: isinstance(x, BlockTypesParser.BlockTypesParser.Properties_sectionContext), tree.children[3:]))
+        properties_section_list = list(filter(lambda x: isinstance(x, CaracalTypesParser.CaracalTypesParser.Properties_sectionContext), tree.children[3:]))
         property_list = list(itertools.chain(*[item.children[2].children for item in properties_section_list if not item.children[2].children is None]))
         return dict(self._handle_property(property) for property in property_list)
 
-    def _handle_all_event_sections(self, block_type_definition_tree):
-        events_section_list = list(filter(lambda x: isinstance(x, BlockTypesParser.BlockTypesParser.Events_sectionContext), block_type_definition_tree.children[3:]))
+    def _handle_all_event_sections(self, caracal_type_definition_tree):
+        events_section_list = list(filter(lambda x: isinstance(x, CaracalTypesParser.CaracalTypesParser.Events_sectionContext), caracal_type_definition_tree.children[3:]))
         event_list = list(itertools.chain(*[prop.children[2].children for prop in events_section_list]))
         return dict(self._handle_event(event) for event in event_list)
 
-    def _handle_all_handler_sections(self, block_type_definition_tree):
+    def _handle_all_handler_sections(self, caracal_type_definition_tree):
         result = {}
-        handlers_section_list = list(filter(lambda x: isinstance(x, BlockTypesParser.BlockTypesParser.Handlers_sectionContext), block_type_definition_tree.children[3:]))
+        handlers_section_list = list(filter(lambda x: isinstance(x, CaracalTypesParser.CaracalTypesParser.Handlers_sectionContext), caracal_type_definition_tree.children[3:]))
         handler_list = list(itertools.chain(*[item.children[2].children for item in handlers_section_list if not item.children[2].children is None]))
         return dict(self._handle_handler(handler) for handler in handler_list)
 
@@ -136,7 +136,7 @@ class TypesParser:
     def _handle_typenodes(self, types_tree):
         result = []
         for typenode_child in types_tree.getChildren():
-            if not isinstance(typenode_child, BlockTypesParser.BlockTypesParser.Block_type_definitionContext):
+            if not isinstance(typenode_child, CaracalTypesParser.CaracalTypesParser.Caracal_type_definitionContext):
                 continue
             item = nodetype.NodeTypeDeclaration()
             attrs = {}
@@ -147,7 +147,7 @@ class TypesParser:
                     for param in attr.children[3::2]:
                         param_name = param.children[0].getText()
                         param_value = param.children[2].children[0]
-                        if isinstance(param_value, BlockTypesParser.BlockTypesParser.StringContext):
+                        if isinstance(param_value, CaracalTypesParser.CaracalTypesParser.StringContext):
                             param_value = param_value.children[0].getText()[1:-1]
                         else:
                             param_value = int(param_value.children[0].getText())
@@ -163,12 +163,12 @@ class TypesParser:
 
     def parse(self, program):
         input_stream = InputStream(program)
-        lexer = BlockTypesLexer.BlockTypesLexer(input_stream)
+        lexer = CaracalTypesLexer.CaracalTypesLexer(input_stream)
         stream = CommonTokenStream(lexer)
-        parser = BlockTypesParser.BlockTypesParser(stream)
+        parser = CaracalTypesParser.CaracalTypesParser(stream)
         parser._errHandler = MyErrorStrategy2()
 
-        self.tree_ = parser.block_types()
+        self.tree_ = parser.caracal_types()
         if parser._errHandler._has_errors:
             raise TypesParseError("Could not parse input grammar")
 

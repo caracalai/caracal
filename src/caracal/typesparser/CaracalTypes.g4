@@ -1,11 +1,11 @@
-grammar BlockTypes;
+grammar CaracalTypes;
 
-block_types
-   : block_type_definition+ EOF
+caracal_types
+   : caracal_type_definition+ EOF
    ;
 
 
-block_type_definition:
+caracal_type_definition:
     attributes
     NODE ident COLON
     ( properties_section
@@ -35,7 +35,7 @@ events: event*;
 predicates_section: PREDICATES COLON predicates;
 predicates: pred*;
 
-prop: prop_name COLON block_type prop_initialization?
+prop: prop_name COLON caracal_type prop_initialization?
     ;
 
 prop_initialization: LPAREN (FLOAT | INTEGER | STRING_LITERAL) RPAREN;
@@ -52,13 +52,13 @@ handler: handler_name LPAREN func_arguments RPAREN
 func_arguments: argument (COMMA argument)*
     ;
 
-argument: ident COLON block_type
+argument: ident COLON caracal_type
     ;
 
 handler_name: ident PLUS?
     ;
 
-block_type: IDENT (LPAREN block_type (COMMA block_type)* RPAREN)?
+caracal_type: IDENT (LPAREN caracal_type (COMMA caracal_type)* RPAREN)?
     ;
 
 ident: IDENT;
