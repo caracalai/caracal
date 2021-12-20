@@ -3,7 +3,7 @@ import multiprocessing
 import unittest
 
 from caracal.declaration import datatypes, MetaInfo
-from caracal.execution import Event, handler, Node, Property, Session, ExternalEvent
+from caracal.execution import Event, ExternalEvent, handler, Node, Property, Session
 
 
 class TicksGen(Node):
@@ -32,7 +32,11 @@ class DoSmthWithErr(Node):
 
 
 class Summat(Node):
-    result = Property(datatypes.Int(), False, default_value=0,)
+    result = Property(
+        datatypes.Int(),
+        False,
+        default_value=0,
+    )
 
     @handler("input_numbers", datatypes.Tuple(datatypes.Object()), True)
     def input_numbers(self, msgs):
@@ -45,8 +49,11 @@ class Summat(Node):
 
 port = 2001
 
+
 def first_worker():
-    with Session(name="first", server_port=port, external_nodes=["Summator", "action3"]) as session:
+    with Session(
+        name="first", server_port=port, external_nodes=["Summator", "action3"]
+    ) as session:
         # logging.basicConfig(level=logging.WARNING)
         gen = TicksGen(id_="Gen")
         action1 = DoSmth(id_="action1")
@@ -64,9 +71,7 @@ def second_worker(return_dict):
         action3 = DoSmthWithErr(id_="action3")
         summat = Summat(id_="Summator")
 
-        gen_evt = ExternalEvent(
-            "tick", datatypes.Tuple(datatypes.Int()), node_id="Gen"
-        )
+        gen_evt = ExternalEvent("tick", datatypes.Tuple(datatypes.Int()), node_id="Gen")
         act1_evt = ExternalEvent(
             "output", datatypes.Tuple(datatypes.Int()), node_id="action1"
         )
@@ -85,7 +90,6 @@ def second_worker(return_dict):
 
 
 class MultipleHandlers(unittest.TestCase):
-
     def test_multihandler_without_evt_id(self):
         manager = multiprocessing.Manager()
         return_dict = manager.dict()

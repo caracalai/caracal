@@ -43,7 +43,9 @@ class Handler:
                         ] = deque()
                     else:
                         self.events_queues[
-                            _Event(source_id=event.parent.id, event=event.declaration.name)
+                            _Event(
+                                source_id=event.parent.id, event=event.declaration.name
+                            )
                         ] = deque()
                 self.events_queues[
                     _Event(source_id=msg.source_uid, event=msg.event)
