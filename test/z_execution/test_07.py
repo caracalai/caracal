@@ -5,27 +5,27 @@ from caracal.declaration import MetaInfo
 import caracal.declaration.datatypes as caratypes
 from caracal.execution import Event, handler, Node, Property, Session
 
-result = -1
-
 
 class Generator1(Node):
-    threshold = Property(caratypes.Int(), default_value=10, optional=True)
+    threshold = Property(caratypes.Int(), default_value=5, optional=True)
     value = Event("value", caratypes.Int())
 
     def run(self):
-        self.fire(self.value, 2)
+        self.fire(self.value, self.threshold)
 
 
 class Generator2(Node):
-    threshold = Property(caratypes.Int(), default_value=10, optional=True)
+    threshold = Property(caratypes.Int(), default_value=2, optional=True)
     value = Event("value", caratypes.Int())
 
     def run(self):
-        self.fire(self.value, 5)
+        self.fire(self.value, self.threshold)
 
 
 class Summat(Node):
     result = Event("result", caratypes.Int())
+
+    summa = 0
 
     a_queue = []
     b_queue = []
@@ -42,12 +42,10 @@ class Summat(Node):
 
     def run(self):
         if bool(self.a_queue) and bool(self.b_queue):
-            global result
             a, *self.a_queue = self.a_queue
             b, *self.b_queue = self.b_queue
-            result = a + b
-            logging.warning(f"a + b = {a} + {b} = { result }")
-            self.fire(self.result, result)
+            self.summa = a + b
+            logging.warning(f"a + b = {a} + {b} = { self.summa }")
             self.terminate()
 
 
@@ -56,7 +54,6 @@ class TestDownloadedProject(unittest.TestCase):
         super(TestDownloadedProject, self).__init__(methodName)
 
     def test_case1(self):
-        # WORKING
         with Session() as session:
             # logging.basicConfig(level=logging.DEBUG)
 
@@ -69,7 +66,7 @@ class TestDownloadedProject(unittest.TestCase):
 
             session.run()
 
-            self.assertTrue(result == 7)
+            self.assertEqual(summat.summa, 7)
 
     def test_case2(self):
         with Session() as session:
@@ -77,23 +74,22 @@ class TestDownloadedProject(unittest.TestCase):
 
             generator_first = Generator1()
             generator_second = Generator1()
+            generator_second.threshold = 2
             summat = Summat()
 
             summat.a.connect(generator_second.value)
             summat.b.connect(generator_first.value)
             session.run()
 
-            self.assertTrue(result == 4)
+            self.assertEqual(summat.summa, 7)
 
     def test_case3(self):
         with Session() as session:
             # logging.basicConfig(level=logging.DEBUG)
 
             generator_first = Generator1()
-            summat = Summat()
+            summat_case_3 = Summat()
 
-            summat.a.connect(generator_first.value)
-            summat.b.connect(generator_first.value)
+            summat_case_3.a.connect(generator_first.value)
+            summat_case_3.b.connect(generator_first.value)
             session.run()
-
-            self.assertTrue(result == 4)

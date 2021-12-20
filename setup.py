@@ -13,7 +13,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    author_email="hello@caracal.com",
+    author_email="hello@caracal.ai",
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
     install_requires=[
@@ -21,7 +21,6 @@ setuptools.setup(
         "protobuf",
         "antlr4-python3-runtime",
         "numpy",
-        "opencv-python",
     ],
     python_requires=">=3.6",
 )
