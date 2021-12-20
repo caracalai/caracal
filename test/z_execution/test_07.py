@@ -67,4 +67,3 @@ class TestDownloadedProject(unittest.TestCase):
             session.run()
 
             self.assertEqual(summat.summa, 7)
-
