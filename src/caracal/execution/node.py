@@ -37,9 +37,14 @@ class Handler:
         if self.declaration.receives_multiple:
             if not self.events_queues:
                 for event in self.connected_events:
-                    self.events_queues[
-                        _Event(source_id=event.parent.id, event=event.declaration.name)
-                    ] = deque()
+                    if isinstance(event, ExternalEvent):
+                        self.events_queues[
+                            _Event(source_id=event._node_id, event=event.declaration.name)
+                        ] = deque()
+                    else:
+                        self.events_queues[
+                            _Event(source_id=event.parent.id, event=event.declaration.name)
+                        ] = deque()
                 self.events_queues[
                     _Event(source_id=msg.source_uid, event=msg.event)
                 ].append(msg)
@@ -122,7 +127,7 @@ class ExternalEvent(Event):
 
 
 class Message:
-    def __init__(self, source_uid=None, event=None, id_=None, value=None):
+    def __init__(self, id_=None, source_uid=None, event=None, value=None):
         self.id = id_
         self.source_uid = source_uid
         self.event = event
@@ -225,6 +230,7 @@ class Node:
             elif isinstance(attr, Event):
                 attr.parent = self
                 self.events[attr.declaration.name] = copy.copy(attr)
+                # self.events[attr.declaration.name].parrent = self
                 self.__dict__[attr_name] = self.events[attr.declaration.name]
             elif attr_name in self.__class__.__dict__ and isinstance(
                 self.__class__.__dict__[attr_name], Property
@@ -477,7 +483,7 @@ class Node:
                     binary_msg.ParseFromString(msg[index + 1 :])
 
                     msg_id, msg_value = ProtoSerializer().deserialize_message(binary_msg)
-                    message = Message(source_id, event, msg_id, msg_value)
+                    message = Message(msg_id, source_id, event, msg_value)
                     handler_names = [
                         hand_name
                         for event_name, hand_name in self.event2handler
