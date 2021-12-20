@@ -53,22 +53,7 @@ class TestDownloadedProject(unittest.TestCase):
     def __init__(self, methodName="runTest"):
         super(TestDownloadedProject, self).__init__(methodName)
 
-    def test_case1(self):
-        with Session() as session:
-            # logging.basicConfig(level=logging.DEBUG)
-
-            generator_first = Generator1()
-            generator_second = Generator2()
-            summat = Summat()
-
-            summat.a.connect(generator_second.value)
-            summat.b.connect(generator_first.value)
-
-            session.run()
-
-            self.assertEqual(summat.summa, 7)
-
-    def test_case2(self):
+    def test_case(self):
         with Session() as session:
             # logging.basicConfig(level=logging.DEBUG)
 
@@ -83,13 +68,3 @@ class TestDownloadedProject(unittest.TestCase):
 
             self.assertEqual(summat.summa, 7)
 
-    def test_case3(self):
-        with Session() as session:
-            # logging.basicConfig(level=logging.DEBUG)
-
-            generator_first = Generator1()
-            summat_case_3 = Summat()
-
-            summat_case_3.a.connect(generator_first.value)
-            summat_case_3.b.connect(generator_first.value)
-            session.run()
