@@ -18,5 +18,8 @@ jobs:
       - name: Set up environment
         run: python setup.py install
 
+      - name: Build lib
+        run: python setup.py build
+
       - name: Run tests
         run: python -m unittest discover --verbose
