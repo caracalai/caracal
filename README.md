@@ -19,9 +19,9 @@
 
 ## What is it?
 Caracal contains
- - Canva, webapp proving No-Code funtionality that helps to set up the AI project structure visually.
+ - <a href="https://app.caracal.ai">WebApp</a> providing funtionality that helps to set up the AI project structure visually.
  - Collection of open-sourced blocks which can be used in your project.
- - SDKs for development of custom blocks in C++, <a href="https://github.com/caracalai/caracal">Python</a> and Node.js.
+ - Library that helps run project with your own implementation of nodes
 
 ## Installing from PyPI
 ### Windows, MAC OS and Linux
@@ -29,8 +29,6 @@ BroutonBlocks is available as a PyPI package. To install it using pip package ma
 ```sh
 $ pip install git+https://github.com/caracalai/caracal.git
 ```
-
-## Getting started
 
 ## Tests running
 
