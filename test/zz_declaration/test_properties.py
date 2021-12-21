@@ -40,15 +40,8 @@ class CheckProperties(unittest.TestCase):
                 len(myNode.properties) == 6, "Incorrect number of declaration"
             )
             self.assertTrue(
-                myNode.properties["threshold"].optional, "Threshold should be optional"
-            )
-            self.assertTrue(
                 myNode.properties["threshold"].default_value is not None,
                 "threshold should contain default value",
-            )
-            self.assertTrue(
-                not myNode.properties["border_width"].optional,
-                "border_width should not be optional",
             )
             self.assertTrue(
                 myNode.properties["string_param"].default_value is None,

@@ -7,7 +7,7 @@ from caracal.execution import Event, handler, Node, Property, Session
 
 
 class Generator1(Node):
-    threshold = Property(caratypes.Int(), default_value=5, optional=True)
+    threshold = Property(caratypes.Int(), default_value=5)
     value = Event("value", caratypes.Int())
 
     def run(self):
@@ -15,7 +15,7 @@ class Generator1(Node):
 
 
 class Generator2(Node):
-    threshold = Property(caratypes.Int(), default_value=2, optional=True)
+    threshold = Property(caratypes.Int(), default_value=2)
     value = Event("value", caratypes.Int())
 
     def run(self):

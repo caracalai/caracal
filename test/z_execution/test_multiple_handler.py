@@ -34,7 +34,6 @@ class DoSmthWithErr(Node):
 class Summat(Node):
     result = Property(
         datatypes.Int(),
-        False,
         default_value=0,
     )
 
