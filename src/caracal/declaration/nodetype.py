@@ -22,13 +22,11 @@ class PropertyDeclaration:
     def __init__(
         self,
         data_type,
-        optional,
         name=None,
         default_value=None,
     ):
         self.name = name
         self.data_type = data_type
-        self.optional = optional
         self.default_value = default_value
 
     @property

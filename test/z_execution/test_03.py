@@ -18,7 +18,7 @@ class Generator(Node):
 
 
 class Processor(Node):
-    threshold = Property(caratypes.Int(), default_value=0.7, optional=True)
+    threshold = Property(caratypes.Int(), default_value=0.7)
     result = Event("result", caratypes.Tuple(caratypes.Object()))
 
     @handler("onProcessBatch", caratypes.Tuple(caratypes.Int()), False, MetaInfo())

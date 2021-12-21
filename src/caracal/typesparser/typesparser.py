@@ -91,7 +91,6 @@ class TypesParser:
     def _handle_property(self, property_tree):
         name_subtree = property_tree.children[0].children
         name = name_subtree[0].getText()
-        is_optional = len(name_subtree) > 1 and name_subtree[1].symbol.type == CaracalTypesParser.CaracalTypesParser.QUESTION_MARK
 
         property_type = self._handle_caracal_type(property_tree.children[2])
         if len(property_tree.children) > 3:
@@ -100,7 +99,7 @@ class TypesParser:
             value = self._handle_literal(prop_initialization_value_tree)
         else:
             value = None
-        return name, nodetype.PropertyDeclaration(property_type, is_optional, None, value)
+        return name, nodetype.PropertyDeclaration(property_type, None, value)
 
     def _handle_all_properties_section(self, tree):
         result = {}

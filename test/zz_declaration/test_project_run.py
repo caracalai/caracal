@@ -7,7 +7,7 @@ from caracal.execution import Event, handler, Node, Property, Session
 
 
 class Node1(Node):
-    threshold = Property(caratypes.Int(), default_value=10, optional=True)
+    threshold = Property(caratypes.Int(), default_value=10)
     value = Event("value", caratypes.Int())
 
     def run(self):

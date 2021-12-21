@@ -22,7 +22,7 @@ test_node_result = None
 
 
 class Generator(Node):
-    threshold = Property(caratypes.Int(), default_value=0.7, optional=True)
+    threshold = Property(caratypes.Int(), default_value=0.7)
     processed_batch = Event("processedBatch", caratypes.List(caratypes.Int()))
 
     def run(self):
@@ -30,7 +30,7 @@ class Generator(Node):
 
 
 class Processor(Node):
-    threshold = Property(caratypes.Int(), default_value=0.7, optional=True)
+    threshold = Property(caratypes.Int(), default_value=0.7)
     result = Event("result", caratypes.Object())
 
     @handler("onProcessBatch", caratypes.List(caratypes.Int()), False, MetaInfo())
