@@ -41,6 +41,12 @@ result = exp(input_value)
 ```
 Such function can be defined in terms of nodes the following way:
 ```python
+import caracal.declaration.datatypes as caratypes
+from caracal.execution import (
+    Event,
+    handler,
+    Node,
+)
 class Exp(Node):
     result = Event("result", caratypes.Float())
 
@@ -54,6 +60,9 @@ The Function input_value was decorated by handler. In this case, Caracal will un
 ### How to execute node
 Execution of nodes is performed within sessions. Like here:
 ```python
+import caracal.declaration.datatypes as caratypes
+from caracal.execution import Session
+
 with Session() as session:
     exp_node = Exp()
     session.run()
@@ -69,6 +78,14 @@ b = x + 10
 ```
 Here is how it can be expressed in terms of block:
 ```python
+import caracal.declaration.datatypes as caratypes
+from caracal.execution import (
+    Event,
+    handler,
+    Node,
+    Session
+)
+
 class Exp(Node):
     result = Event("result", caratypes.Float())
 
@@ -152,6 +169,12 @@ if __name__ == "__main__":
 If you want to parameterize your node, you can define a property. Let's check again our Increment node:
 
 ```python
+import caracal.declaration.datatypes as caratypes
+from caracal.execution import (
+    Event,
+    handler,
+    Node,
+)
 class Increment(Node):
     term = Property("term", caratypes.Int(), default_value=10) #  Defining property
     result = Event("result", caratypes.Int())
