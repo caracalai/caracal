@@ -49,7 +49,7 @@ class Exp(Node):
         self.result.fire(exp(msg.value))
 ```
 As you can see, class Exp  is inherited from class Node. We also defined event result.
-The Function input_value was decorated by handler. In this case, Caracal will understand that this method is a handler of the node. 
+The Function input_value was decorated by handler. In this case, Caracal will understand that this method is a handler of the node.
 
 ### How to execute node
 Execution of nodes is performed within sessions. Like here:
@@ -58,7 +58,7 @@ with Session() as session:
     exp_node = Exp()
     session.run()
 ```
-A session is a place where the node should be executed. All nodes nested within the operator with will be automatically registered within the current session. 
+A session is a place where the node should be executed. All nodes nested within the operator with will be automatically registered within the current session.
 After the moment we executed session.run() all nodes instantiated within this session became live. You can consider them as microservices.
 
 ### Execution of multiple nodes
@@ -75,14 +75,14 @@ class Exp(Node):
     @handler("process", caratypes.Float())
     def process(self, msg):
         self.result.fire(exp(msg.value))
-        
+
 class Increment(Node):
     result = Event("result", caratypes.Float())
 
     @handler("process", caratypes.Float())
     def process(self, msg):
         self.result.fire(msg.value + 10)
-        
+
 with Session() as session:
     exp_node = Exp()
     increment_node = Increment()
@@ -159,13 +159,13 @@ class Increment(Node):
     @handler("process", caratypes.Float())
     def process(self, msg):
         self.result.fire(msg.value + self.term.value)
-        
+
 with Session() as session:
     increment_node = Increment()
     increment_node.term = 12 #  Changing property value dynamically
     ...
 ```
-The ```term``` attribute is our property with default value ```10```. If you want to define the value of the property at runtime, you can do that within a Session. 
+The ```term``` attribute is our property with default value ```10```. If you want to define the value of the property at runtime, you can do that within a Session.
 
 
 ## Tests running

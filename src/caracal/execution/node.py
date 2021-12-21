@@ -72,13 +72,17 @@ class Handler:
         handler_data_type = self.declaration.data_type
         event_data_type = event.declaration.data_type
 
-        handler_data_type = handler_data_type \
-            if not isinstance(handler_data_type, caratypes.Tuple) \
+        handler_data_type = (
+            handler_data_type
+            if not isinstance(handler_data_type, caratypes.Tuple)
             else caratypes.Tuple(handler_data_type)
+        )
 
-        event_data_type = event_data_type \
-            if not isinstance(event_data_type, caratypes.Tuple) \
+        event_data_type = (
+            event_data_type
+            if not isinstance(event_data_type, caratypes.Tuple)
             else caratypes.Tuple(event_data_type)
+        )
 
         if event_data_type.intersect(handler_data_type) is None:
             raise TypeError

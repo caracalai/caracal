@@ -4,6 +4,7 @@ import copy
 import pickle
 from typing import Dict, List
 import uuid
+
 import caracal.declaration.datatypes as caratypes
 from caracal.declaration.nodetype import NodeTypeDeclaration
 from caracal.typesparser import TypesParser
@@ -99,13 +100,17 @@ class ProjectInfo:
         handler_data_type = dest_node.node_type.handlers[handler_name].data_type
         event_data_type = source_node.node_type.events[event_name].data_type
 
-        handler_data_type = handler_data_type \
-            if not isinstance(handler_data_type, caratypes.Tuple) \
+        handler_data_type = (
+            handler_data_type
+            if not isinstance(handler_data_type, caratypes.Tuple)
             else caratypes.Tuple(handler_data_type)
+        )
 
-        event_data_type = event_data_type \
-            if not isinstance(event_data_type, caratypes.Tuple) \
+        event_data_type = (
+            event_data_type
+            if not isinstance(event_data_type, caratypes.Tuple)
             else caratypes.Tuple(event_data_type)
+        )
 
         if event_data_type.intersect(handler_data_type) is None:
             return False
