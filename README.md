@@ -36,11 +36,11 @@ In architectures with data flow control, there is no concept of "sequence of ins
 
 ### Node
 Node is a minimum executable element. Suppose, you want to calculate the exponent of the number.
-```
+```python
 result = exp(input_value)
 ```
 Such function can be defined in terms of nodes the following way:
-```
+```python
 class Exp(Node):
     result = Event("result", caratypes.Float())
 
@@ -53,7 +53,7 @@ The Function input_value was decorated by handler. In this case, Caracal will un
 
 ### How to execute node
 Execution of nodes is performed within sessions. Like here:
-```
+```python
 with Session() as session:
     exp_node = Exp()
     session.run()
@@ -63,12 +63,12 @@ After the moment we executed session.run() all nodes instantiated within this se
 
 ### Execution of multiple nodes
 Suppose you want to perform several operations.  E.g. something like this:
-```
+```python
 a = exp(x)
 b = x + 10
 ```
 Here is how it can be expressed in terms of block:
-```
+```python
 class Exp(Node):
     result = Event("result", caratypes.Float())
 
@@ -96,7 +96,7 @@ We used ```node.<handler_name>.connect(node.<event_name>)``` method to link the 
 
 Based on the definition of data flow: "The next node starts executing as soon as all its input data are available", you need to understand how to ensure that all data is received from the nodes connected to the handler in the correct order. For this, we introduced another type of handlers, which we called multiple handler. You can learn more about it in docs, but you can see a conceptual example below:
 
-```
+```python
 import logging
 
 from caracal.declaration import datatypes
@@ -151,7 +151,7 @@ if __name__ == "__main__":
 ### Node properties
 If you want to parameterize your node, you can define a property. Let's check again our Increment node:
 
-```
+```python
 class Increment(Node):
     term = Property("term", caratypes.Int(), default_value=10) #  Defining property
     result = Event("result", caratypes.Int())
@@ -170,7 +170,7 @@ The ```term``` attribute is our property with default value ```10```. If you wan
 
 ## Tests running
 
-```
+```python
 python -m unittest discover --verbose
 ```
 
