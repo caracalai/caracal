@@ -8,6 +8,7 @@ from typing import Callable
 import uuid
 
 from caracal.declaration import nodetype
+import caracal.declaration.datatypes as caratypes
 from caracal.execution import session
 from caracal.proto import basictypes_pb2
 from caracal.proto.protoserializer import ProtoSerializer
@@ -68,7 +69,18 @@ class Handler:
             self.function(self.parent, msg)
 
     def connect(self, event):
-        if event.declaration.data_type.intersect(self.declaration.data_type) is None:
+        handler_data_type = self.declaration.data_type
+        event_data_type = event.declaration.data_type
+
+        handler_data_type = handler_data_type \
+            if not isinstance(handler_data_type, caratypes.Tuple) \
+            else caratypes.Tuple(handler_data_type)
+
+        event_data_type = event_data_type \
+            if not isinstance(event_data_type, caratypes.Tuple) \
+            else caratypes.Tuple(event_data_type)
+
+        if event_data_type.intersect(handler_data_type) is None:
             raise TypeError
         self.connected_events.add(event)
 
