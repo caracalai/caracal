@@ -1,17 +1,9 @@
-import io
 import logging
-import sys
-import time
-import traceback
 
 from caracal.declaration.projects import ProjectInfo
 from caracal.execution.nodeserver import NodeServer
 
 current_session = None
-
-old_stdout = sys.stdout
-new_stdout = io.StringIO()
-sys.stdout = new_stdout
 
 
 class Session:
@@ -82,9 +74,6 @@ class Session:
             if self.server is not None:
                 self.server.wait()
         except Exception as e:
-            traceback.print_exc()
-            output = new_stdout.getvalue()
-            logging.debug(output)
             logging.critical("Session exception " + str(e))
 
     def add(self, node):
