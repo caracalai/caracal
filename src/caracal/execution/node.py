@@ -68,25 +68,29 @@ class Handler:
         else:
             self.function(self.parent, msg)
 
-    def connect(self, event):
-        handler_data_type = self.declaration.data_type
-        event_data_type = event.declaration.data_type
+    def connect(self, *events):
+        for event in events:
+            if isinstance(event, Event) or isinstance(event, ExternalEvent):
+                handler_data_type = self.declaration.data_type
+                event_data_type = event.declaration.data_type
 
-        handler_data_type = (
-            handler_data_type
-            if not isinstance(handler_data_type, caratypes.Tuple)
-            else caratypes.Tuple(handler_data_type)
-        )
+                handler_data_type = (
+                    handler_data_type
+                    if not isinstance(handler_data_type, caratypes.Tuple)
+                    else caratypes.Tuple(handler_data_type)
+                )
 
-        event_data_type = (
-            event_data_type
-            if not isinstance(event_data_type, caratypes.Tuple)
-            else caratypes.Tuple(event_data_type)
-        )
+                event_data_type = (
+                    event_data_type
+                    if not isinstance(event_data_type, caratypes.Tuple)
+                    else caratypes.Tuple(event_data_type)
+                )
 
-        if event_data_type.intersect(handler_data_type) is None:
-            raise TypeError
-        self.connected_events.add(event)
+                if event_data_type.intersect(handler_data_type) is None:
+                    raise TypeError
+                self.connected_events.add(event)
+            else:
+                raise TypeError
 
 
 def handler(name: str, type_, receives_multiple=False, info=None, function=None):
