@@ -79,9 +79,7 @@ def second_worker(return_dict):
         )
 
         action3.input_numbers.connect(gen_evt)
-        summat.input_numbers.connect(act1_evt)
-        summat.input_numbers.connect(act2_evt)
-        summat.input_numbers.connect(action3.output)
+        summat.input_numbers.connect(act1_evt, act2_evt, action3.output)
 
         session.run()
 
