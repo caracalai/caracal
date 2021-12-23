@@ -33,7 +33,7 @@ $ pip install git+https://github.com/caracalai/caracal.git
 ## Dataflow conception
 In architectures with data flow control, there is no concept of "sequence of instructions", there is no Instruction Pointer. A program in a flow system is not a set of commands, but a computational graph. Each node of the graph represents an operator or a set of operators, and the edges reflect the dependencies of the nodes on the data. The next node starts executing as soon as all its input data is available. This is one of the main principles of dataflow: the execution of instructions for data readiness.
 ### Node
-Node is a minimum executable element. Suppose, you want to calculate the exponent of the number. 
+Node is a minimum executable element. Suppose, you want to calculate the exponent of the number.
 ```python
 result = exp(input_value)
 ```
@@ -62,7 +62,7 @@ class Exp(Node):
     def input_value(self, msg):
         print(exp(msg.value))
 ```
-As you can see, the ``Exp`` class inherits from the Node class. We have also determined the outcome of the event. The ``Generator`` class also inherits from the Node class and has an event ``output_value``, which is called when the node is started. 
+As you can see, the ``Exp`` class inherits from the Node class. We have also determined the outcome of the event. The ``Generator`` class also inherits from the Node class and has an event ``output_value``, which is called when the node is started.
 The ``input_value`` function was framed by the handler. In this case, Caracal will understand that this method is a node handler.
 ### How to Сonnect and Execute Nodes
 
@@ -77,7 +77,7 @@ if __name__ == "__main__":
         exp_node.input_value.connect(gen_node.value)
         session.run()
 ```
-A session is a place where the node should be executed. All nodes nested within the operator with will be automatically registered within the current session. 
+A session is a place where the node should be executed. All nodes nested within the operator with will be automatically registered within the current session.
 After the moment we executed ``session.run()`` all nodes instantiated within this session became live. You can consider them as microservices.
 
 ### Executing as soon as all inputs have been received

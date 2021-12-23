@@ -1,6 +1,7 @@
 import logging
 
 from caracal.declaration.projects import ProjectInfo
+import caracal.execution.node as NodePy
 from caracal.execution.nodeserver import NodeServer
 
 current_session = None
@@ -43,11 +44,19 @@ class Session:
                 else:
                     raise NotImplementedError()
         for edge in project.edges.values():
-            source_node = self.nodes[edge.source_node.uid]
-            dest_node = self.nodes[edge.dest_node.uid]
-            handler = dest_node.handlers[edge.handler_name]
-            event = source_node.events[edge.event_name]
-            handler.connect(event)
+            if edge.dest_node.session.name == self.name:
+                if edge.source_node.session.name == self.name:
+                    source_node = self.nodes[edge.source_node.uid]
+                    event = source_node.events[edge.event_name]
+                else:
+                    event = NodePy.ExternalEvent(
+                        edge.event_name,
+                        edge.source_node.node_type.events[edge.event_name].data_type,
+                        edge.source_node.uid,
+                    )
+                dest_node = self.nodes[edge.dest_node.uid]
+                handler = dest_node.handlers[edge.handler_name]
+                handler.connect(event)
         self.run()
 
     def run(self):
