@@ -27,7 +27,7 @@ Caracal contains
 ### Windows, MAC OS and Linux
 BroutonBlocks is available as a PyPI package. To install it using pip package manager, run:
 ```sh
-$ pip install git+https://github.com/caracalai/caracal.git
+pip install git+https://github.com/caracalai/caracal.git
 ```
 
 ## Dataflow conception
