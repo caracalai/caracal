@@ -1,8 +1,8 @@
 import logging
 
-from caracal.declaration.projects import ProjectInfo
+import caracal.declaration.projects as projects
 import caracal.execution.node as NodePy
-from caracal.execution.nodeserver import NodeServer
+import caracal.execution.nodeserver as nodeserver
 
 current_session = None
 
@@ -19,7 +19,7 @@ class Session:
         self.name = name
         self.node_type_impls = {}
         self.nodes = {}
-        self.project = ProjectInfo()
+        self.project = projects.ProjectInfo()
         self.server = None
 
     @staticmethod
@@ -34,9 +34,9 @@ class Session:
             self.node_type_impls[t_.__name__] = t_
 
     def initialize(self, project_file, node_type_impls):
-        self.project = ProjectInfo.deserialize(project_file)
+        self.project = projects.ProjectInfo.deserialize(project_file)
 
-    def run_project(self, project: ProjectInfo):
+    def run_project(self, project: projects.ProjectInfo):
         for node in project.nodes.values():
             if node.session.name == self.name:
                 if node.node_type.name in self.node_type_impls:
@@ -69,7 +69,7 @@ class Session:
                 for node in self.nodes.values():
                     all_nodes.append(node.id)
                 all_nodes = list(set(all_nodes))
-                self.server = NodeServer(all_nodes, self.server_port)
+                self.server = nodeserver.NodeServer(all_nodes, self.server_port)
                 self.server_port = self.server.port
                 self.server.start()
             logging.debug("Len of nodes values {}".format(len(self.nodes.values())))

@@ -1,20 +1,20 @@
-from collections import deque, namedtuple, OrderedDict
+import collections
 import copy
 import json
 import logging
 import queue
 import threading
-from typing import Callable
+import typing
 import uuid
 
-from caracal.declaration import nodetype
+import caracal.declaration.nodetype as nodetype
 import caracal.declaration.datatypes as caratypes
-from caracal.execution import session
-from caracal.proto import basictypes_pb2
-from caracal.proto.protoserializer import ProtoSerializer
+import caracal.execution.session as session
+import caracal.proto.basictypes_pb2 as basictypes_pb2
+import caracal.proto.protoserializer as protoserializer
 import zmq
 
-_Event = namedtuple("_Event", ["source_id", "event"])
+_Event = collections.namedtuple("_Event", ["source_id", "event"])
 
 
 class Handler:
@@ -24,7 +24,7 @@ class Handler:
         type_: list,
         receives_multiple: bool,
         info: nodetype.MetaInfo,
-        function: Callable,
+        function: typing.Callable,
     ):
         self.declaration = nodetype.HandlerDeclaration(
             name, type_, receives_multiple, info
@@ -32,7 +32,7 @@ class Handler:
         self.function = function
         self.connected_events = set()
         self.parent = None
-        self.events_queues = OrderedDict()
+        self.events_queues = collections.OrderedDict()
 
     def __call__(self, msg):
         if self.declaration.receives_multiple:
@@ -41,13 +41,13 @@ class Handler:
                     if isinstance(event, ExternalEvent):
                         self.events_queues[
                             _Event(source_id=event._node_id, event=event.declaration.name)
-                        ] = deque()
+                        ] = collections.deque()
                     else:
                         self.events_queues[
                             _Event(
                                 source_id=event.parent.id, event=event.declaration.name
                             )
-                        ] = deque()
+                        ] = collections.deque()
                 self.events_queues[
                     _Event(source_id=msg.source_uid, event=msg.event)
                 ].append(msg)
@@ -93,7 +93,7 @@ class Handler:
                 raise TypeError
 
 
-def handler(name: str, type_, receives_multiple=False, info=None, function=None):
+def handler(name: str, type_, receives_multiple: bool = False, info: str = None, function: typing.Callable = None):
     if function:
         return Handler(name, type_, receives_multiple, info, function)
     else:
@@ -234,12 +234,6 @@ class Node:
         except AttributeError:
             object.__setattr__(self, key, value)
 
-    # def __getattribute__(self, item):
-    #     attr = object.__getattribute__(self, item)
-    #     if isinstance(attr, Property):
-    #         return attr.value
-    #     return attr
-
     def __init_attrs(self):
         for attr_name in [attr for attr in dir(self) if attr[:2] != "__"]:
             attr = self.__getattribute__(attr_name)
@@ -322,14 +316,6 @@ class Node:
             if msg_id is None:
                 msg_id = self.message_id()
             self.events_list.put((event, value, msg_id))
-            # msg = ProtoSerializer().serialize_message(msg_id, value)
-            # prefix = "{id}|{event} ".format(id=self.id, event=event).encode("utf8")
-            # logging.debug(
-            #     "Node {name}: fire event {event}".format(
-            #         name=self.id, event=str(prefix[:-1])
-            #     )
-            # )
-            # self.pub_socket.send(prefix + msg.SerializeToString(), zmq.DONTWAIT)
         except Exception:
             logging.warning(
                 "Node {name}:could not send message exception".format(name=self.id)
@@ -502,7 +488,7 @@ class Node:
                     binary_msg = basictypes_pb2.Message()
                     binary_msg.ParseFromString(msg[index + 1 :])
 
-                    msg_id, msg_value = ProtoSerializer().deserialize_message(binary_msg)
+                    msg_id, msg_value = protoserializer.ProtoSerializer().deserialize_message(binary_msg)
                     message = Message(msg_id, source_id, event, msg_value)
                     handler_names = [
                         hand_name
@@ -520,7 +506,7 @@ class Node:
                     break
             while not self.events_list.empty():
                 event, value, msg_id = self.events_list.get()
-                msg = ProtoSerializer().serialize_message(msg_id, value)
+                msg = protoserializer.ProtoSerializer().serialize_message(msg_id, value)
                 prefix = "{id}|{event} ".format(id=self.id, event=event).encode("utf8")
                 logging.debug(
                     "Node {name}: fire event {event}".format(
