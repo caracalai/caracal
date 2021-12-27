@@ -81,30 +81,33 @@ A session is a place where the node should be executed. All nodes nested within 
 After the moment we executed ``session.run()`` all nodes instantiated within this session became live. You can consider them as microservices.
 
 ### Executing as soon as all inputs have been received
-Based on the definition of data flow: "The next node starts executing as soon as all its input data are available", you need to understand how to ensure that all data is received from the nodes connected to the handler in the correct order. For this, we introduced another type of handlers, which we called multiple handler. You can learn more about it in the Multiple handler section, but you can see a conceptual example below:
+Based on the definition of data flow: "The next node starts executing as soon as all its input data are available", you need to understand how to ensure that all data is received from the nodes connected to the handler in the correct order. For this, we introduced another type of handlers, which we called multiple handler. You can learn more about it in the Multiple handler section, but you can see a conceptual example below.
+Before starting work, we import the necessary modules:
 ```python
-import logging
-
 from caracal.declaration import datatypes
 from caracal.execution import Event, handler, Node, Session
-
-
+```
+The node described below is a data generator, for each call to fire(), a message id is requested on the Name Server, this is necessary to maintain the DataFlow concept, the message id is transmitted through subsequent nodes to the endpoint:
+```python
 class Synchronizer(Node):
     tick = Event("tick", datatypes.Tuple(datatypes.Int()))
 
     def run(self):
         for i in range(1, 5):
             self.fire(self.tick, i)
-
-
+```
+The node described below is just an intermediate node that receives the message and passes it on unchanged:
+```python
 class DoSmth(Node):
     output = Event("output", datatypes.Tuple(datatypes.Int()))
 
     @handler("input_number", datatypes.Tuple(datatypes.Int()))
     def input_numbers(self, msg):
+        # The third argument is passed message id
         self.fire(self.output, msg.value, msg.id)
-
-
+```
+In the node described below, multiple handler is used, it aggregates all incoming messages into tuple, only messages with the same message id are combined (this ensures that the received messages were created based on the same generator data), if one of the nodes missed a message with a certain id, then messages with a missed id from other nodes are discarded. In tuple, messages are added in the order of event connection.
+```python
 class Summator(Node):
     def __init__(self):
         super().__init__()
@@ -115,9 +118,10 @@ class Summator(Node):
         self.result += sum((msg.value for msg in msgs.value))
         if self.result == 15:
             self.terminate()
-            logging.critical(self.result)  # expected 15
-
-
+            print(self.result)  # expected 15
+```
+To run the pipeline, write the following code:
+```python
 if __name__ == "__main__":
     with Session() as session:
         synchronizer = Synchronizer()
@@ -133,7 +137,6 @@ if __name__ == "__main__":
 
         session.run()
 ```
-
 ## Tests running
 
 ```python
