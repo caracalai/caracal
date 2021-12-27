@@ -186,7 +186,7 @@ class ProjectInfo:
             raise RuntimeError()
 
     @staticmethod
-    def deserialize(data: str) -> 'ProjectInfo':
+    def deserialize(data: str) -> "ProjectInfo":
         return pickle.loads(data)
 
     def serialize(self) -> str:

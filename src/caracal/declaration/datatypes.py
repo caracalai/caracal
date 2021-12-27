@@ -193,7 +193,7 @@ class Tuple(Object):
         return self.item_types[index]
 
     @staticmethod
-    def create_from(input_tuple: 'Tuple', index: int, new_type: Object) -> 'Tuple':
+    def create_from(input_tuple: "Tuple", index: int, new_type: Object) -> "Tuple":
         types = [copy.deepcopy(type_) for type_ in input_tuple.item_types]
         types[index] = copy.deepcopy(new_type)
         return Tuple(types)
