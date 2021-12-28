@@ -4,7 +4,6 @@ import unittest
 from caracal import *
 
 
-
 class Generator1(Node):
     threshold = Property(caratypes.Int(), default_value=5)
     value = Event("value", caratypes.Int())
