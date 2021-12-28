@@ -93,7 +93,13 @@ class Handler:
                 raise TypeError
 
 
-def handler(name: str, type_, receives_multiple: bool = False, info: str = None, function: typing.Callable = None):
+def handler(
+    name: str,
+    type_,
+    receives_multiple: bool = False,
+    info: str = None,
+    function: typing.Callable = None,
+):
     if function:
         return Handler(name, type_, receives_multiple, info, function)
     else:
@@ -488,7 +494,10 @@ class Node:
                     binary_msg = basictypes_pb2.Message()
                     binary_msg.ParseFromString(msg[index + 1 :])
 
-                    msg_id, msg_value = protoserializer.ProtoSerializer().deserialize_message(binary_msg)
+                    (
+                        msg_id,
+                        msg_value,
+                    ) = protoserializer.ProtoSerializer().deserialize_message(binary_msg)
                     message = Message(msg_id, source_id, event, msg_value)
                     handler_names = [
                         hand_name
