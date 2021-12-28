@@ -3,8 +3,7 @@ import logging
 import time
 import unittest
 
-import caracal.declaration.datatypes as caratypes
-from caracal.execution import Event, handler, Node, Session
+from caracal import caratypes, Event, handler, Node, Session
 
 item_count = 20
 delay = 0.0

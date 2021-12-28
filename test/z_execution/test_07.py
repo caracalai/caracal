@@ -1,9 +1,8 @@
 import logging
 import unittest
 
-from caracal.declaration import MetaInfo
-import caracal.declaration.datatypes as caratypes
-from caracal.execution import Event, handler, Node, Property, Session
+from caracal import *
+
 
 
 class Generator1(Node):

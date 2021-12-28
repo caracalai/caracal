@@ -1,8 +1,7 @@
 import logging
 import unittest
 
-import caracal.declaration.datatypes as caratypes
-from caracal.execution import Event, handler, Node, Session
+from caracal import caratypes, Event, handler, Node, Session
 
 
 def map_func(value):

@@ -2,12 +2,11 @@ import logging
 import multiprocessing
 import unittest
 
-from caracal.declaration import datatypes, MetaInfo
-from caracal.execution import Event, ExternalEvent, handler, Node, Property, Session
+from caracal import *
 
 
 class TicksGen(Node):
-    tick = Event("tick", datatypes.Tuple(datatypes.Int()))
+    tick = Event("tick", caratypes.Tuple(caratypes.Int()))
 
     def run(self):
         for i in range(1, 5):
@@ -15,17 +14,17 @@ class TicksGen(Node):
 
 
 class DoSmth(Node):
-    output = Event("output", datatypes.Tuple(datatypes.Int()))
+    output = Event("output", caratypes.Tuple(caratypes.Int()))
 
-    @handler("input_numbers", datatypes.Tuple(datatypes.Int()))
+    @handler("input_numbers", caratypes.Tuple(caratypes.Int()))
     def input_numbers(self, msg):
         self.fire(self.output, msg.value, msg.id)
 
 
 class DoSmthWithErr(Node):
-    output = Event("output", datatypes.Tuple(datatypes.Int()))
+    output = Event("output", caratypes.Tuple(caratypes.Int()))
 
-    @handler("input_numbers", datatypes.Tuple(datatypes.Int()))
+    @handler("input_numbers", caratypes.Tuple(caratypes.Int()))
     def input_numbers(self, msg):
         if msg.value not in [2, 3]:
             self.fire(self.output, msg.value, msg.id)
@@ -33,11 +32,11 @@ class DoSmthWithErr(Node):
 
 class Summat(Node):
     result = Property(
-        datatypes.Int(),
+        caratypes.Int(),
         default_value=0,
     )
 
-    @handler("input_numbers", datatypes.Tuple(datatypes.Object()), True)
+    @handler("input_numbers", caratypes.Tuple(caratypes.Object()), True)
     def input_numbers(self, msgs):
         logging.critical(f"{self.__class__.__name__} received")
         self.result += sum((msg.value for msg in msgs.value))
@@ -70,12 +69,12 @@ def second_worker(return_dict):
         action3 = DoSmthWithErr(id_="action3")
         summat = Summat(id_="Summator")
 
-        gen_evt = ExternalEvent("tick", datatypes.Tuple(datatypes.Int()), node_id="Gen")
+        gen_evt = ExternalEvent("tick", caratypes.Tuple(caratypes.Int()), node_id="Gen")
         act1_evt = ExternalEvent(
-            "output", datatypes.Tuple(datatypes.Int()), node_id="action1"
+            "output", caratypes.Tuple(caratypes.Int()), node_id="action1"
         )
         act2_evt = ExternalEvent(
-            "output", datatypes.Tuple(datatypes.Int()), node_id="action2"
+            "output", caratypes.Tuple(caratypes.Int()), node_id="action2"
         )
 
         action3.input_numbers.connect(gen_evt)

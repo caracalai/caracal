@@ -1,9 +1,7 @@
 import logging
 import unittest
 
-from caracal.declaration import MetaInfo
-import caracal.declaration.datatypes as caratypes
-from caracal.execution import Event, handler, Node, Property, Session
+from caracal import *
 
 sent_array = [54, -21, 54, 43, 34, 5, 43, 2, -6, 2]
 threshold = 23

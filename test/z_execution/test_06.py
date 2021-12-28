@@ -1,13 +1,12 @@
 import unittest
 
-from caracal.declaration import datatypes
-from caracal.execution import Event, handler, Node, Session
+from caracal import *
 
 result = 0
 
 
 class TicksGen(Node):
-    tick = Event("tick", datatypes.Tuple(datatypes.Int()))
+    tick = Event("tick", caratypes.Tuple(caratypes.Int()))
 
     def run(self):
         for i in range(1, 5):
@@ -15,24 +14,24 @@ class TicksGen(Node):
 
 
 class DoSmth(Node):
-    output = Event("output", datatypes.Tuple(datatypes.Int()))
+    output = Event("output", caratypes.Tuple(caratypes.Int()))
 
-    @handler("input_number", datatypes.Tuple(datatypes.Int()))
+    @handler("input_number", caratypes.Tuple(caratypes.Int()))
     def input_numbers(self, msg):
         self.fire(self.output, msg.value, msg.id)
 
 
 class DoSmthWithErr(Node):
-    output = Event("output", datatypes.Tuple(datatypes.Int()))
+    output = Event("output", caratypes.Tuple(caratypes.Int()))
 
-    @handler("input_number", datatypes.Tuple(datatypes.Int()))
+    @handler("input_number", caratypes.Tuple(caratypes.Int()))
     def input_number(self, msg):
         if msg.value not in [2, 3]:
             self.fire(self.output, msg.value, msg.id)
 
 
 class Summat(Node):
-    @handler("input_numbers", datatypes.Tuple(datatypes.Object()), True)
+    @handler("input_numbers", caratypes.Tuple(caratypes.Object()), True)
     def input_numbers(self, msgs):
         global result
         result += sum((msg.value for msg in msgs.value))
