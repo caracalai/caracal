@@ -2,12 +2,12 @@ import logging
 import multiprocessing
 import unittest
 
-from caracal.declaration import MetaInfo
-import caracal.declaration.datatypes as caratypes
-from caracal.execution import (
+from caracal import (
+    caratypes,
     Event,
     ExternalEvent,
     handler,
+    MetaInfo,
     Node,
     Property,
     Session,

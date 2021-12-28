@@ -2,7 +2,7 @@ import logging
 import multiprocessing
 import unittest
 
-from caracal import *
+from caracal import caratypes, Event, ExternalEvent, handler, Node, Property, Session
 
 
 class TicksGen(Node):

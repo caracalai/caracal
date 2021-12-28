@@ -1,7 +1,10 @@
-from caracal.declaration import MetaInfo
-import caracal.declaration.datatypes as caratypes
+from caracal.declaration import (
+    caratypes,
+    MetaInfo,
+    ProjectInfo,
+)
 from caracal.declaration.projects import ProjectInfo
-from caracal.execution.node import (
+from caracal.execution import (
     ExternalEvent,
     Node,
     Message,
@@ -9,5 +12,5 @@ from caracal.execution.node import (
     handler,
     Node,
     Property,
+    Session,
 )
-from caracal.execution.session import Session

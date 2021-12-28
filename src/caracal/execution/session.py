@@ -1,8 +1,8 @@
 import logging
 
-import caracal.declaration.projects as projects
-import caracal.execution.node as NodePy
-import caracal.execution.nodeserver as nodeserver
+from caracal.declaration import projects
+from caracal.execution import nodeserver
+from caracal.execution.node import ExternalEvent
 
 current_session = None
 
@@ -33,8 +33,8 @@ class Session:
         for t_ in node_type_impls:
             self.node_type_impls[t_.__name__] = t_
 
-    def initialize(self, project_file, node_type_impls):
-        self.project = projects.ProjectInfo.deserialize(project_file)
+    # def initialize(self, project_file, node_type_impls):
+    #     self.project = projects.ProjectInfo.deserialize(project_file)
 
     def run_project(self, project: projects.ProjectInfo):
         for node in project.nodes.values():
@@ -49,7 +49,7 @@ class Session:
                     source_node = self.nodes[edge.source_node.uid]
                     event = source_node.events[edge.event_name]
                 else:
-                    event = NodePy.ExternalEvent(
+                    event = ExternalEvent(
                         edge.event_name,
                         edge.source_node.node_type.events[edge.event_name].data_type,
                         edge.source_node.uid,
@@ -102,9 +102,3 @@ class Session:
         del self.server
         del self
         current_session = None
-
-    def find_node_by_value(self, value):
-        for _, node in self.project.nodes.items():
-            if node.type_id == value:
-                return node
-        return None

@@ -7,11 +7,11 @@ import threading
 import typing
 import uuid
 
-import caracal.declaration.nodetype as nodetype
+from caracal.declaration import nodetype
 import caracal.declaration.datatypes as caratypes
-import caracal.execution.session as session
-import caracal.proto.basictypes_pb2 as basictypes_pb2
-import caracal.proto.protoserializer as protoserializer
+from caracal.execution import session
+from caracal.proto import basictypes_pb2
+from caracal.proto import protoserializer
 import zmq
 
 _Event = collections.namedtuple("_Event", ["source_id", "event"])
@@ -21,13 +21,13 @@ class Handler:
     def __init__(
         self,
         name: str,
-        type_: list,
+        data_type: list[caratypes.Object],
         receives_multiple: bool,
         info: nodetype.MetaInfo,
         function: typing.Callable,
     ):
         self.declaration = nodetype.HandlerDeclaration(
-            name, type_, receives_multiple, info
+            name, data_type, receives_multiple, info
         )
         self.function = function
         self.connected_events = set()
@@ -95,24 +95,24 @@ class Handler:
 
 def handler(
     name: str,
-    type_,
+    data_type,
     receives_multiple: bool = False,
     info: str = None,
     function: typing.Callable = None,
 ):
     if function:
-        return Handler(name, type_, receives_multiple, info, function)
+        return Handler(name, data_type, receives_multiple, info, function)
     else:
 
         def wrapper(func):
-            return Handler(name, type_, receives_multiple, info, func)
+            return Handler(name, data_type, receives_multiple, info, func)
 
         return wrapper
 
 
 class Property:
-    def __init__(self, type_, default_value=None):
-        self.declaration = nodetype.PropertyDeclaration(type_, None, default_value)
+    def __init__(self, data_type, default_value=None):
+        self.declaration = nodetype.PropertyDeclaration(data_type, None, default_value)
         self.parent = None
         self.value = default_value
 
@@ -122,9 +122,9 @@ class Property:
 
 
 class Event:
-    def __init__(self, name, type_, info=None):
+    def __init__(self, name, data_type, info=None):
         self.declaration: nodetype.EventDeclaration = nodetype.EventDeclaration(
-            name, type_, info
+            name, data_type, info
         )
         self.parent: Node = None
 
@@ -134,16 +134,16 @@ class Event:
 
 
 class ExternalHandler:
-    def __init__(self, name, type_, node_id):
+    def __init__(self, name, data_type, node_id):
         self.name = name
-        self.type = type_
+        self.data_type = data_type
         self.node_id = node_id
 
 
 class ExternalEvent(Event):
-    def __init__(self, name, type_, node_id):
-        super(ExternalEvent, self).__init__(name, type_)
-        self.declaration = nodetype.EventDeclaration(name, type_)
+    def __init__(self, name, data_type, node_id):
+        super(ExternalEvent, self).__init__(name, data_type)
+        self.declaration = nodetype.EventDeclaration(name, data_type)
         self.parent = None
         self._node_id = node_id
 
@@ -250,7 +250,6 @@ class Node:
             elif isinstance(attr, Event):
                 attr.parent = self
                 self.events[attr.declaration.name] = copy.copy(attr)
-                # self.events[attr.declaration.name].parrent = self
                 self.__dict__[attr_name] = self.events[attr.declaration.name]
             elif attr_name in self.__class__.__dict__ and isinstance(
                 self.__class__.__dict__[attr_name], Property
@@ -303,7 +302,6 @@ class Node:
 
     def message_id(self):
         sock = self.context.socket(zmq.REQ)
-        sock.setsockopt(zmq.LINGER, 100)
         sock.connect(self.server_endpoint)
         sock.send(json.dumps({"command": "generate-next-message-index"}).encode("utf8"))
         msg = json.loads(sock.recv())
@@ -331,7 +329,6 @@ class Node:
         if not self.terminated:
             logging.debug("Node terminated")
             sock = self.context.socket(zmq.REQ)
-            sock.setsockopt(zmq.LINGER, 100)
 
             sock.connect(self.server_endpoint)
             sock.send(json.dumps({"command": "terminate"}).encode("utf8"))
@@ -348,7 +345,6 @@ class Node:
     def initialize_listener(self, config):
         self.sub_socket = self.context.socket(zmq.SUB)
 
-        self.sub_socket.setsockopt(zmq.LINGER, 100)
         input_node_ids = set()
         for handler in self.handlers.values():
             for event in handler.connected_events:
@@ -382,7 +378,6 @@ class Node:
 
     def send_command(self, request):
         sock = self.context.socket(zmq.REQ)
-        sock.setsockopt(zmq.LINGER, 100)
         sock.connect(self.server_endpoint)
         sock.send(request.encode("utf8"))
         sock.close()
@@ -424,7 +419,6 @@ class Node:
     def execute(self):
         # step0: publisher
         self.pub_socket = self.context.socket(zmq.PUB)
-        self.pub_socket.setsockopt(zmq.LINGER, 100)
         self.pub_port = self.pub_socket.bind_to_random_port("tcp://127.0.0.1")
         logging.debug(
             "Node {id}. Publisher connected to port={port}".format(
@@ -437,7 +431,6 @@ class Node:
 
         # step2: initialize service socket
         self.service_socket = self.context.socket(zmq.REP)
-        self.service_socket.setsockopt(zmq.LINGER, 100)
         self.service_port = self.service_socket.bind_to_random_port("tcp://127.0.0.1")
         logging.debug(
             "Node {id}. Service connected to port={port}".format(

@@ -2,9 +2,9 @@ import pickle
 import typing
 import uuid
 
+from caracal import typesparser
+from caracal.declaration import nodetype
 import caracal.declaration.datatypes as caratypes
-import caracal.declaration.nodetype as nodetype
-import caracal.typesparser as typesparser
 
 
 class SessionInfo:
@@ -36,10 +36,10 @@ class NodeInfo:
 
     def serialize(self) -> dict:
         result = {
-            "type_id": self.node_type.uid,
-            "session_id": self.session.uid,
+            "type_uid": self.node_type.uid,
+            "session_uid": self.session.uid,
             "property_values": 1 / 0,
-            "id": self.uid,
+            "uid": self.uid,
         }
         return result
 

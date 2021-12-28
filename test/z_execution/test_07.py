@@ -1,7 +1,7 @@
 import logging
 import unittest
 
-from caracal import *
+from caracal import caratypes, Event, handler, MetaInfo, Node, Property, Session
 
 
 class Generator1(Node):

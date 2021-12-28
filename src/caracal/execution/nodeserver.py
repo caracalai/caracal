@@ -1,7 +1,6 @@
 import json
 import logging
 import threading
-import time
 
 import zmq
 
@@ -37,7 +36,7 @@ class NodeServer:
         self.stop()
         for socket in [self.socket]:
             try:
-                socket.close(linger=0)
+                socket.close()
             except Exception as e:
                 print(
                     "Trying to close down socket: {} resulted in error: {}".format(
@@ -57,21 +56,21 @@ class NodeServer:
             sock.connect(node["service_endpoint"])
 
             sock.send(json.dumps(self.nodes_info).encode("utf8"))
-            sock.close(linger=100)
+            sock.close()
 
     def finish_nodes(self):
         for id_, node in self.nodes_info.items():
             sock = self.context.socket(zmq.REQ)
             sock.connect(node["service_endpoint"])
             sock.send(json.dumps({"id": id_, "finish": "true"}).encode("utf8"))
-            sock.close(linger=100)
+            sock.close()
 
     def start_nodes(self):
         for id_, node in self.nodes_info.items():
             sock = self.context.socket(zmq.REQ)
             sock.connect(node["service_endpoint"])
             sock.send(json.dumps({"id": id_, "start": "true"}).encode("utf8"))
-            sock.close(linger=100)
+            sock.close()
 
     def all_nodes_are_registered(self):
         for id_ in self.all_nodes_list:
@@ -123,7 +122,7 @@ class NodeServer:
                         sock.send(
                             json.dumps({"id": id_, "terminate": "true"}).encode("utf8")
                         )
-                        sock.close(linger=100)
+                        sock.close()
                     break
 
                 if cmd == "ready-to-work":
@@ -153,5 +152,5 @@ class NodeServer:
 
     def __del__(self):
         if not self.context.closed:
-            self.context.destroy(linger=100)
+            self.context.destroy()
         del self
