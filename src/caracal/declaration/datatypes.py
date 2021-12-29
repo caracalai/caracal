@@ -1,4 +1,5 @@
 import copy
+import typing
 
 
 class TypeBase:
@@ -214,7 +215,7 @@ class Tuple(Object):
     def name(self) -> str:
         return f'tuple({", ".join([x.name for x in self.item_types])})'
 
-    def intersect(self, other: Object) -> Object:
+    def intersect(self, other) -> typing.Union[Object, None]:
         if type(other) == Object:
             return other.intersect(self)
         if type(other) != type(self):

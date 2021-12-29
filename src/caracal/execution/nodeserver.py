@@ -117,7 +117,6 @@ class NodeServer:
                     self.socket.send(json.dumps({"success": "true"}).encode("utf8"))
                     for id_, node in self.nodes_info.items():
                         sock = self.context.socket(zmq.REQ)
-                        # sock.setsockopt(zmq.LINGER, 100)
                         sock.connect(node["service_endpoint"])
                         sock.send(
                             json.dumps({"id": id_, "terminate": "true"}).encode("utf8")

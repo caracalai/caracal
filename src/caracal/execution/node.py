@@ -23,7 +23,7 @@ class Handler:
         name: str,
         data_type: typing.List[cara_types.Object],
         receives_multiple: bool,
-        info: node_type.MetaInfo,
+        info: typing.Union[node_type.MetaInfo, None],
         function: typing.Callable,
     ):
         self.declaration = node_type.HandlerDeclaration(
@@ -117,7 +117,7 @@ class Event:
         self.declaration: node_type.EventDeclaration = node_type.EventDeclaration(
             name, data_type, info
         )
-        self.parent: Node = None
+        self.parent: typing.Union[Node, None] = None
 
     @property
     def node_id(self):
@@ -337,8 +337,8 @@ class Node:
         self.sub_socket = self.context.socket(zmq.SUB)
 
         input_node_ids = set()
-        for handler in self.handlers.values():
-            for event in handler.connected_events:
+        for handler_val in self.handlers.values():
+            for event in handler_val.connected_events:
                 input_node_ids.add(event.node_id)
 
         for input_node_id in input_node_ids:
@@ -347,14 +347,14 @@ class Node:
             addr = config[input_node_id]["publisher_endpoint"]
             self.sub_socket.connect(addr)
 
-            for handler in self.handlers.values():
-                for event in handler.connected_events:
+            for handler_val in self.handlers.values():
+                for event in handler_val.connected_events:
                     if event.node_id != input_node_id:
                         continue
                     self.event2handler.append(
                         (
                             _Event(event=event.declaration.name, source_id=event.node_id),
-                            handler.declaration.name,
+                            handler_val.declaration.name,
                         )
                     )
                     topic = "{source_id}|{event}".format(

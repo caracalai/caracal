@@ -1,3 +1,4 @@
+import typing
 import uuid
 
 
@@ -41,9 +42,10 @@ class PropertyDeclaration:
 
 
 class MethodDeclaration:
-    def __init__(self, name, data_type, info=None):
+    def __init__(self, name: str, data_type, info: typing.Union[MetaInfo, None] = None):
         self.name: str = name
         self.data_type = data_type
+        self.info: typing.Union[MetaInfo, None] = info
 
     @property
     def argument_names(self):
@@ -95,7 +97,7 @@ class NodeTypeDeclaration:
         self.handlers: dict = {}
         self.events: dict = {}
         self.properties: dict = {}
-        self.name: str = None
+        self.name: typing.Union[str, None] = None
         self.attributes: dict = {}
         self.project_info = None
         self.uid: str = str(uuid.uuid4())

@@ -186,10 +186,10 @@ class ProjectInfo:
             raise RuntimeError()
 
     @staticmethod
-    def deserialize(data: str) -> "ProjectInfo":
+    def deserialize(data: bytes) -> "ProjectInfo":
         return pickle.loads(data)
 
-    def serialize(self) -> str:
+    def serialize(self) -> bytes:
         return pickle.dumps(self)
 
     def parse_node_types_from_declaration(
