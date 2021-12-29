@@ -21,7 +21,7 @@ class Handler:
     def __init__(
         self,
         name: str,
-        data_type: list[cara_types.Object],
+        data_type: typing.List[cara_types.Object],
         receives_multiple: bool,
         info: node_type.MetaInfo,
         function: typing.Callable,
