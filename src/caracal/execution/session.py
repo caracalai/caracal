@@ -69,6 +69,8 @@ class Session:
                 all_nodes = self.external_nodes
                 for node in self.nodes.values():
                     all_nodes.append(node.id)
+                if len(all_nodes) != len(set(all_nodes)):
+                    raise Exception("Mismatch in external nodes")
                 all_nodes = list(set(all_nodes))
                 self.server = node_server.NodeServer(all_nodes, self.server_port)
                 self.server_port = self.server.port
@@ -83,7 +85,7 @@ class Session:
             if self.server is not None:
                 self.server.wait()
         except Exception as e:
-            logging.critical("Session exception " + str(e))
+            logging.critical("Session exception. " + str(e))
 
     def add(self, node):
         self.nodes[node.id] = node
