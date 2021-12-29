@@ -302,7 +302,7 @@ class Node:
                 logging.warning(
                     "Node {type}_{id}: Couldn't generate event. "
                     "Error: undefined event '{event}'".format(
-                        type=self.node_type.name, id=self.id, event=event
+                        type=type(self), id=self.id, event=event
                     )
                 )
                 return
@@ -312,7 +312,7 @@ class Node:
         except Exception:
             logging.warning(
                 "Node {type}_{id}:could not send message exception".format(
-                    type=self.node_type.name, id=self.id
+                    type=type(self), id=self.id
                 )
             )
 
@@ -384,20 +384,20 @@ class Node:
             break
         logging.debug(
             "Node {type}_{id}:process_events_from_server finished".format(
-                type=self.node_type.name, id=self.id
+                type=type(self), id=self.id
             )
         )
 
     def process_events(self):
         logging.debug(
             "Node {type}_{id}:process_events started".format(
-                type=self.node_type.name, id=self.id
+                type=type(self), id=self.id
             )
         )
         if len(self.event2handler) == 0:
             logging.debug(
                 "Node {type}_{id}:process_events finished".format(
-                    type=self.node_type.name, id=self.id
+                    type=type(self), id=self.id
                 )
             )
             return
@@ -405,7 +405,7 @@ class Node:
             try:
                 logging.debug(
                     "Node {type}_{id}: waiting for the next event...".format(
-                        type=self.node_type.name, id=self.id
+                        type=type(self), id=self.id
                     )
                 )
                 while not self.message_to_handlers.empty():
@@ -415,7 +415,7 @@ class Node:
             except Exception as e:
                 logging.warning(
                     "Node {type}_{id}: Exception {e}".format(
-                        type=self.node_type.name, id=self.id, e=e
+                        type=type(self), id=self.id, e=e
                     )
                 )
                 logging.warning(e.args)
@@ -423,7 +423,7 @@ class Node:
 
         logging.debug(
             "Node {type}_{id}:process_events finished".format(
-                type=self.node_type.name, id=self.id
+                type=type(self), id=self.id
             )
         )
 
@@ -433,7 +433,7 @@ class Node:
         self.pub_port = self.pub_socket.bind_to_random_port("tcp://127.0.0.1")
         logging.debug(
             "Node {type}_{id}. Publisher connected to port={port}".format(
-                type=self.node_type.name, id=self.id, port=self.pub_port
+                type=type(self), id=self.id, port=self.pub_port
             )
         )
 
@@ -445,7 +445,7 @@ class Node:
         self.service_port = self.service_socket.bind_to_random_port("tcp://127.0.0.1")
         logging.debug(
             "Node {type}_{id}. Service connected to port={port}".format(
-                type=self.node_type.name, id=self.id, port=self.service_port
+                type=type(self), id=self.id, port=self.service_port
             )
         )
 
@@ -473,7 +473,7 @@ class Node:
         self.wait_answer_from_server()
 
         logging.debug(
-            "Node {type}_{id}. initialized".format(type=self.node_type.name, id=self.id)
+            "Node {type}_{id}. initialized".format(type=type(self), id=self.id)
         )
 
         self.events_processor = threading.Thread(target=self.process_events)
@@ -496,7 +496,7 @@ class Node:
                     msg = self.sub_socket.recv(zmq.NOBLOCK)
                     logging.debug(
                         "Node {type}_{id}: received new event".format(
-                            type=self.node_type.name, id=self.id
+                            type=type(self), id=self.id
                         )
                     )
                     index = msg.find(b" ")
@@ -516,7 +516,7 @@ class Node:
                     ]
                     logging.debug(
                         "Node {type}_{id}: received event {event}".format(
-                            type=self.node_type.name, id=self.id, event=event
+                            type=type(self), id=self.id, event=event
                         )
                     )
                     for hand_name in handler_names:
@@ -529,14 +529,14 @@ class Node:
                 prefix = "{id}|{event} ".format(id=self.id, event=event).encode("utf8")
                 logging.debug(
                     "Node {type}_{id}: fire event {event}".format(
-                        type=self.node_type.name, id=self.id, event=str(prefix[:-1])
+                        type=type(self), id=self.id, event=str(prefix[:-1])
                     )
                 )
                 self.pub_socket.send(prefix + msg.SerializeToString(), zmq.DONTWAIT)
 
         logging.debug(
             "Node {type}_{id}. Execution started".format(
-                type=self.node_type.name, id=self.id
+                type=type(self), id=self.id
             )
         )
 
