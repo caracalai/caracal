@@ -54,10 +54,10 @@ class TestNode(Node):
         self.terminate()
 
 
-class CheckGraphExecution_02(unittest.TestCase):
+class CheckGraphExecution02(unittest.TestCase):
     def setUp(self) -> None:
         with Session() as session:
-            logging.basicConfig(level=logging.DEBUG)
+            # logging.basicConfig(level=logging.DEBUG)
             self.listNode = InitialList("initial-list")
             self.mapNode = Map("map")
             self.expNode = Exp("exp")

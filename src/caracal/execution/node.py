@@ -88,7 +88,7 @@ def handler(
     name: str,
     data_type,
     receives_multiple: bool = False,
-    info: str = None,
+    info: node_type.MetaInfo = None,
     function: typing.Callable = None,
 ):
     if function:
@@ -242,9 +242,7 @@ class Node:
             elif attr_name in self.__class__.__dict__ and isinstance(
                 self.__class__.__dict__[attr_name], Property
             ):
-                self.properties[attr_name] = copy.copy(
-                    self.__class__.__dict__[attr_name]
-                )
+                self.properties[attr_name] = copy.copy(self.__class__.__dict__[attr_name])
                 self.properties[attr_name].parent = self
                 self.properties[attr_name].declaration.name = attr_name
                 self.__dict__[attr_name] = self.properties[attr_name].value
@@ -303,7 +301,9 @@ class Node:
             if event not in self.events.keys():
                 logging.warning(
                     "Node {type}_{id}: Couldn't generate event. "
-                    "Error: undefined event '{event}'".format(type=self.node_type.name, id=self.id, event=event)
+                    "Error: undefined event '{event}'".format(
+                        type=self.node_type.name, id=self.id, event=event
+                    )
                 )
                 return
             if msg_id is None:
@@ -311,7 +311,9 @@ class Node:
             self.events_list.put((event, value, msg_id))
         except Exception:
             logging.warning(
-                "Node {type}_{id}:could not send message exception".format(type=self.node_type.name, id=self.id)
+                "Node {type}_{id}:could not send message exception".format(
+                    type=self.node_type.name, id=self.id
+                )
             )
 
     def terminate(self):
@@ -381,29 +383,49 @@ class Node:
             self.run_processor.join()
             break
         logging.debug(
-            "Node {type}_{id}:process_events_from_server finished".format(type=self.node_type.name, id=self.id)
+            "Node {type}_{id}:process_events_from_server finished".format(
+                type=self.node_type.name, id=self.id
+            )
         )
 
     def process_events(self):
-        logging.debug("Node {type}_{id}:process_events started".format(type=self.node_type.name, id=self.id))
+        logging.debug(
+            "Node {type}_{id}:process_events started".format(
+                type=self.node_type.name, id=self.id
+            )
+        )
         if len(self.event2handler) == 0:
-            logging.debug("Node {type}_{id}:process_events finished".format(type=self.node_type.name, id=self.id))
+            logging.debug(
+                "Node {type}_{id}:process_events finished".format(
+                    type=self.node_type.name, id=self.id
+                )
+            )
             return
         while not self.terminated:
             try:
                 logging.debug(
-                    "Node {type}_{id}: waiting for the next event...".format(type=self.node_type.name, id=self.id)
+                    "Node {type}_{id}: waiting for the next event...".format(
+                        type=self.node_type.name, id=self.id
+                    )
                 )
                 while not self.message_to_handlers.empty():
                     handler_name, message = self.message_to_handlers.get()
                     self.handlers[handler_name](message)
 
             except Exception as e:
-                logging.warning("Node {type}_{id}: Exception {e}".format(type=self.node_type.name, id=self.id, e=e))
+                logging.warning(
+                    "Node {type}_{id}: Exception {e}".format(
+                        type=self.node_type.name, id=self.id, e=e
+                    )
+                )
                 logging.warning(e.args)
                 break
 
-        logging.debug("Node {type}_{id}:process_events finished".format(type=self.node_type.name, id=self.id))
+        logging.debug(
+            "Node {type}_{id}:process_events finished".format(
+                type=self.node_type.name, id=self.id
+            )
+        )
 
     def execute(self):
         # step0: publisher
@@ -450,7 +472,9 @@ class Node:
 
         self.wait_answer_from_server()
 
-        logging.debug("Node {type}_{id}. initialized".format(type=self.node_type.name, id=self.id))
+        logging.debug(
+            "Node {type}_{id}. initialized".format(type=self.node_type.name, id=self.id)
+        )
 
         self.events_processor = threading.Thread(target=self.process_events)
         self.events_processor.start()
@@ -470,11 +494,15 @@ class Node:
             while True:
                 try:
                     msg = self.sub_socket.recv(zmq.NOBLOCK)
-                    logging.debug("Node {type}_{id}: received new event".format(type=self.node_type.name, id=self.id))
+                    logging.debug(
+                        "Node {type}_{id}: received new event".format(
+                            type=self.node_type.name, id=self.id
+                        )
+                    )
                     index = msg.find(b" ")
                     source_id, event = msg[:index].decode("utf8").split("|")
                     binary_msg = basic_types_pb2.Message()
-                    binary_msg.ParseFromString(msg[index + 1:])
+                    binary_msg.ParseFromString(msg[index + 1 :])
 
                     (
                         msg_id,
@@ -506,7 +534,11 @@ class Node:
                 )
                 self.pub_socket.send(prefix + msg.SerializeToString(), zmq.DONTWAIT)
 
-        logging.debug("Node {type}_{id}. Execution started".format(type=self.node_type.name, id=self.id))
+        logging.debug(
+            "Node {type}_{id}. Execution started".format(
+                type=self.node_type.name, id=self.id
+            )
+        )
 
     def __del__(self):
         if not self.context.closed:

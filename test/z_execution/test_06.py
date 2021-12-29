@@ -1,3 +1,4 @@
+import logging
 import unittest
 
 from caracal import cara_types, Event, handler, Node, Session
@@ -43,6 +44,7 @@ class Summat(Node):
 class MultiplaHandlers(unittest.TestCase):
     def test_something(self):
         with Session() as session:
+            # logging.basicConfig(level=logging.DEBUG)
             gen = TicksGen()
             action1 = DoSmth(id_="action1")
             action2 = DoSmthWithErr(id_="action2")

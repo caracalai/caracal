@@ -75,7 +75,6 @@ class Session:
                 self.server.start()
             logging.debug("Len of nodes values {}".format(len(self.nodes.values())))
             for key in self.nodes:
-                logging.warning(self.nodes[key].session.name)
                 self.nodes[key].server_port = self.server_port
                 self.nodes[key].start()
 

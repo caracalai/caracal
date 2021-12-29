@@ -31,10 +31,10 @@ class TestNode(Node):
         self.terminate()
 
 
-class CheckGraphExecution_03(unittest.TestCase):
+class CheckGraphExecution03(unittest.TestCase):
     def test(self):
         with Session() as session:
-            logging.basicConfig(level=logging.DEBUG)
+            # logging.basicConfig(level=logging.DEBUG)
             generator = Generator()
             generator.id = "generator"
             processor = Processor()

@@ -38,10 +38,10 @@ class Summat(Node):
 
     @handler("input_numbers", cara_types.Tuple(cara_types.Object()), True)
     def input_numbers(self, msgs):
-        logging.critical(f"{self.__class__.__name__} received")
+        print(f"{self.__class__.__name__} received")
         self.result += sum((msg.value for msg in msgs.value))
         if self.result == 15:
-            logging.critical(self.result)
+            print(self.result)
             self.terminate()
 
 
@@ -52,7 +52,6 @@ def first_worker():
     with Session(
         name="first", server_port=port, external_nodes=["Summator", "action3"]
     ) as session:
-        # logging.basicConfig(level=logging.WARNING)
         gen = TicksGen(id_="Gen")
         action1 = DoSmth(id_="action1")
         action2 = DoSmthWithErr(id_="action2")
@@ -65,7 +64,6 @@ def first_worker():
 
 def second_worker(return_dict):
     with Session(name="second", server_port=2001, serves_server=False) as session:
-        # logging.basicConfig(level=logging.DEBUG)
         action3 = DoSmthWithErr(id_="action3")
         summat = Summat(id_="Summator")
 
@@ -86,7 +84,8 @@ def second_worker(return_dict):
 
 
 class MultipleHandlers(unittest.TestCase):
-    def test_multihandler_without_evt_id(self):
+    def test_multiple_handler_without_evt_id(self):
+        # logging.basicConfig(level=logging.DEBUG)
         manager = multiprocessing.Manager()
         return_dict = manager.dict()
         worker1 = multiprocessing.Process(target=first_worker)
@@ -97,3 +96,5 @@ class MultipleHandlers(unittest.TestCase):
 
         worker1.join()
         worker2.join()
+
+        self.assertEqual(return_dict["result"], 15)

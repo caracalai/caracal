@@ -44,7 +44,7 @@ class TestNode(Node):
     @handler("receive_result", cara_types.Object())
     def receive_result(self, msg):
         self.result = msg.value
-        logging.warning(msg.value)
+        print(msg.value)
         self.terminate()
 
 
@@ -57,7 +57,6 @@ def first_worker():
 
 def second_worker(return_dict):
     with Session(name="second", serves_server=False, server_port=port) as session:
-        logging.basicConfig(level=logging.DEBUG)
         processor = Processor()
         processor.id = "processor"
         test_node = TestNode("test-node")
@@ -73,9 +72,9 @@ def second_worker(return_dict):
         return_dict["result"] = test_node.result
 
 
-class CheckGraphExecution_05(unittest.TestCase):
+class CheckGraphExecution05(unittest.TestCase):
     def test(self):
-        logging.basicConfig(level=logging.WARNING)
+        # logging.basicConfig(level=logging.DEBUG)
 
         manager = multiprocessing.Manager()
         return_dict = manager.dict()
