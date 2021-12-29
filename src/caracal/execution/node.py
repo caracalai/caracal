@@ -7,11 +7,11 @@ import threading
 import typing
 import uuid
 
-from caracal.declaration import nodetype
-import caracal.declaration.datatypes as caratypes
-from caracal.execution import session
-from caracal.proto import basictypes_pb2
-from caracal.proto import protoserializer
+import caracal.declaration.datatypes as cara_types
+import caracal.declaration.nodetype as node_type
+import caracal.execution.session as session
+import caracal.proto.basictypes_pb2 as basic_types_pb2
+import caracal.proto.protoserializer as proto_serializer
 import zmq
 
 _Event = collections.namedtuple("_Event", ["source_id", "event"])
@@ -21,12 +21,12 @@ class Handler:
     def __init__(
         self,
         name: str,
-        data_type: list[caratypes.Object],
+        data_type: list[cara_types.Object],
         receives_multiple: bool,
-        info: nodetype.MetaInfo,
+        info: node_type.MetaInfo,
         function: typing.Callable,
     ):
-        self.declaration = nodetype.HandlerDeclaration(
+        self.declaration = node_type.HandlerDeclaration(
             name, data_type, receives_multiple, info
         )
         self.function = function
@@ -38,33 +38,24 @@ class Handler:
         if self.declaration.receives_multiple:
             if not self.events_queues:
                 for event in self.connected_events:
-                    if isinstance(event, ExternalEvent):
+                    self.events_queues[
+                        _Event(source_id=event.node_id, event=event.declaration.name)
+                    ] = collections.deque()
+
+            self.events_queues[_Event(source_id=msg.source_uid, event=msg.event)].append(
+                msg
+            )
+
+            while all(self.events_queues.values()):
+                msgs = [elem.popleft() for elem in self.events_queues.values()]
+                ids = [msg.id for msg in msgs]
+                if len(set(ids)) == 1:
+                    self.function(self.parent, Message(id_=set(ids), value=msgs))
+                else:
+                    for msg in [msg for msg in msgs if msg.id == max(ids)]:
                         self.events_queues[
-                            _Event(source_id=event._node_id, event=event.declaration.name)
-                        ] = collections.deque()
-                    else:
-                        self.events_queues[
-                            _Event(
-                                source_id=event.parent.id, event=event.declaration.name
-                            )
-                        ] = collections.deque()
-                self.events_queues[
-                    _Event(source_id=msg.source_uid, event=msg.event)
-                ].append(msg)
-            else:
-                self.events_queues[
-                    _Event(source_id=msg.source_uid, event=msg.event)
-                ].append(msg)
-                while all(self.events_queues.values()):
-                    msgs = [elem.popleft() for elem in self.events_queues.values()]
-                    ids = [msg.id for msg in msgs]
-                    if len(set(ids)) == 1:
-                        self.function(self.parent, Message(id_=set(ids), value=msgs))
-                    else:
-                        for msg in [msg for msg in msgs if msg.id == max(ids)]:
-                            self.events_queues[
-                                _Event(source_id=msg.source_uid, event=msg.event)
-                            ].appendleft(msg)
+                            _Event(source_id=msg.source_uid, event=msg.event)
+                        ].appendleft(msg)
         else:
             self.function(self.parent, msg)
 
@@ -76,14 +67,14 @@ class Handler:
 
                 handler_data_type = (
                     handler_data_type
-                    if not isinstance(handler_data_type, caratypes.Tuple)
-                    else caratypes.Tuple(handler_data_type)
+                    if not isinstance(handler_data_type, cara_types.Tuple)
+                    else cara_types.Tuple(handler_data_type)
                 )
 
                 event_data_type = (
                     event_data_type
-                    if not isinstance(event_data_type, caratypes.Tuple)
-                    else caratypes.Tuple(event_data_type)
+                    if not isinstance(event_data_type, cara_types.Tuple)
+                    else cara_types.Tuple(event_data_type)
                 )
 
                 if event_data_type.intersect(handler_data_type) is None:
@@ -112,7 +103,7 @@ def handler(
 
 class Property:
     def __init__(self, data_type, default_value=None):
-        self.declaration = nodetype.PropertyDeclaration(data_type, None, default_value)
+        self.declaration = node_type.PropertyDeclaration(data_type, None, default_value)
         self.parent = None
         self.value = default_value
 
@@ -123,7 +114,7 @@ class Property:
 
 class Event:
     def __init__(self, name, data_type, info=None):
-        self.declaration: nodetype.EventDeclaration = nodetype.EventDeclaration(
+        self.declaration: node_type.EventDeclaration = node_type.EventDeclaration(
             name, data_type, info
         )
         self.parent: Node = None
@@ -143,7 +134,7 @@ class ExternalHandler:
 class ExternalEvent(Event):
     def __init__(self, name, data_type, node_id):
         super(ExternalEvent, self).__init__(name, data_type)
-        self.declaration = nodetype.EventDeclaration(name, data_type)
+        self.declaration = node_type.EventDeclaration(name, data_type)
         self.parent = None
         self._node_id = node_id
 
@@ -196,7 +187,7 @@ class Node:
 
     @staticmethod
     def get_declaration(node):
-        result = nodetype.NodeTypeDeclaration()
+        result = node_type.NodeTypeDeclaration()
         result.name = node.__name__
         items = [
             it
@@ -484,13 +475,13 @@ class Node:
                     logging.debug("Node {name}: received new event".format(name=self.id))
                     index = msg.find(b" ")
                     source_id, event = msg[:index].decode("utf8").split("|")
-                    binary_msg = basictypes_pb2.Message()
+                    binary_msg = basic_types_pb2.Message()
                     binary_msg.ParseFromString(msg[index + 1 :])
 
                     (
                         msg_id,
                         msg_value,
-                    ) = protoserializer.ProtoSerializer().deserialize_message(binary_msg)
+                    ) = proto_serializer.ProtoSerializer().deserialize_message(binary_msg)
                     message = Message(msg_id, source_id, event, msg_value)
                     handler_names = [
                         hand_name
@@ -508,7 +499,7 @@ class Node:
                     break
             while not self.events_list.empty():
                 event, value, msg_id = self.events_list.get()
-                msg = protoserializer.ProtoSerializer().serialize_message(msg_id, value)
+                msg = proto_serializer.ProtoSerializer().serialize_message(msg_id, value)
                 prefix = "{id}|{event} ".format(id=self.id, event=event).encode("utf8")
                 logging.debug(
                     "Node {name}: fire event {event}".format(
