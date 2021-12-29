@@ -3,7 +3,7 @@ import multiprocessing
 import unittest
 
 from caracal import (
-    caratypes,
+    cara_types,
     Event,
     ExternalEvent,
     handler,
@@ -22,18 +22,18 @@ test_node_result = None
 
 
 class Generator(Node):
-    threshold = Property(caratypes.Int(), default_value=0.7)
-    processed_batch = Event("processedBatch", caratypes.List(caratypes.Int()))
+    threshold = Property(cara_types.Int(), default_value=0.7)
+    processed_batch = Event("processedBatch", cara_types.List(cara_types.Int()))
 
     def run(self):
         self.fire(self.processed_batch, sent_array)
 
 
 class Processor(Node):
-    threshold = Property(caratypes.Int(), default_value=0.7)
-    result = Event("result", caratypes.Object())
+    threshold = Property(cara_types.Int(), default_value=0.7)
+    result = Event("result", cara_types.Object())
 
-    @handler("onProcessBatch", caratypes.List(caratypes.Int()), False, MetaInfo())
+    @handler("onProcessBatch", cara_types.List(cara_types.Int()), False, MetaInfo())
     def on_process_batch(self, msg):
         self.fire(self.result, list(filter(lambda x: x >= self.threshold, msg.value)))
 
@@ -41,7 +41,7 @@ class Processor(Node):
 class TestNode(Node):
     result = None
 
-    @handler("receive_result", caratypes.Object())
+    @handler("receive_result", cara_types.Object())
     def receive_result(self, msg):
         self.result = msg.value
         logging.warning(msg.value)
@@ -64,7 +64,7 @@ def second_worker(return_dict):
 
         processor.threshold = 23
         processed_batch = ExternalEvent(
-            "processedBatch", caratypes.List(caratypes.Int()), node_id="generator"
+            "processedBatch", cara_types.List(cara_types.Int()), node_id="generator"
         )
         processor.on_process_batch.connect(processed_batch)
         test_node.receive_result.connect(processor.result)

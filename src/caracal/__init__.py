@@ -1,5 +1,5 @@
 from caracal.declaration import (
-    caratypes,
+    cara_types,
     MetaInfo,
     ProjectInfo,
 )
