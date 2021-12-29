@@ -144,8 +144,8 @@ class NodeServer:
                     self.next_msg_index += 1
                     continue
                 logging.warning("Server: undefined command {cmd}".format(cmd=cmd))
-            except Exception:
-                logging.debug("Socket is closed")
+            except Exception as e:
+                logging.debug(f"Socket is closed\n{e}")
                 break
         logging.debug("Server: Finished execution...")
 

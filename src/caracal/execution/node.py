@@ -309,10 +309,10 @@ class Node:
             if msg_id is None:
                 msg_id = self.message_id()
             self.events_list.put((event, value, msg_id))
-        except Exception:
+        except Exception as e:
             logging.warning(
-                "Node {type}_{id}:could not send message exception".format(
-                    type=type(self), id=self.id
+                "Node {type}_{id}:could not send message \n{e}".format(
+                    type=type(self), id=self.id, e=e
                 )
             )
 
@@ -390,9 +390,7 @@ class Node:
 
     def process_events(self):
         logging.debug(
-            "Node {type}_{id}:process_events started".format(
-                type=type(self), id=self.id
-            )
+            "Node {type}_{id}:process_events started".format(type=type(self), id=self.id)
         )
         if len(self.event2handler) == 0:
             logging.debug(
@@ -422,9 +420,7 @@ class Node:
                 break
 
         logging.debug(
-            "Node {type}_{id}:process_events finished".format(
-                type=type(self), id=self.id
-            )
+            "Node {type}_{id}:process_events finished".format(type=type(self), id=self.id)
         )
 
     def execute(self):
@@ -472,9 +468,7 @@ class Node:
 
         self.wait_answer_from_server()
 
-        logging.debug(
-            "Node {type}_{id}. initialized".format(type=type(self), id=self.id)
-        )
+        logging.debug("Node {type}_{id}. initialized".format(type=type(self), id=self.id))
 
         self.events_processor = threading.Thread(target=self.process_events)
         self.events_processor.start()
@@ -535,9 +529,7 @@ class Node:
                 self.pub_socket.send(prefix + msg.SerializeToString(), zmq.DONTWAIT)
 
         logging.debug(
-            "Node {type}_{id}. Execution started".format(
-                type=type(self), id=self.id
-            )
+            "Node {type}_{id}. Execution started".format(type=type(self), id=self.id)
         )
 
     def __del__(self):
