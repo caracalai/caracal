@@ -70,7 +70,7 @@ def second_worker(return_dict):
         test_node.receive_result.connect(processor.result)
         session.run()
 
-    return_dict["result"] = test_node.result
+        return_dict["result"] = test_node.result
 
 
 class CheckGraphExecution_05(unittest.TestCase):
