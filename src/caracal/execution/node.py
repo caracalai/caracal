@@ -15,6 +15,7 @@ import caracal.proto.protoserializer as proto_serializer
 import zmq
 
 _Event = collections.namedtuple("_Event", ["source_id", "event"])
+_Parent = collections.namedtuple("_Parrent", ["uid"])
 
 
 class Handler:
@@ -135,12 +136,11 @@ class ExternalEvent(Event):
     def __init__(self, name, data_type, node_id):
         super(ExternalEvent, self).__init__(name, data_type)
         self.declaration = node_type.EventDeclaration(name, data_type)
-        self.parent = None
-        self._node_id = node_id
+        self.parent = _Parent(uid=node_id)
 
     @property
     def node_id(self):
-        return self._node_id
+        return self.parent.uid
 
 
 class Message:
