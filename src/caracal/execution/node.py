@@ -15,7 +15,7 @@ import caracal.proto.protoserializer as proto_serializer
 import zmq
 
 _Event = collections.namedtuple("_Event", ["source_id", "event"])
-_Parent = collections.namedtuple("_Parrent", ["uid"])
+_Parent = collections.namedtuple("_Parent", ["uid"])
 
 
 class Handler:
