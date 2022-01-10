@@ -1,70 +1,62 @@
-from collections import deque, namedtuple, OrderedDict
+import collections
 import copy
 import json
 import logging
 import queue
 import threading
-from typing import Callable
+import typing
 import uuid
 
-from caracal.declaration import nodetype
-import caracal.declaration.datatypes as caratypes
-from caracal.execution import session
-from caracal.proto import basictypes_pb2
-from caracal.proto.protoserializer import ProtoSerializer
+import caracal.declaration.datatypes as cara_types
+import caracal.declaration.nodetype as node_type
+import caracal.execution.session as session
+import caracal.proto.basictypes_pb2 as basic_types_pb2
+import caracal.proto.protoserializer as proto_serializer
 import zmq
 
-_Event = namedtuple("_Event", ["source_id", "event"])
+_Event = collections.namedtuple("_Event", ["source_id", "event"])
+_Parent = collections.namedtuple("_Parent", ["uid"])
 
 
 class Handler:
     def __init__(
         self,
         name: str,
-        type_: list,
+        data_type: typing.List[cara_types.Object],
         receives_multiple: bool,
-        info: nodetype.MetaInfo,
-        function: Callable,
+        info: typing.Union[node_type.MetaInfo, None],
+        function: typing.Callable,
     ):
-        self.declaration = nodetype.HandlerDeclaration(
-            name, type_, receives_multiple, info
+        self.declaration = node_type.HandlerDeclaration(
+            name, data_type, receives_multiple, info
         )
         self.function = function
         self.connected_events = set()
         self.parent = None
-        self.events_queues = OrderedDict()
+        self.events_queues = collections.OrderedDict()
 
     def __call__(self, msg):
         if self.declaration.receives_multiple:
             if not self.events_queues:
                 for event in self.connected_events:
-                    if isinstance(event, ExternalEvent):
+                    self.events_queues[
+                        _Event(source_id=event.node_id, event=event.declaration.name)
+                    ] = collections.deque()
+
+            self.events_queues[_Event(source_id=msg.source_uid, event=msg.event)].append(
+                msg
+            )
+
+            while all(self.events_queues.values()):
+                msgs = [elem.popleft() for elem in self.events_queues.values()]
+                ids = [msg.id for msg in msgs]
+                if len(set(ids)) == 1:
+                    self.function(self.parent, Message(id_=set(ids), value=msgs))
+                else:
+                    for msg in [msg for msg in msgs if msg.id == max(ids)]:
                         self.events_queues[
-                            _Event(source_id=event._node_id, event=event.declaration.name)
-                        ] = deque()
-                    else:
-                        self.events_queues[
-                            _Event(
-                                source_id=event.parent.id, event=event.declaration.name
-                            )
-                        ] = deque()
-                self.events_queues[
-                    _Event(source_id=msg.source_uid, event=msg.event)
-                ].append(msg)
-            else:
-                self.events_queues[
-                    _Event(source_id=msg.source_uid, event=msg.event)
-                ].append(msg)
-                while all(self.events_queues.values()):
-                    msgs = [elem.popleft() for elem in self.events_queues.values()]
-                    ids = [msg.id for msg in msgs]
-                    if len(set(ids)) == 1:
-                        self.function(self.parent, Message(id_=set(ids), value=msgs))
-                    else:
-                        for msg in [msg for msg in msgs if msg.id == max(ids)]:
-                            self.events_queues[
-                                _Event(source_id=msg.source_uid, event=msg.event)
-                            ].appendleft(msg)
+                            _Event(source_id=msg.source_uid, event=msg.event)
+                        ].appendleft(msg)
         else:
             self.function(self.parent, msg)
 
@@ -76,14 +68,14 @@ class Handler:
 
                 handler_data_type = (
                     handler_data_type
-                    if not isinstance(handler_data_type, caratypes.Tuple)
-                    else caratypes.Tuple(handler_data_type)
+                    if not isinstance(handler_data_type, cara_types.Tuple)
+                    else cara_types.Tuple(handler_data_type)
                 )
 
                 event_data_type = (
                     event_data_type
-                    if not isinstance(event_data_type, caratypes.Tuple)
-                    else caratypes.Tuple(event_data_type)
+                    if not isinstance(event_data_type, cara_types.Tuple)
+                    else cara_types.Tuple(event_data_type)
                 )
 
                 if event_data_type.intersect(handler_data_type) is None:
@@ -93,20 +85,26 @@ class Handler:
                 raise TypeError
 
 
-def handler(name: str, type_, receives_multiple=False, info=None, function=None):
+def handler(
+    name: str,
+    data_type,
+    receives_multiple: bool = False,
+    info: node_type.MetaInfo = None,
+    function: typing.Callable = None,
+):
     if function:
-        return Handler(name, type_, receives_multiple, info, function)
+        return Handler(name, data_type, receives_multiple, info, function)
     else:
 
         def wrapper(func):
-            return Handler(name, type_, receives_multiple, info, func)
+            return Handler(name, data_type, receives_multiple, info, func)
 
         return wrapper
 
 
 class Property:
-    def __init__(self, type_, default_value=None):
-        self.declaration = nodetype.PropertyDeclaration(type_, None, default_value)
+    def __init__(self, data_type, default_value=None):
+        self.declaration = node_type.PropertyDeclaration(data_type, None, default_value)
         self.parent = None
         self.value = default_value
 
@@ -116,11 +114,11 @@ class Property:
 
 
 class Event:
-    def __init__(self, name, type_, info=None):
-        self.declaration: nodetype.EventDeclaration = nodetype.EventDeclaration(
-            name, type_, info
+    def __init__(self, name, data_type, info=None):
+        self.declaration: node_type.EventDeclaration = node_type.EventDeclaration(
+            name, data_type, info
         )
-        self.parent: Node = None
+        self.parent: typing.Union[Node, None] = None
 
     @property
     def node_id(self):
@@ -128,22 +126,21 @@ class Event:
 
 
 class ExternalHandler:
-    def __init__(self, name, type_, node_id):
+    def __init__(self, name, data_type, node_id):
         self.name = name
-        self.type = type_
+        self.data_type = data_type
         self.node_id = node_id
 
 
 class ExternalEvent(Event):
-    def __init__(self, name, type_, node_id):
-        super(ExternalEvent, self).__init__(name, type_)
-        self.declaration = nodetype.EventDeclaration(name, type_)
-        self.parent = None
-        self._node_id = node_id
+    def __init__(self, name, data_type, node_id):
+        super(ExternalEvent, self).__init__(name, data_type)
+        self.declaration = node_type.EventDeclaration(name, data_type)
+        self.parent = _Parent(uid=node_id)
 
     @property
     def node_id(self):
-        return self._node_id
+        return self.parent.uid
 
 
 class Message:
@@ -190,7 +187,7 @@ class Node:
 
     @staticmethod
     def get_declaration(node):
-        result = nodetype.NodeTypeDeclaration()
+        result = node_type.NodeTypeDeclaration()
         result.name = node.__name__
         items = [
             it
@@ -222,23 +219,14 @@ class Node:
         return "tcp://127.0.0.1:{port}".format(port=self.service_port)
 
     def __setattr__(self, key, value):
-        try:
-            if key in self.__class__.__dict__ and isinstance(
-                self.__class__.__dict__[key], Property
-            ):
-                self.__dict__["properties"][key] = copy.copy(self.__class__.__dict__[key])
-                self.__dict__[key] = value
-                self.__dict__["properties"][key].value = value
-            else:
-                object.__setattr__(self, key, value)
-        except AttributeError:
+        if key in self.__class__.__dict__ and isinstance(
+            self.__class__.__dict__[key], Property
+        ):
+            self.properties[key] = copy.copy(self.__class__.__dict__[key])
+            self.__dict__[key] = value
+            self.properties[key].value = value
+        else:
             object.__setattr__(self, key, value)
-
-    # def __getattribute__(self, item):
-    #     attr = object.__getattribute__(self, item)
-    #     if isinstance(attr, Property):
-    #         return attr.value
-    #     return attr
 
     def __init_attrs(self):
         for attr_name in [attr for attr in dir(self) if attr[:2] != "__"]:
@@ -250,17 +238,14 @@ class Node:
             elif isinstance(attr, Event):
                 attr.parent = self
                 self.events[attr.declaration.name] = copy.copy(attr)
-                # self.events[attr.declaration.name].parrent = self
                 self.__dict__[attr_name] = self.events[attr.declaration.name]
             elif attr_name in self.__class__.__dict__ and isinstance(
                 self.__class__.__dict__[attr_name], Property
             ):
-                self.__dict__["properties"][attr_name] = copy.copy(
-                    self.__class__.__dict__[attr_name]
-                )
-                self.__dict__["properties"][attr_name].parent = self
-                self.__dict__["properties"][attr_name].declaration.name = attr_name
-                self.__dict__[attr_name] = self.__dict__["properties"][attr_name].value
+                self.properties[attr_name] = copy.copy(self.__class__.__dict__[attr_name])
+                self.properties[attr_name].parent = self
+                self.properties[attr_name].declaration.name = attr_name
+                self.__dict__[attr_name] = self.properties[attr_name].value
 
     def set_server_endpoint(self, server_endpoint):
         self.port = server_endpoint
@@ -291,6 +276,7 @@ class Node:
     def close_all_sockets(self):
         self.context.destroy()
 
+    # TODO: No usage?
     def register_event(self, name):
         raise Exception("register_event")
 
@@ -303,7 +289,6 @@ class Node:
 
     def message_id(self):
         sock = self.context.socket(zmq.REQ)
-        sock.setsockopt(zmq.LINGER, 100)
         sock.connect(self.server_endpoint)
         sock.send(json.dumps({"command": "generate-next-message-index"}).encode("utf8"))
         msg = json.loads(sock.recv())
@@ -315,31 +300,26 @@ class Node:
             event = event.declaration.name
             if event not in self.events.keys():
                 logging.warning(
-                    "Node {name}: Couldn't generate event. "
-                    "Error: undefined event '{event}'".format(name=self.id, event=event)
+                    "Node {type}_{id}: Couldn't generate event. "
+                    "Error: undefined event '{event}'".format(
+                        type=type(self), id=self.id, event=event
+                    )
                 )
                 return
             if msg_id is None:
                 msg_id = self.message_id()
             self.events_list.put((event, value, msg_id))
-            # msg = ProtoSerializer().serialize_message(msg_id, value)
-            # prefix = "{id}|{event} ".format(id=self.id, event=event).encode("utf8")
-            # logging.debug(
-            #     "Node {name}: fire event {event}".format(
-            #         name=self.id, event=str(prefix[:-1])
-            #     )
-            # )
-            # self.pub_socket.send(prefix + msg.SerializeToString(), zmq.DONTWAIT)
-        except Exception:
+        except Exception as e:
             logging.warning(
-                "Node {name}:could not send message exception".format(name=self.id)
+                "Node {type}_{id}:could not send message \n{e}".format(
+                    type=type(self), id=self.id, e=e
+                )
             )
 
     def terminate(self):
         if not self.terminated:
             logging.debug("Node terminated")
             sock = self.context.socket(zmq.REQ)
-            sock.setsockopt(zmq.LINGER, 100)
 
             sock.connect(self.server_endpoint)
             sock.send(json.dumps({"command": "terminate"}).encode("utf8"))
@@ -356,10 +336,9 @@ class Node:
     def initialize_listener(self, config):
         self.sub_socket = self.context.socket(zmq.SUB)
 
-        self.sub_socket.setsockopt(zmq.LINGER, 100)
         input_node_ids = set()
-        for handler in self.handlers.values():
-            for event in handler.connected_events:
+        for handler_val in self.handlers.values():
+            for event in handler_val.connected_events:
                 input_node_ids.add(event.node_id)
 
         for input_node_id in input_node_ids:
@@ -368,14 +347,14 @@ class Node:
             addr = config[input_node_id]["publisher_endpoint"]
             self.sub_socket.connect(addr)
 
-            for handler in self.handlers.values():
-                for event in handler.connected_events:
+            for handler_val in self.handlers.values():
+                for event in handler_val.connected_events:
                     if event.node_id != input_node_id:
                         continue
                     self.event2handler.append(
                         (
                             _Event(event=event.declaration.name, source_id=event.node_id),
-                            handler.declaration.name,
+                            handler_val.declaration.name,
                         )
                     )
                     topic = "{source_id}|{event}".format(
@@ -390,7 +369,6 @@ class Node:
 
     def send_command(self, request):
         sock = self.context.socket(zmq.REQ)
-        sock.setsockopt(zmq.LINGER, 100)
         sock.connect(self.server_endpoint)
         sock.send(request.encode("utf8"))
         sock.close()
@@ -405,38 +383,53 @@ class Node:
             self.run_processor.join()
             break
         logging.debug(
-            "Node {name}:process_events_from_server finished".format(name=self.id)
+            "Node {type}_{id}:process_events_from_server finished".format(
+                type=type(self), id=self.id
+            )
         )
 
     def process_events(self):
-        logging.debug("Node {name}:process_events started".format(name=self.id))
+        logging.debug(
+            "Node {type}_{id}:process_events started".format(type=type(self), id=self.id)
+        )
         if len(self.event2handler) == 0:
-            logging.debug("Node {name}:process_events finished".format(name=self.id))
+            logging.debug(
+                "Node {type}_{id}:process_events finished".format(
+                    type=type(self), id=self.id
+                )
+            )
             return
         while not self.terminated:
             try:
                 logging.debug(
-                    "Node {name}: waiting for the next event...".format(name=self.id)
+                    "Node {type}_{id}: waiting for the next event...".format(
+                        type=type(self), id=self.id
+                    )
                 )
                 while not self.message_to_handlers.empty():
                     handler_name, message = self.message_to_handlers.get()
                     self.handlers[handler_name](message)
 
             except Exception as e:
-                logging.warning("Node {name}: Exception {e}".format(name=self.id, e=e))
+                logging.warning(
+                    "Node {type}_{id}: Exception {e}".format(
+                        type=type(self), id=self.id, e=e
+                    )
+                )
                 logging.warning(e.args)
                 break
 
-        logging.debug("Node {name}:process_events finished".format(name=self.id))
+        logging.debug(
+            "Node {type}_{id}:process_events finished".format(type=type(self), id=self.id)
+        )
 
     def execute(self):
         # step0: publisher
         self.pub_socket = self.context.socket(zmq.PUB)
-        self.pub_socket.setsockopt(zmq.LINGER, 100)
         self.pub_port = self.pub_socket.bind_to_random_port("tcp://127.0.0.1")
         logging.debug(
-            "Node {id}. Publisher connected to port={port}".format(
-                id=self.id, port=self.pub_port
+            "Node {type}_{id}. Publisher connected to port={port}".format(
+                type=type(self), id=self.id, port=self.pub_port
             )
         )
 
@@ -445,11 +438,10 @@ class Node:
 
         # step2: initialize service socket
         self.service_socket = self.context.socket(zmq.REP)
-        self.service_socket.setsockopt(zmq.LINGER, 100)
         self.service_port = self.service_socket.bind_to_random_port("tcp://127.0.0.1")
         logging.debug(
-            "Node {id}. Service connected to port={port}".format(
-                id=self.id, port=self.service_port
+            "Node {type}_{id}. Service connected to port={port}".format(
+                type=type(self), id=self.id, port=self.service_port
             )
         )
 
@@ -476,7 +468,7 @@ class Node:
 
         self.wait_answer_from_server()
 
-        logging.debug("Node {id}. initialized".format(id=self.id))
+        logging.debug("Node {type}_{id}. initialized".format(type=type(self), id=self.id))
 
         self.events_processor = threading.Thread(target=self.process_events)
         self.events_processor.start()
@@ -496,13 +488,20 @@ class Node:
             while True:
                 try:
                     msg = self.sub_socket.recv(zmq.NOBLOCK)
-                    logging.debug("Node {name}: received new event".format(name=self.id))
+                    logging.debug(
+                        "Node {type}_{id}: received new event".format(
+                            type=type(self), id=self.id
+                        )
+                    )
                     index = msg.find(b" ")
                     source_id, event = msg[:index].decode("utf8").split("|")
-                    binary_msg = basictypes_pb2.Message()
+                    binary_msg = basic_types_pb2.Message()
                     binary_msg.ParseFromString(msg[index + 1 :])
 
-                    msg_id, msg_value = ProtoSerializer().deserialize_message(binary_msg)
+                    (
+                        msg_id,
+                        msg_value,
+                    ) = proto_serializer.ProtoSerializer().deserialize_message(binary_msg)
                     message = Message(msg_id, source_id, event, msg_value)
                     handler_names = [
                         hand_name
@@ -510,8 +509,8 @@ class Node:
                         if _Event(source_id=source_id, event=event) == event_name
                     ]
                     logging.debug(
-                        "Node {name}: received event {event}".format(
-                            name=self.id, event=event
+                        "Node {type}_{id}: received event {event}".format(
+                            type=type(self), id=self.id, event=event
                         )
                     )
                     for hand_name in handler_names:
@@ -520,16 +519,18 @@ class Node:
                     break
             while not self.events_list.empty():
                 event, value, msg_id = self.events_list.get()
-                msg = ProtoSerializer().serialize_message(msg_id, value)
+                msg = proto_serializer.ProtoSerializer().serialize_message(msg_id, value)
                 prefix = "{id}|{event} ".format(id=self.id, event=event).encode("utf8")
                 logging.debug(
-                    "Node {name}: fire event {event}".format(
-                        name=self.id, event=str(prefix[:-1])
+                    "Node {type}_{id}: fire event {event}".format(
+                        type=type(self), id=self.id, event=str(prefix[:-1])
                     )
                 )
                 self.pub_socket.send(prefix + msg.SerializeToString(), zmq.DONTWAIT)
 
-        logging.debug("Node {id}. Execution started".format(id=self.id))
+        logging.debug(
+            "Node {type}_{id}. Execution started".format(type=type(self), id=self.id)
+        )
 
     def __del__(self):
         if not self.context.closed:

@@ -1,8 +1,9 @@
 import logging
 
-from caracal.declaration.projects import ProjectInfo
-import caracal.execution.node as NodePy
-from caracal.execution.nodeserver import NodeServer
+import caracal.declaration.projects as project
+import caracal.execution.node as node_py
+import caracal.execution.nodeserver as node_server
+
 
 current_session = None
 
@@ -19,7 +20,7 @@ class Session:
         self.name = name
         self.node_type_impls = {}
         self.nodes = {}
-        self.project = ProjectInfo()
+        self.project = project.ProjectInfo()
         self.server = None
 
     @staticmethod
@@ -33,23 +34,23 @@ class Session:
         for t_ in node_type_impls:
             self.node_type_impls[t_.__name__] = t_
 
-    def initialize(self, project_file, node_type_impls):
-        self.project = ProjectInfo.deserialize(project_file)
+    # def initialize(self, project_file, node_type_impls):
+    #     self.project = projects.ProjectInfo.deserialize(project_file)
 
-    def run_project(self, project: ProjectInfo):
-        for node in project.nodes.values():
+    def run_project(self, project_info: project.ProjectInfo):
+        for node in project_info.nodes.values():
             if node.session.name == self.name:
                 if node.node_type.name in self.node_type_impls:
                     self.node_type_impls[node.node_type.name](node.uid)
                 else:
                     raise NotImplementedError()
-        for edge in project.edges.values():
+        for edge in project_info.edges.values():
             if edge.dest_node.session.name == self.name:
                 if edge.source_node.session.name == self.name:
                     source_node = self.nodes[edge.source_node.uid]
                     event = source_node.events[edge.event_name]
                 else:
-                    event = NodePy.ExternalEvent(
+                    event = node_py.ExternalEvent(
                         edge.event_name,
                         edge.source_node.node_type.events[edge.event_name].data_type,
                         edge.source_node.uid,
@@ -68,13 +69,14 @@ class Session:
                 all_nodes = self.external_nodes
                 for node in self.nodes.values():
                     all_nodes.append(node.id)
+                if len(all_nodes) != len(set(all_nodes)):
+                    raise Exception("Mismatch in external nodes")
                 all_nodes = list(set(all_nodes))
-                self.server = NodeServer(all_nodes, self.server_port)
+                self.server = node_server.NodeServer(all_nodes, self.server_port)
                 self.server_port = self.server.port
                 self.server.start()
             logging.debug("Len of nodes values {}".format(len(self.nodes.values())))
             for key in self.nodes:
-                logging.warning(self.nodes[key].session.name)
                 self.nodes[key].server_port = self.server_port
                 self.nodes[key].start()
 
@@ -83,7 +85,7 @@ class Session:
             if self.server is not None:
                 self.server.wait()
         except Exception as e:
-            logging.critical("Session exception " + str(e))
+            logging.critical("Session exception. " + str(e))
 
     def add(self, node):
         self.nodes[node.id] = node
@@ -102,9 +104,3 @@ class Session:
         del self.server
         del self
         current_session = None
-
-    def find_node_by_value(self, value):
-        for _, node in self.project.nodes.items():
-            if node.type_id == value:
-                return node
-        return None

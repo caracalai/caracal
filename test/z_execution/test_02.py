@@ -1,8 +1,7 @@
 import logging
 import unittest
 
-import caracal.declaration.datatypes as caratypes
-from caracal.execution import Event, handler, Node, Session
+from caracal import cara_types, Event, handler, Node, Session
 
 
 def map_func(value):
@@ -14,32 +13,32 @@ result = list(map(lambda x: map_func(x), sent_array))
 
 
 class InitialList(Node):
-    values = Event("values", caratypes.List(caratypes.Int()))
+    values = Event("values", cara_types.List(cara_types.Int()))
 
     def run(self):
         self.fire(self.values, sent_array)
 
 
 class Exp(Node):
-    result = Event("result", caratypes.List(caratypes.Int()))
+    result = Event("result", cara_types.List(cara_types.Int()))
 
-    @handler("value", caratypes.List(caratypes.Int()))
+    @handler("value", cara_types.List(cara_types.Int()))
     def on_process_value(self, msg):
         self.fire(self.result, map_func(msg.value), msg.id)
 
 
 class Map(Node):
-    map_value = Event("map_value", caratypes.Object())
-    result = Event("result", caratypes.List(caratypes.Object()))
+    map_value = Event("map_value", cara_types.Object())
+    result = Event("result", cara_types.List(cara_types.Object()))
     requests = {}
 
-    @handler("initial_values", caratypes.List(caratypes.Int()))
+    @handler("initial_values", cara_types.List(cara_types.Int()))
     def set_initial_values(self, msg):
         self.requests[msg.id] = {"result": [], "size": len(msg.value)}
         for item in msg.value:
             self.fire(self.map_value, item, msg_id=msg.id)
 
-    @handler("processed_value", caratypes.Object())
+    @handler("processed_value", cara_types.Object())
     def process_value(self, msg):
         self.requests[msg.id]["result"].append(msg.value)
         if len(self.requests[msg.id]["result"]) == self.requests[msg.id]["size"]:
@@ -49,16 +48,16 @@ class Map(Node):
 
 
 class TestNode(Node):
-    @handler("receive_result", caratypes.Object())
+    @handler("receive_result", cara_types.Object())
     def receive_result(self, msg):
         self.result = msg.value
         self.terminate()
 
 
-class CheckGraphExecution_02(unittest.TestCase):
+class CheckGraphExecution02(unittest.TestCase):
     def setUp(self) -> None:
         with Session() as session:
-            logging.basicConfig(level=logging.DEBUG)
+            # logging.basicConfig(level=logging.DEBUG)
             self.listNode = InitialList("initial-list")
             self.mapNode = Map("map")
             self.expNode = Exp("exp")

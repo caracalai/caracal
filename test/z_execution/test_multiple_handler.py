@@ -2,12 +2,11 @@ import logging
 import multiprocessing
 import unittest
 
-from caracal.declaration import datatypes, MetaInfo
-from caracal.execution import Event, ExternalEvent, handler, Node, Property, Session
+from caracal import cara_types, Event, ExternalEvent, handler, Node, Property, Session
 
 
 class TicksGen(Node):
-    tick = Event("tick", datatypes.Tuple(datatypes.Int()))
+    tick = Event("tick", cara_types.Tuple(cara_types.Int()))
 
     def run(self):
         for i in range(1, 5):
@@ -15,17 +14,17 @@ class TicksGen(Node):
 
 
 class DoSmth(Node):
-    output = Event("output", datatypes.Tuple(datatypes.Int()))
+    output = Event("output", cara_types.Tuple(cara_types.Int()))
 
-    @handler("input_numbers", datatypes.Tuple(datatypes.Int()))
+    @handler("input_numbers", cara_types.Tuple(cara_types.Int()))
     def input_numbers(self, msg):
         self.fire(self.output, msg.value, msg.id)
 
 
 class DoSmthWithErr(Node):
-    output = Event("output", datatypes.Tuple(datatypes.Int()))
+    output = Event("output", cara_types.Tuple(cara_types.Int()))
 
-    @handler("input_numbers", datatypes.Tuple(datatypes.Int()))
+    @handler("input_numbers", cara_types.Tuple(cara_types.Int()))
     def input_numbers(self, msg):
         if msg.value not in [2, 3]:
             self.fire(self.output, msg.value, msg.id)
@@ -33,16 +32,16 @@ class DoSmthWithErr(Node):
 
 class Summat(Node):
     result = Property(
-        datatypes.Int(),
+        cara_types.Int(),
         default_value=0,
     )
 
-    @handler("input_numbers", datatypes.Tuple(datatypes.Object()), True)
+    @handler("input_numbers", cara_types.Tuple(cara_types.Object()), True)
     def input_numbers(self, msgs):
-        logging.critical(f"{self.__class__.__name__} received")
+        print(f"{self.__class__.__name__} received")
         self.result += sum((msg.value for msg in msgs.value))
         if self.result == 15:
-            logging.critical(self.result)
+            print(self.result)
             self.terminate()
 
 
@@ -53,7 +52,6 @@ def first_worker():
     with Session(
         name="first", server_port=port, external_nodes=["Summator", "action3"]
     ) as session:
-        # logging.basicConfig(level=logging.WARNING)
         gen = TicksGen(id_="Gen")
         action1 = DoSmth(id_="action1")
         action2 = DoSmthWithErr(id_="action2")
@@ -66,16 +64,15 @@ def first_worker():
 
 def second_worker(return_dict):
     with Session(name="second", server_port=2001, serves_server=False) as session:
-        # logging.basicConfig(level=logging.DEBUG)
         action3 = DoSmthWithErr(id_="action3")
         summat = Summat(id_="Summator")
 
-        gen_evt = ExternalEvent("tick", datatypes.Tuple(datatypes.Int()), node_id="Gen")
+        gen_evt = ExternalEvent("tick", cara_types.Tuple(cara_types.Int()), node_id="Gen")
         act1_evt = ExternalEvent(
-            "output", datatypes.Tuple(datatypes.Int()), node_id="action1"
+            "output", cara_types.Tuple(cara_types.Int()), node_id="action1"
         )
         act2_evt = ExternalEvent(
-            "output", datatypes.Tuple(datatypes.Int()), node_id="action2"
+            "output", cara_types.Tuple(cara_types.Int()), node_id="action2"
         )
 
         action3.input_numbers.connect(gen_evt)
@@ -87,7 +84,8 @@ def second_worker(return_dict):
 
 
 class MultipleHandlers(unittest.TestCase):
-    def test_multihandler_without_evt_id(self):
+    def test_multiple_handler_without_evt_id(self):
+        # logging.basicConfig(level=logging.DEBUG)
         manager = multiprocessing.Manager()
         return_dict = manager.dict()
         worker1 = multiprocessing.Process(target=first_worker)
@@ -98,3 +96,5 @@ class MultipleHandlers(unittest.TestCase):
 
         worker1.join()
         worker2.join()
+
+        self.assertEqual(return_dict["result"], 15)

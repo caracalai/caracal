@@ -1,13 +1,10 @@
-from __future__ import annotations
-
-import copy
 import pickle
-from typing import Dict, List
+import typing
 import uuid
 
+from caracal import typesparser
+from caracal.declaration import nodetype
 import caracal.declaration.datatypes as caratypes
-from caracal.declaration.nodetype import NodeTypeDeclaration
-from caracal.typesparser import TypesParser
 
 
 class SessionInfo:
@@ -18,7 +15,7 @@ class SessionInfo:
 
 
 class NodeInfo:
-    def __init__(self, node_type: NodeTypeDeclaration, session: SessionInfo):
+    def __init__(self, node_type: nodetype.NodeTypeDeclaration, session: SessionInfo):
         self.node_type = node_type
         self.property_values = {
             prop: val.default_value for prop, val in self.node_type.properties.items()
@@ -39,10 +36,10 @@ class NodeInfo:
 
     def serialize(self) -> dict:
         result = {
-            "type_id": self.node_type.uid,
-            "session_id": self.session.uid,
+            "type_uid": self.node_type.uid,
+            "session_uid": self.session.uid,
             "property_values": 1 / 0,
-            "id": self.uid,
+            "uid": self.uid,
         }
         return result
 
@@ -64,19 +61,19 @@ class EdgeInfo:
 
 class ProjectInfo:
     def __init__(self):
-        self.sessions: Dict[str, SessionInfo] = {}
-        self.node_types: Dict[str, NodeTypeDeclaration] = {}
-        self.nodes: Dict[str, NodeInfo] = {}
-        self.edges: Dict[str, EdgeInfo] = {}
+        self.sessions: typing.Dict[str, SessionInfo] = {}
+        self.node_types: typing.Dict[str, nodetype.NodeTypeDeclaration] = {}
+        self.nodes: typing.Dict[str, NodeInfo] = {}
+        self.edges: typing.Dict[str, EdgeInfo] = {}
         self.uid: str = str(uuid.uuid4())
 
-    def remove_node_type(self, node_type: NodeTypeDeclaration) -> None:
+    def remove_node_type(self, node_type: nodetype.NodeTypeDeclaration) -> None:
         if self.contains_node_type(node_type):
             del self.node_types[node_type.uid]
         else:
             raise RuntimeError()
 
-    def contains_node_type(self, node_type: NodeTypeDeclaration) -> bool:
+    def contains_node_type(self, node_type: nodetype.NodeTypeDeclaration) -> bool:
         return bool(
             [
                 nt
@@ -162,14 +159,13 @@ class ProjectInfo:
         return bool([s for s in self.sessions.values() if s.name == session.name])
 
     def create_node(
-        self, node_type: NodeTypeDeclaration, session: SessionInfo
+        self, node_type: nodetype.NodeTypeDeclaration, session: SessionInfo
     ) -> NodeInfo:
         if self.contains_session(session):
             node = NodeInfo(node_type, session)
             self.nodes[node.uid] = node
             return node
-        else:
-            raise RuntimeError()
+        raise RuntimeError()
 
     def contains_node(self, node: NodeInfo) -> bool:
         return node.uid in self.nodes
@@ -190,16 +186,16 @@ class ProjectInfo:
             raise RuntimeError()
 
     @staticmethod
-    def deserialize(data: str) -> ProjectInfo:
+    def deserialize(data: bytes) -> "ProjectInfo":
         return pickle.loads(data)
 
-    def serialize(self) -> str:
+    def serialize(self) -> bytes:
         return pickle.dumps(self)
 
     def parse_node_types_from_declaration(
         self, declaration: str
-    ) -> List[NodeTypeDeclaration]:
-        parser = TypesParser()
+    ) -> typing.List[nodetype.NodeTypeDeclaration]:
+        parser = typesparser.TypesParser()
         types = parser.parse(declaration)
         for node_type in types.values():
             if not self.contains_node_type(node_type):

@@ -1,3 +1,4 @@
+import typing
 import uuid
 
 
@@ -9,8 +10,8 @@ class ProgrammingLanguage:
 
 class Attribute:
     def __init__(self):
-        self.name = ""
-        self.values = {}
+        self.name: str = ""
+        self.values: dict = {}
 
 
 class MetaInfo:
@@ -21,16 +22,16 @@ class MetaInfo:
 class PropertyDeclaration:
     def __init__(
         self,
-        data_type,
-        name=None,
-        default_value=None,
+        data_type: type,
+        name: str = None,
+        default_value: object = None,
     ):
-        self.name = name
+        self.name: str = name
         self.data_type = data_type
-        self.default_value = default_value
+        self.default_value: object = default_value
 
     @property
-    def uid(self):
+    def uid(self) -> str:
         return "property"
 
     def __str__(self):
@@ -46,9 +47,10 @@ class PropertyDeclaration:
 
 
 class MethodDeclaration:
-    def __init__(self, name, data_type, info=None):
-        self.name = name
+    def __init__(self, name: str, data_type, info: typing.Union[MetaInfo, None] = None):
+        self.name: str = name
         self.data_type = data_type
+        self.info: typing.Union[MetaInfo, None] = info
 
     @property
     def argument_names(self):
@@ -60,7 +62,7 @@ class MethodDeclaration:
 
 
 class HandlerDeclaration(MethodDeclaration):
-    def __init__(self, name, data_type, receives_multiple, info=None):
+    def __init__(self, name: str, data_type, receives_multiple: bool, info: str = None):
         super(HandlerDeclaration, self).__init__(name, data_type, info)
         self.receives_multiple = receives_multiple
         self.uid = str(uuid.uuid4())
@@ -78,7 +80,7 @@ class HandlerDeclaration(MethodDeclaration):
 
 class EventDeclaration(MethodDeclaration):
     @property
-    def uid(self):
+    def uid(self) -> str:
         return self.name
 
     def __str__(self):
@@ -97,11 +99,11 @@ class NodeTypeDeclaration:
     GLOBAL_NAMESPACE_NAME = "global"
 
     def __init__(self):
-        self.handlers = {}
-        self.events = {}
-        self.properties = {}
-        self.name = None
-        self.attributes = {}
+        self.handlers: dict = {}
+        self.events: dict = {}
+        self.properties: dict = {}
+        self.name: typing.Union[str, None] = None
+        self.attributes: dict = {}
         self.project_info = None
         self.uid: str = str(uuid.uuid4())
 
@@ -151,41 +153,3 @@ class NodeTypeDeclaration:
         if events != "\tevents:\n":
             result += events
         return result
-
-    # def serialize(self):
-    #     result = {"name": self.name}
-    #
-    #     handlers = {}
-    #     for item in self.handlers.values():
-    #         handlers[item.id] = item.serialize()
-    #     result["handlers"] = handlers
-    #
-    #     events = {}
-    #     for item in self.events.values():
-    #         events[item.id] = item.serialize()
-    #     result["events"] = events
-    #
-    #     declaration = {}
-    #     for item in self.declaration.values():
-    #         declaration[item.id] = item.serialize()
-    #     result["declaration"] = declaration
-    #
-    #     return result
-    #
-    #     # for n in self.nodes.values():
-    #     #     declaration = {}
-    #     #     for prop_name, info in n.type.declaration.items():
-    #     #         prop_value = info.default_value
-    #     #         if prop_name in n.property_values:
-    #     #             prop_value = n.property_values[prop_name]
-    #     #         if prop_value != None:
-    #     #             declaration[prop_name] = base64.b64encode(
-    #     #                 ProtoSerializer().serialize_message(0, prop_value)
-    #     #                 .SerializeToString()
-    #     #             ).decode('ascii')
-    #     #     result["nodes"][n.id] = {
-    #     #         "type": {
-    #     #             "name": n.type.name,
-    #     #             "declaration": declaration
-    #     #         }
-    #     #     }

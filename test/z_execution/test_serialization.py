@@ -4,7 +4,7 @@
 # import time
 # import unittest
 #
-# from caracal.declaration import datatypes as caratypes
+# from caracal.declaration import datatypes as cara_types
 # from caracal.execution import Event, handler, Node, Session
 #
 #
@@ -14,8 +14,8 @@
 #         self.results = []
 #         self.batch_results = []
 #
-#     generated_val = Event("generated_val", caratypes.Tuple(caratypes.Int()))
-#     generated_batch = Event("generated_batch", caratypes.List(caratypes.Int()))
+#     generated_val = Event("generated_val", cara_types.Tuple(cara_types.Int()))
+#     generated_batch = Event("generated_batch", cara_types.List(cara_types.Int()))
 #
 #     def run(self):
 #         value = 0
@@ -50,7 +50,7 @@
 #         self.results = []
 #         self.batch_results = []
 #
-#     @handler("receive", caratypes.Tuple(caratypes.Int()))
+#     @handler("receive", cara_types.Tuple(cara_types.Int()))
 #     def on_received_value(self, msg):
 #         if msg.value == 0:
 #             logging.warning("deserialization avg time:")
@@ -65,7 +65,7 @@
 #         self.results.append(timer_end - self.timer_start)
 #         self.timer_start = time.time()
 #
-#     @handler("receive_batch", caratypes.List(caratypes.Int()))
+#     @handler("receive_batch", cara_types.List(cara_types.Int()))
 #     def on_received_batch(self, msg):
 #         timer_end = time.time()
 #         self.batch_results.append(timer_end - self.timer_start)
@@ -78,8 +78,8 @@
 #         self.results = []
 #         self.batch_results = []
 #
-#     generated_val = Event("generated_val", caratypes.Tuple(caratypes.Int()))
-#     generated_batch = Event("generated_batch", caratypes.List(caratypes.Int()))
+#     generated_val = Event("generated_val", cara_types.Tuple(cara_types.Int()))
+#     generated_batch = Event("generated_batch", cara_types.List(cara_types.Int()))
 #
 #     def run(self):
 #         value = 0
@@ -114,7 +114,7 @@
 #         self.results = []
 #         self.batch_results = []
 #
-#     @handler("receive", caratypes.Tuple(caratypes.Int()))
+#     @handler("receive", cara_types.Tuple(cara_types.Int()))
 #     def on_received_value(self, msg):
 #         if msg.value == 0:
 #             logging.warning("deserialization avg time:")
@@ -129,7 +129,7 @@
 #         self.results.append(timer_end - self.timer_start)
 #         self.timer_start = time.time()
 #
-#     @handler("receive_batch", caratypes.List(caratypes.Int()))
+#     @handler("receive_batch", cara_types.List(cara_types.Int()))
 #     def on_received_batch(self, msg):
 #         timer_end = time.time()
 #         self.batch_results.append(timer_end - self.timer_start)
@@ -142,8 +142,8 @@
 #         self.results = []
 #         self.batch_results = []
 #
-#     generated_val = Event("generated_val", caratypes.Tuple(caratypes.Int()))
-#     generated_batch = Event("generated_batch", caratypes.List(caratypes.Int()))
+#     generated_val = Event("generated_val", cara_types.Tuple(cara_types.Int()))
+#     generated_batch = Event("generated_batch", cara_types.List(cara_types.Int()))
 #
 #     def run(self):
 #         batch = []
@@ -180,7 +180,7 @@
 #         self.results = []
 #         self.batch_results = []
 #
-#     @handler("receive", caratypes.Tuple(caratypes.Int()))
+#     @handler("receive", cara_types.Tuple(cara_types.Int()))
 #     def on_received_value(self, msg):
 #         if msg.value == 0:
 #             logging.warning("deserialization avg time:")
@@ -195,7 +195,7 @@
 #         self.results.append(timer_end - self.timer_start)
 #         self.timer_start = time.time()
 #
-#     @handler("receive_batch", caratypes.List(caratypes.Int()))
+#     @handler("receive_batch", cara_types.List(cara_types.Int()))
 #     def on_received_batch(self, msg):
 #         timer_end = time.time()
 #         self.batch_results.append(timer_end - self.timer_start)
@@ -208,8 +208,8 @@
 #         self.results = []
 #         self.batch_results = []
 #
-#     generated_val = Event("generated_val", caratypes.Tuple(caratypes.Int()))
-#     generated_batch = Event("generated_batch", caratypes.List(caratypes.Int()))
+#     generated_val = Event("generated_val", cara_types.Tuple(cara_types.Int()))
+#     generated_batch = Event("generated_batch", cara_types.List(cara_types.Int()))
 #
 #     def run(self):
 #         batch = []
@@ -243,7 +243,7 @@
 #         self.results = []
 #         self.batch_results = []
 #
-#     @handler("receive", caratypes.Tuple(caratypes.Int()))
+#     @handler("receive", cara_types.Tuple(cara_types.Int()))
 #     def on_received_value(self, msg):
 #         timer_end = time.time()
 #         self.results.append(timer_end - self.timer_start)
@@ -258,7 +258,7 @@
 #             self.terminate()
 #             return
 #
-#     @handler("receive_batch", caratypes.List(caratypes.Int()))
+#     @handler("receive_batch", cara_types.List(cara_types.Int()))
 #     def on_received_batch(self, msg):
 #         timer_end = time.time()
 #         self.batch_results.append(timer_end - self.timer_start)

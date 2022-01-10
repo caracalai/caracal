@@ -1,6 +1,7 @@
 from caracal.execution.node import (
     Event,
     ExternalEvent,
+    Message,
     Handler,
     handler,
     Node,

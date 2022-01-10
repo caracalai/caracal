@@ -1,14 +1,14 @@
 import unittest
 
 from caracal.declaration import MetaInfo
-import caracal.declaration.datatypes as caratypes
+import caracal.declaration.datatypes as cara_types
 from caracal.declaration.projects import ProjectInfo
 from caracal.execution import Event, handler, Node, Property, Session
 
 
 class Node1(Node):
-    threshold = Property(caratypes.Int(), default_value=10)
-    value = Event("value", caratypes.Int())
+    threshold = Property(cara_types.Int(), default_value=10)
+    value = Event("value", cara_types.Int())
 
     def run(self):
         self.fire(self.value, 10)
@@ -18,15 +18,15 @@ result = -1
 
 
 class Node2(Node):
-    result = Event("result", caratypes.Int())
+    result = Event("result", cara_types.Int())
 
-    @handler("handler1", caratypes.Int(), False, MetaInfo())
+    @handler("handler1", cara_types.Int(), False, MetaInfo())
     def handler1(self, msg):
         self.fire(self.result, msg.value + 10)
 
 
 class ResultNode(Node):
-    @handler("result", caratypes.Int(), False, MetaInfo())
+    @handler("result", cara_types.Int(), False, MetaInfo())
     def result(self, msg):
         global result
         result = msg.value

@@ -1,41 +1,39 @@
 import logging
 import unittest
 
-from caracal.declaration import MetaInfo
-import caracal.declaration.datatypes as caratypes
-from caracal.execution import Event, handler, Node, Property, Session
+from caracal import cara_types, Event, handler, MetaInfo, Node, Property, Session
 
 
 class Generator1(Node):
-    threshold = Property(caratypes.Int(), default_value=5)
-    value = Event("value", caratypes.Int())
+    threshold = Property(cara_types.Int(), default_value=5)
+    value = Event("value", cara_types.Int())
 
     def run(self):
         self.fire(self.value, self.threshold)
 
 
 class Generator2(Node):
-    threshold = Property(caratypes.Int(), default_value=2)
-    value = Event("value", caratypes.Int())
+    threshold = Property(cara_types.Int(), default_value=2)
+    value = Event("value", cara_types.Int())
 
     def run(self):
         self.fire(self.value, self.threshold)
 
 
 class Summat(Node):
-    result = Event("result", caratypes.Int())
+    result = Event("result", cara_types.Int())
 
     summa = 0
 
     a_queue = []
     b_queue = []
 
-    @handler("a", caratypes.Int(), False, MetaInfo())
+    @handler("a", cara_types.Int(), False, MetaInfo())
     def a(self, msg):
         self.a_queue.append(msg.value)
         self.run()
 
-    @handler("b", caratypes.Int(), False, MetaInfo())
+    @handler("b", cara_types.Int(), False, MetaInfo())
     def b(self, msg):
         self.b_queue.append(msg.value)
         self.run()
@@ -45,13 +43,13 @@ class Summat(Node):
             a, *self.a_queue = self.a_queue
             b, *self.b_queue = self.b_queue
             self.summa = a + b
-            logging.warning(f"a + b = {a} + {b} = { self.summa }")
+            print(f"a + b = {a} + {b} = { self.summa }")
             self.terminate()
 
 
 class TestDownloadedProject(unittest.TestCase):
-    def __init__(self, methodName="runTest"):
-        super(TestDownloadedProject, self).__init__(methodName)
+    def __init__(self, method_name="runTest"):
+        super(TestDownloadedProject, self).__init__(method_name)
 
     def test_case(self):
         with Session() as session:

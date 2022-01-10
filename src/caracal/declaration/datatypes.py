@@ -1,4 +1,5 @@
 import copy
+import typing
 
 
 class TypeBase:
@@ -8,22 +9,19 @@ class TypeBase:
     def equal(self, other) -> bool:
         return self.contains(other) and other.contains(self)
 
-    def contains(self, other):
+    def contains(self, other) -> bool:
         raise Exception("Method is not implemented")
 
-    def contains_value(self, value):
+    def contains_value(self, value) -> bool:
         raise Exception("Method is not implemented")
 
     @property
-    def is_composite(self):
+    def is_composite(self) -> bool:
         return False
 
     @property
-    def name(self):
+    def name(self) -> str:
         return "TypeBase"
-
-    def __str__(self):
-        return self.name
 
     def intersect(self, other):
         if type(self) == type(other):
@@ -39,6 +37,9 @@ class TypeBase:
             return other.intersect(self)
         return None
 
+    def __str__(self):
+        return self.name
+
 
 class Object(TypeBase):
     def __init__(self):
@@ -53,7 +54,7 @@ class Object(TypeBase):
         raise Exception(f"{self.name}.contains({other.name}): Method is not implemented")
 
     @property
-    def name(self):
+    def name(self) -> str:
         return "object"
 
 
@@ -61,11 +62,11 @@ class Void(Object):
     def __init__(self):
         super().__init__()
 
-    def contains_value(self, value):
+    def contains_value(self, value) -> bool:
         return False
 
     @property
-    def name(self):
+    def name(self) -> str:
         return "void"
 
 
@@ -73,11 +74,11 @@ class Float(Object):
     def __init__(self):
         super().__init__()
 
-    def contains_value(self, value):
+    def contains_value(self, value) -> bool:
         return isinstance(value, (float, int))
 
     @property
-    def name(self):
+    def name(self) -> str:
         return "float"
 
 
@@ -85,11 +86,11 @@ class Int(Object):
     def __init__(self):
         super().__init__()
 
-    def contains_value(self, value):
+    def contains_value(self, value) -> bool:
         return isinstance(value, int)
 
     @property
-    def name(self):
+    def name(self) -> str:
         return "int"
 
 
@@ -97,11 +98,11 @@ class Boolean(Object):
     def __init__(self):
         super().__init__()
 
-    def contains_value(self, value):
+    def contains_value(self, value) -> bool:
         return isinstance(value, bool)
 
     @property
-    def name(self):
+    def name(self) -> str:
         return "boolean"
 
 
@@ -109,11 +110,11 @@ class String(Object):
     def __init__(self):
         super().__init__()
 
-    def contains_value(self, value):
+    def contains_value(self, value) -> bool:
         return type(value) is str
 
     @property
-    def name(self):
+    def name(self) -> str:
         return "string"
 
 
@@ -122,7 +123,7 @@ class Image(Object):
         super().__init__()
 
     @property
-    def name(self):
+    def name(self) -> str:
         return "image"
 
 
@@ -131,7 +132,7 @@ class BinaryArray(Object):
         super().__init__()
 
     @property
-    def name(self):
+    def name(self) -> str:
         return "binaryfile"
 
 
@@ -140,7 +141,7 @@ class VideoStream(Object):
         super(VideoStream, self).__init__()
 
     @property
-    def name(self):
+    def name(self) -> str:
         return "videostream"
 
 
@@ -149,22 +150,22 @@ class Rect(Object):
         super().__init__()
 
     @property
-    def name(self):
+    def name(self) -> str:
         return "rect"
 
 
 class List(Object):
     def __init__(self, basic_type: Object):
         super().__init__()
-        self.basic_type = basic_type
+        self.basic_type: Object = basic_type
 
-    def contains_value(self, value):
+    def contains_value(self, value) -> bool:
         if not type(value) is list:
             return False
         return True
 
     @property
-    def name(self):
+    def name(self) -> str:
         return f"list({self.basic_type.name})"
 
 
@@ -172,33 +173,33 @@ class DataSource(Object):
     def __init__(self):
         super().__init__()
 
-    def contains_value(self, value):
+    def contains_value(self, value) -> bool:
         return type(value) is str
 
     @property
-    def name(self):
+    def name(self) -> str:
         return "datasource"
 
 
 class Tuple(Object):
     def __init__(self, *types):
         super().__init__()
-        self.item_types = list(types)
+        self.item_types: list = list(types)
 
     @property
-    def type_count(self):
+    def type_count(self) -> int:
         return len(self.item_types)
 
-    def item_type(self, index):
+    def item_type(self, index: int) -> Object:
         return self.item_types[index]
 
     @staticmethod
-    def create_from(input_tuple, index, newType):
+    def create_from(input_tuple: "Tuple", index: int, new_type: Object) -> "Tuple":
         types = [copy.deepcopy(type_) for type_ in input_tuple.item_types]
-        types[index] = copy.deepcopy(newType)
+        types[index] = copy.deepcopy(new_type)
         return Tuple(types)
 
-    def contains_value(self, value):
+    def contains_value(self, value) -> bool:
         if not type(value) is tuple:
             return False
         for v, t in zip(value, self.item_types):
@@ -207,14 +208,14 @@ class Tuple(Object):
         return True
 
     @property
-    def is_composite(self):
+    def is_composite(self) -> bool:
         return True
 
     @property
-    def name(self):
+    def name(self) -> str:
         return f'tuple({", ".join([x.name for x in self.item_types])})'
 
-    def intersect(self, other):
+    def intersect(self, other) -> typing.Union[Object, None]:
         if type(other) == Object:
             return other.intersect(self)
         if type(other) != type(self):
