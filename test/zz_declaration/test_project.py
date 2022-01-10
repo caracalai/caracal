@@ -116,7 +116,7 @@ class TestProject(unittest.TestCase):
             session_2 = project.create_session("session_2")
 
             my_node = project.create_node(foo_type, session)
-            my_node.set_uid('my_node')
+            my_node.set_uid("my_node")
 
             self.assertTrue(
                 project.contains_node(my_node),
