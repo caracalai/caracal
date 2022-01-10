@@ -12,7 +12,7 @@ class ProtoSerializer:
         if isinstance(value, Any):
             for t in [
                 basictypes_pb2.StringValue,
-                basictypes_pb2.ImageValue,
+                basictypes_pb2.NdarrayValue,
                 basictypes_pb2.BooleanValue,
                 basictypes_pb2.IntValue,
                 basictypes_pb2.FloatValue,
@@ -41,11 +41,11 @@ class ProtoSerializer:
         #     result.width = width
         #     result.height = height
         #     return result
-        if isinstance(value, basictypes_pb2.ImageValue):
+        if isinstance(value, basictypes_pb2.NdarrayValue):
             shape = [self.deserialize_value(item) for item in value.shape]
             image = np.frombuffer(value.data, dtype=np.uint8)
             image = np.reshape(image, shape)
-            return basictypes.Image(image=image)
+            return basictypes.Ndarray(image=image)
         if isinstance(value, basictypes_pb2.CameraValue):
             return basictypes.Camera(url=value.url)
         if isinstance(value, (basictypes_pb2.TupleValue, basictypes_pb2.ListValue)):
@@ -77,8 +77,8 @@ class ProtoSerializer:
             result = basictypes_pb2.BooleanValue()
             result.value = value
             return result
-        if isinstance(value, basictypes.Image):
-            result = basictypes_pb2.ImageValue()
+        if isinstance(value, basictypes.Ndarray):
+            result = basictypes_pb2.NdarrayValue()
             result.data = np.ndarray.tobytes(value.image)
             for val in value.shape:
                 obj = result.shape.add()

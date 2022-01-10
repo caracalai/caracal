@@ -1,8 +1,5 @@
 import logging
 import unittest
-import typing
-
-Event((int, list[int], str))
 
 from caracal import cara_types, Event, handler, MetaInfo, Node, Property, Session
 

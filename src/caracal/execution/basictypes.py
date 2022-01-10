@@ -1,7 +1,7 @@
 import numpy
 
 
-class Image:
+class Ndarray:
     def __init__(self, image: numpy.ndarray):
         self.image = image
         self.shape = image.shape
