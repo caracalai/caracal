@@ -119,7 +119,7 @@ class String(Object):
         return "string"
 
 
-class Image(Object):
+class Ndarray(Object):
     def __init__(self):
         super().__init__()
 
@@ -128,7 +128,7 @@ class Image(Object):
 
     @property
     def name(self) -> str:
-        return "image"
+        return "ndarray"
 
 
 class BinaryArray(Object):
