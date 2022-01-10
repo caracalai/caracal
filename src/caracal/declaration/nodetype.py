@@ -37,7 +37,12 @@ class PropertyDeclaration:
         if self.default_value is None:
             return f"{self.name}: {self.data_type}"
         else:
-            return f"{self.name}: {self.data_type}({self.default_value})"
+            value = (
+                self.default_value
+                if not isinstance(self.default_value, str)
+                else f'"{self.default_value}"'
+            )
+            return f"{self.name}: {self.data_type}({value})"
 
 
 class MethodDeclaration:
