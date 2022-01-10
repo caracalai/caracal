@@ -1,6 +1,6 @@
 import logging
 import unittest
-import  typing
+import typing
 
 Event((int, list[int], str))
 
