@@ -34,6 +34,14 @@ class NodeInfo:
 
         self.property_values[name] = value
 
+    def set_uid(self, new_uid):
+        if not isinstance(new_uid, str):
+            raise Exception
+
+        del self.session.project.nodes[self.uid]
+        self.session.project.nodes[new_uid] = self
+        self.uid = new_uid
+
     def serialize(self) -> dict:
         result = {
             "type_uid": self.node_type.uid,
