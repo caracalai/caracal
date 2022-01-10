@@ -99,7 +99,7 @@ class TypesParser:
             value = self._handle_literal(prop_initialization_value_tree)
         else:
             value = None
-        return name, nodetype.PropertyDeclaration(property_type, None, value)
+        return name, nodetype.PropertyDeclaration(property_type, name, value)
 
     def _handle_all_properties_section(self, tree):
         result = {}
