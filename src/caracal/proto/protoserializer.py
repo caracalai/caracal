@@ -42,8 +42,9 @@ class ProtoSerializer:
         #     result.height = height
         #     return result
         if isinstance(value, basictypes_pb2.ImageValue):
+            shape = [self.deserialize_value(item) for item in value.shape]
             image = np.frombuffer(value.data, dtype=np.uint8)
-            image = np.reshape(image, value.shape)
+            image = np.reshape(image, shape)
             return basictypes.Image(image=image)
         if isinstance(value, basictypes_pb2.CameraValue):
             return basictypes.Camera(url=value.url)
@@ -79,7 +80,9 @@ class ProtoSerializer:
         if isinstance(value, basictypes.Image):
             result = basictypes_pb2.ImageValue()
             result.data = np.ndarray.tobytes(value.image)
-            result.shape = value.shape
+            for val in value.shape:
+                obj = result.shape.add()
+                obj.Pack(self.serialize_value(val))
             return result
         if isinstance(value, tuple):
             result = basictypes_pb2.TupleValue()
@@ -96,12 +99,6 @@ class ProtoSerializer:
         if isinstance(value, basictypes.Camera):
             result = basictypes_pb2.CameraValue()
             result.url = value.url
-            return result
-        if isinstance(value, basictypes.Image):
-            result = basictypes_pb2.ImageValue()
-            result.width = value.width
-            result.height = value.height
-            result.data = value.image
             return result
         raise RuntimeError("Undefined value")
 
