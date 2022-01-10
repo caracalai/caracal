@@ -43,7 +43,7 @@ class ProtoSerializer:
         #     return result
         if isinstance(value, basictypes_pb2.ImageValue):
             image = np.frombuffer(value.data, dtype=np.uint8)
-            image = np.reshape(image, (value.height, value.width, 3))
+            image = np.reshape(image, value.shape)
             return basictypes.Image(image=image)
         if isinstance(value, basictypes_pb2.CameraValue):
             return basictypes.Camera(url=value.url)
@@ -79,9 +79,7 @@ class ProtoSerializer:
         if isinstance(value, basictypes.Image):
             result = basictypes_pb2.ImageValue()
             result.data = np.ndarray.tobytes(value.image)
-            height, width, _ = value.image.shape
-            result.width = width
-            result.height = height
+            result.shape = value.shape
             return result
         if isinstance(value, tuple):
             result = basictypes_pb2.TupleValue()

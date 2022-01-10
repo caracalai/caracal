@@ -1,5 +1,6 @@
 import copy
 import typing
+import numpy
 
 
 class TypeBase:
@@ -122,6 +123,9 @@ class Image(Object):
     def __init__(self):
         super().__init__()
 
+    def contains_value(self, value) -> bool:
+        return isinstance(value, numpy.ndarray)
+
     @property
     def name(self) -> str:
         return "image"
@@ -130,6 +134,9 @@ class Image(Object):
 class BinaryArray(Object):
     def __init__(self):
         super().__init__()
+
+    def contains_value(self, value) -> bool:
+        return isinstance(value, str)
 
     @property
     def name(self) -> str:
@@ -140,6 +147,9 @@ class VideoStream(Object):
     def __init__(self):
         super(VideoStream, self).__init__()
 
+    def contains_value(self, value) -> bool:
+        return isinstance(value, str)
+
     @property
     def name(self) -> str:
         return "videostream"
@@ -148,6 +158,9 @@ class VideoStream(Object):
 class Rect(Object):
     def __init__(self):
         super().__init__()
+
+    def contains_value(self, value) -> bool:
+        return isinstance(value, tuple)
 
     @property
     def name(self) -> str:
@@ -160,7 +173,7 @@ class List(Object):
         self.basic_type: Object = basic_type
 
     def contains_value(self, value) -> bool:
-        if not type(value) is list:
+        if not isinstance(value, list):
             return False
         return True
 
@@ -174,7 +187,7 @@ class DataSource(Object):
         super().__init__()
 
     def contains_value(self, value) -> bool:
-        return type(value) is str
+        return isinstance(value, str)
 
     @property
     def name(self) -> str:
@@ -200,7 +213,7 @@ class Tuple(Object):
         return Tuple(types)
 
     def contains_value(self, value) -> bool:
-        if not type(value) is tuple:
+        if not isinstance(value, tuple):
             return False
         for v, t in zip(value, self.item_types):
             if not t.contains_value(v):

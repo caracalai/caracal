@@ -1,6 +1,10 @@
+import numpy
+
+
 class Image:
-    def __init__(self, image):
+    def __init__(self, image: numpy.ndarray):
         self.image = image
+        self.shape = image.shape
 
 
 class Camera:
