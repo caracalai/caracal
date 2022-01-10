@@ -10,7 +10,7 @@ message Message {
 
 message ImageValue {
     required bytes data = 1;
-    repeated int32 shape = 2;
+    repeated int64 shape = 2;
 };
 
 message StringValue {
