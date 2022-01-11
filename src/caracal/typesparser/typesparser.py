@@ -57,10 +57,7 @@ class TypesParser:
             "tuple": datatypes.Tuple,
             "list": datatypes.List,
 
-            "binaryfile": datatypes.BinaryArray,
-            "videostream": datatypes.VideoStream,
-            "image": datatypes.Image,
-            "rect": datatypes.Rect,
+            "ndarray": datatypes.Ndarray,
             "void": datatypes.Void
         }
 

@@ -14,7 +14,7 @@ class CheckProperties(unittest.TestCase):
                         border_width: int(10)
                         opt_param?: int  // optional parameter without default value
                         string_param: string
-                        image_param: image
+                        image_param: ndarray
                         list_param: list(string)
                     handlers:
                         value(val:int)

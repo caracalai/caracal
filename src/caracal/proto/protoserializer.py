@@ -16,7 +16,6 @@ class ProtoSerializer:
                 basictypes_pb2.BooleanValue,
                 basictypes_pb2.IntValue,
                 basictypes_pb2.FloatValue,
-                basictypes_pb2.CameraValue,
                 basictypes_pb2.TupleValue,
                 basictypes_pb2.ListValue,
             ]:
@@ -34,20 +33,11 @@ class ProtoSerializer:
             return value.value
         if isinstance(value, basictypes_pb2.BooleanValue):
             return value.value
-        # if isinstance(value, basictypes.Image):
-        #     result = basictypes_pb2.ImageValue()
-        #     result.data = cv2.imencode('.jpg', value.value)[1].tobytes()
-        #     height, width, channels = value.value.shape
-        #     result.width = width
-        #     result.height = height
-        #     return result
         if isinstance(value, basictypes_pb2.NdarrayValue):
             shape = [self.deserialize_value(item) for item in value.shape]
-            image = np.frombuffer(value.data, dtype=np.uint8)
+            image = np.frombuffer(value.data, np.__dict__[value.data_type])
             image = np.reshape(image, shape)
             return basictypes.Ndarray(image=image)
-        if isinstance(value, basictypes_pb2.CameraValue):
-            return basictypes.Camera(url=value.url)
         if isinstance(value, (basictypes_pb2.TupleValue, basictypes_pb2.ListValue)):
             items = [self.deserialize_value(item) for item in value.items]
             if isinstance(value, basictypes_pb2.TupleValue):
@@ -80,6 +70,7 @@ class ProtoSerializer:
         if isinstance(value, basictypes.Ndarray):
             result = basictypes_pb2.NdarrayValue()
             result.data = np.ndarray.tobytes(value.image)
+            result.data_type = value.data_type
             for val in value.shape:
                 obj = result.shape.add()
                 obj.Pack(self.serialize_value(val))
@@ -95,10 +86,6 @@ class ProtoSerializer:
             for item in value:
                 obj = result.items.add()
                 obj.Pack(self.serialize_value(item))
-            return result
-        if isinstance(value, basictypes.Camera):
-            result = basictypes_pb2.CameraValue()
-            result.url = value.url
             return result
         raise RuntimeError("Undefined value")
 

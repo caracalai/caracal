@@ -1,6 +1,7 @@
 import copy
 import typing
-import numpy
+
+import numpy as np
 
 
 class TypeBase:
@@ -124,47 +125,11 @@ class Ndarray(Object):
         super().__init__()
 
     def contains_value(self, value) -> bool:
-        return isinstance(value, numpy.ndarray)
+        return isinstance(value, np.ndarray)
 
     @property
     def name(self) -> str:
         return "ndarray"
-
-
-class BinaryArray(Object):
-    def __init__(self):
-        super().__init__()
-
-    def contains_value(self, value) -> bool:
-        return isinstance(value, str)
-
-    @property
-    def name(self) -> str:
-        return "binaryfile"
-
-
-class VideoStream(Object):
-    def __init__(self):
-        super(VideoStream, self).__init__()
-
-    def contains_value(self, value) -> bool:
-        return isinstance(value, str)
-
-    @property
-    def name(self) -> str:
-        return "videostream"
-
-
-class Rect(Object):
-    def __init__(self):
-        super().__init__()
-
-    def contains_value(self, value) -> bool:
-        return isinstance(value, tuple)
-
-    @property
-    def name(self) -> str:
-        return "rect"
 
 
 class List(Object):
@@ -180,18 +145,6 @@ class List(Object):
     @property
     def name(self) -> str:
         return f"list({self.basic_type.name})"
-
-
-class DataSource(Object):
-    def __init__(self):
-        super().__init__()
-
-    def contains_value(self, value) -> bool:
-        return isinstance(value, str)
-
-    @property
-    def name(self) -> str:
-        return "datasource"
 
 
 class Tuple(Object):

@@ -18,25 +18,25 @@ type_decl = """
                    @namespace(name="bar")
                    node MySecondNode:
                        properties:
-                           myProp1: image
+                           myProp1: ndarray
                            myProp2: string("test")
                            myProp3: float(1.1)
                        handlers:
                            myHndl(myVal1:int, myVal2:string, myVal3:list(int))
                            myScndHndl+(myVal4: int)
                        events:
-                           myEvt(myVal1:videostream)
+                           myEvt(myVal1:string)
 
                    @namespace(name="baz")
                    node MyThirdNode:
                        properties:
-                           myProp1: image
+                           myProp1: ndarray
                            myProp2: boolean
                            myProp3: float(1.6)
                        handlers:
                            myHndl(myVal1:int, myVal2:string, myVal3:list(int))
                        events:
-                           myEvt(myVal1:videostream)
+                           myEvt(myVal1:string)
                    """
 
 
