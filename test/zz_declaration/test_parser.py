@@ -16,7 +16,7 @@ class TestParse(unittest.TestCase):
             node NodeType:
                 handlers:
                     value(val:int)
-                    processFile(file:BinaryFile)
+                    processFile(file:string)
                     value2(a: tuple(int, int))
                 events:
                     event1(a: int, b: float)

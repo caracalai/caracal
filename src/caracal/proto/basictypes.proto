@@ -8,10 +8,10 @@ message Message {
   required google.protobuf.Any value = 2;
 }
 
-message ImageValue {
+message NdarrayValue {
     required bytes data = 1;
-    required int32 height = 2;
-    required int32 width = 3;
+    required string data_type = 2;
+    repeated google.protobuf.Any shape = 3;
 };
 
 message StringValue {
@@ -28,10 +28,6 @@ message IntValue {
 
 message FloatValue {
   required double value = 1;
-}
-
-message CameraValue {
-  required string url = 1;
 }
 
 message TupleValue {

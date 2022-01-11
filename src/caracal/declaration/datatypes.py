@@ -1,6 +1,8 @@
 import copy
 import typing
 
+import numpy as np
+
 
 class TypeBase:
     def __init__(self):
@@ -118,40 +120,16 @@ class String(Object):
         return "string"
 
 
-class Image(Object):
+class Ndarray(Object):
     def __init__(self):
         super().__init__()
 
-    @property
-    def name(self) -> str:
-        return "image"
-
-
-class BinaryArray(Object):
-    def __init__(self):
-        super().__init__()
+    def contains_value(self, value) -> bool:
+        return isinstance(value, np.ndarray)
 
     @property
     def name(self) -> str:
-        return "binaryfile"
-
-
-class VideoStream(Object):
-    def __init__(self):
-        super(VideoStream, self).__init__()
-
-    @property
-    def name(self) -> str:
-        return "videostream"
-
-
-class Rect(Object):
-    def __init__(self):
-        super().__init__()
-
-    @property
-    def name(self) -> str:
-        return "rect"
+        return "ndarray"
 
 
 class List(Object):
@@ -160,25 +138,13 @@ class List(Object):
         self.basic_type: Object = basic_type
 
     def contains_value(self, value) -> bool:
-        if not type(value) is list:
+        if not isinstance(value, list):
             return False
         return True
 
     @property
     def name(self) -> str:
         return f"list({self.basic_type.name})"
-
-
-class DataSource(Object):
-    def __init__(self):
-        super().__init__()
-
-    def contains_value(self, value) -> bool:
-        return type(value) is str
-
-    @property
-    def name(self) -> str:
-        return "datasource"
 
 
 class Tuple(Object):
@@ -200,7 +166,7 @@ class Tuple(Object):
         return Tuple(types)
 
     def contains_value(self, value) -> bool:
-        if not type(value) is tuple:
+        if not isinstance(value, tuple):
             return False
         for v, t in zip(value, self.item_types):
             if not t.contains_value(v):
