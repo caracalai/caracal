@@ -5,7 +5,6 @@ import unittest
 from caracal import (
     cara_types,
     Event,
-    ExternalEvent,
     handler,
     Node,
     ProjectInfo,
@@ -113,22 +112,22 @@ class RunProjectMultipleHandlers(unittest.TestCase):
             summat_type,
         ) = project.parse_node_types_from_declaration(sours_code)
 
-        sesion_info_1 = project.create_session("first")
-        sesion_info_2 = project.create_session("second")
+        session_info_1 = project.create_session("first")
+        session_info_2 = project.create_session("second")
 
-        gen = project.create_node(tick_gen_type, sesion_info_1)
+        gen = project.create_node(tick_gen_type, session_info_1)
         gen.set_uid("gen")
 
-        action_1 = project.create_node(do_smth_type, sesion_info_1)
+        action_1 = project.create_node(do_smth_type, session_info_1)
         action_1.set_uid("action_1")
 
-        action_2 = project.create_node(do_smth_with_error_type, sesion_info_1)
+        action_2 = project.create_node(do_smth_with_error_type, session_info_1)
         action_2.set_uid("action_2")
 
-        action_3 = project.create_node(do_smth_type, sesion_info_2)
+        action_3 = project.create_node(do_smth_type, session_info_2)
         action_3.set_uid("action_3")
 
-        summat = project.create_node(summat_type, sesion_info_2)
+        summat = project.create_node(summat_type, session_info_2)
         summat.set_uid("summator")
 
         project.connect(gen, "tick", action_1, "input_numbers")
