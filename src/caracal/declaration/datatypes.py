@@ -101,7 +101,7 @@ class Boolean(Object):
         super().__init__()
 
     def contains_value(self, value) -> bool:
-        return isinstance(value, bool)
+        return isinstance(value, bool) or isinstance(value, int)
 
     @property
     def name(self) -> str:
