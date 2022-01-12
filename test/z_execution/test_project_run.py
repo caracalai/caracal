@@ -35,7 +35,7 @@ class ResultNode(Node):
 
 class TestProjectRun(unittest.TestCase):
     def __init__(self, methodName="runTest"):
-        super(TestProject, self).__init__(methodName)
+        super(TestProjectRun, self).__init__(methodName)
 
     def test_project_run(self):
         program = """
