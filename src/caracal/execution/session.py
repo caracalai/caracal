@@ -27,7 +27,7 @@ class Session:
     def convert_used_node_types_to_text_declaration(session):
         result = ""
         for node in session.nodes.values():
-            result += str(node.__node_type__) + "\n"
+            result += str(node._node_type) + "\n"
         return result
 
     def register_types(self, node_type_impls):
@@ -78,10 +78,10 @@ class Session:
             logging.debug("Len of nodes values {}".format(len(self.nodes.values())))
             for key in self.nodes:
                 self.nodes[key].server_port = self.server_port
-                self.nodes[key].__start__()
+                self.nodes[key]._start()
 
             for node in self.nodes.values():
-                node.__wait__()
+                node._wait()
             if self.server is not None:
                 self.server.wait()
         except Exception as e:

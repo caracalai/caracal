@@ -139,6 +139,7 @@ class TestRunProjectMultipleSessionAndMultipleHandler(unittest.TestCase):
         project.connect(action_3, "output", summat, "input_numbers")
 
         manager = multiprocessing.Manager()
+        manager
         return_dict = manager.dict()
         worker1 = multiprocessing.Process(target=first_worker, args=(project,))
         worker1.start()
