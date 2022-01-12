@@ -428,9 +428,7 @@ class Node:
 
         # step2: initialize service socket
         self._service_socket = self._context.socket(zmq.REP)
-        self._service_port = self._service_socket.bind_to_random_port(
-            "tcp://127.0.0.1"
-        )
+        self._service_port = self._service_socket.bind_to_random_port("tcp://127.0.0.1")
         logging.debug(
             "Node {type}_{id}. Service connected to port={port}".format(
                 type=type(self), id=self.id, port=self._service_port
