@@ -4,16 +4,8 @@ import unittest
 from caracal import cara_types, Event, handler, MetaInfo, Node, Property, Session
 
 
-class Generator1(Node):
+class Generator(Node):
     threshold = Property(cara_types.Int(), default_value=5)
-    value = Event("value", cara_types.Int())
-
-    def run(self):
-        self.fire(self.value, self.threshold)
-
-
-class Generator2(Node):
-    threshold = Property(cara_types.Int(), default_value=2)
     value = Event("value", cara_types.Int())
 
     def run(self):
@@ -55,8 +47,8 @@ class TestDownloadedProject(unittest.TestCase):
         with Session() as session:
             # logging.basicConfig(level=logging.DEBUG)
 
-            generator_first = Generator1()
-            generator_second = Generator1()
+            generator_first = Generator()
+            generator_second = Generator()
             generator_second.threshold = 2
             summat = Summat()
 
