@@ -72,8 +72,8 @@ def second_worker(return_dict):
         return_dict["result"] = test_node.result
 
 
-class CheckGraphExecution05(unittest.TestCase):
-    def test(self):
+class TestMultipleSession(unittest.TestCase):
+    def test_multiple_session(self):
         # logging.basicConfig(level=logging.DEBUG)
 
         manager = multiprocessing.Manager()

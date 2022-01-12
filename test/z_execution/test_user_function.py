@@ -74,7 +74,7 @@ class TestNode(Node):
             self.terminate()
 
 
-class CheckGraphExecution_01(unittest.TestCase):
+class TestUserFunction(unittest.TestCase):
     def setUp(self) -> None:
         with Session() as session:
             # logging.basicConfig(level=logging.DEBUG)
@@ -89,7 +89,7 @@ class CheckGraphExecution_01(unittest.TestCase):
             self.test_node.receive_result.connect(self.summator.result)
             session.run()
 
-    def test(self):
+    def test_user_function(self):
         self.assertEqual(
             [
                 0,

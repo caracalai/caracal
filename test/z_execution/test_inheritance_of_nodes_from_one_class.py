@@ -39,11 +39,11 @@ class Summat(Node):
             self.terminate()
 
 
-class TestDownloadedProject(unittest.TestCase):
+class TestInheritanceOfNodesFromOneClass(unittest.TestCase):
     def __init__(self, method_name="runTest"):
-        super(TestDownloadedProject, self).__init__(method_name)
+        super(TestInheritanceOfNodesFromOneClass, self).__init__(method_name)
 
-    def test_case(self):
+    def test_inheritance_of_nodes_from_one_class(self):
         with Session() as session:
             # logging.basicConfig(level=logging.DEBUG)
 

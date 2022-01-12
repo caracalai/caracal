@@ -41,8 +41,8 @@ class Summat(Node):
             self.terminate()
 
 
-class MultiplaHandlers(unittest.TestCase):
-    def test_something(self):
+class TestMultipleHandlers(unittest.TestCase):
+    def test_multiple_handler(self):
         with Session() as session:
             # logging.basicConfig(level=logging.DEBUG)
             gen = TicksGen()

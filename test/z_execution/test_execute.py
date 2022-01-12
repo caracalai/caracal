@@ -54,7 +54,7 @@ class TestNode(Node):
         self.terminate()
 
 
-class CheckGraphExecution02(unittest.TestCase):
+class TestExecute(unittest.TestCase):
     def setUp(self) -> None:
         with Session() as session:
             # logging.basicConfig(level=logging.DEBUG)
@@ -69,7 +69,7 @@ class CheckGraphExecution02(unittest.TestCase):
             self.test_node.receive_result.connect(self.mapNode.result)
             session.run()
 
-    def test(self):
+    def test_execute(self):
 
         self.assertEqual(result, self.test_node.result)
 

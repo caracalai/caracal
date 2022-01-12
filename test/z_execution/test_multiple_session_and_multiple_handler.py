@@ -83,8 +83,8 @@ def second_worker(return_dict):
     return_dict["result"] = summat.result
 
 
-class MultipleHandlers(unittest.TestCase):
-    def test_multiple_handler_without_evt_id(self):
+class TestMultipleSessionAndMultipleHandler(unittest.TestCase):
+    def test_multiple_session_and_multiple_handler(self):
         # logging.basicConfig(level=logging.DEBUG)
         manager = multiprocessing.Manager()
         return_dict = manager.dict()

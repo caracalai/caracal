@@ -101,8 +101,8 @@ def second_worker(return_dict, project):
     return_dict["result"] = session.nodes["summator"].result
 
 
-class RunProjectMultipleHandlers(unittest.TestCase):
-    def test_run_project_multiple_handler_without_evt_id(self):
+class TestRunProjectMultipleSessionAndMultipleHandler(unittest.TestCase):
+    def test_run_project_multiple_session_and_multiple_handler(self):
         # logging.basicConfig(level=logging.DEBUG)
         project = ProjectInfo()
         (

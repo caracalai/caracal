@@ -33,11 +33,11 @@ class ResultNode(Node):
         self.terminate()
 
 
-class TestProject(unittest.TestCase):
+class TestProjectRun(unittest.TestCase):
     def __init__(self, methodName="runTest"):
         super(TestProject, self).__init__(methodName)
 
-    def test_run_project(self):
+    def test_project_run(self):
         program = """
         node Node1:
             properties:
