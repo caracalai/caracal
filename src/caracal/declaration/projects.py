@@ -218,9 +218,9 @@ class ProjectInfo:
         result = ProjectInfo()
         session_info = result.create_session(session.name)
         for node in [node for node in session.nodes.values()]:
-            result.node_types[node.node_type.uid] = node.node_type
+            result.node_types[node.__node_type__.uid] = node.__node_type__
         for node in [node for node in session.nodes.values()]:
-            result.nodes[node.id] = NodeInfo(node.node_type, session_info)
+            result.nodes[node.id] = NodeInfo(node.__node_type__, session_info)
             result.nodes[node.id].uid = node.id
         for node in [n for n in session.nodes.values()]:
             for hand in node.handlers.values():
