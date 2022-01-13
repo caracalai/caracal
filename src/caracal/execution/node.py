@@ -140,6 +140,7 @@ class Node:
         self._sub_socket = None
         self._pub_socket = None
         self._service_socket = None
+        self._message_id_socket = None
         self._event2handler = []
         self._port = ""
         self.handlers = {}
@@ -263,11 +264,9 @@ class Node:
         return "tcp://127.0.0.1:{port}".format(port=self.session.server_port)
 
     def _message_id(self):
-        sock = self._context.socket(zmq.REQ)
-        sock.connect(self._server_endpoint)
-        sock.send(json.dumps({"command": "generate-next-message-index"}).encode("utf8"))
-        msg = json.loads(sock.recv())
-        sock.close()
+        self._message_id_socket.connect(self._server_endpoint)
+        self._message_id_socket.send(json.dumps({"command": "generate-next-message-index"}).encode("utf8"))
+        msg = json.loads(self._message_id_socket.recv())
         return int(msg["index"])
 
     def fire(self, event, value, msg_id=None):
@@ -399,6 +398,9 @@ class Node:
         )
 
     def _initialize_sockets(self):
+        # step0: initialize message_id socket
+        self._message_id_socket = self._context.socket(zmq.REQ)
+
         # step1: initialize publisher socket
         self._pub_socket = self._context.socket(zmq.PUB)
         self._pub_port = self._pub_socket.bind_to_random_port("tcp://127.0.0.1")
