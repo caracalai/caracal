@@ -108,8 +108,12 @@ class ProjectInfo:
         if handler_name not in dest_node.node_type.handlers:
             return False
 
-        if source_node.node_type.events[event_name].data_type.intersect(
-                dest_node.node_type.handlers[handler_name].data_type) is None:
+        if (
+            source_node.node_type.events[event_name].data_type.intersect(
+                dest_node.node_type.handlers[handler_name].data_type
+            )
+            is None
+        ):
             return False
 
         return True
