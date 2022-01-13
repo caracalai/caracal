@@ -5,8 +5,8 @@ import numpy as np
 
 
 class TypeBase:
-    def __init__(self):
-        pass
+    def __init__(self, name=None):
+        self.name = name
 
     def equal(self, other) -> bool:
         return self.contains(other) and other.contains(self)
@@ -22,7 +22,7 @@ class TypeBase:
         return False
 
     @property
-    def name(self) -> str:
+    def type_name(self) -> str:
         return "TypeBase"
 
     def intersect(self, other):
@@ -40,12 +40,12 @@ class TypeBase:
         return None
 
     def __str__(self):
-        return self.name
+        return self.type_name
 
 
 class Object(TypeBase):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, name=None):
+        super(Object, self).__init__(name)
 
     def contains(self, other) -> bool:
         if type(self) == Object:
@@ -53,88 +53,90 @@ class Object(TypeBase):
         if type(self) is not Object and type(other) is not Object:
             if type(other) == type(self):
                 return True
-        raise Exception(f"{self.name}.contains({other.name}): Method is not implemented")
+        raise Exception(
+            f"{self.type_name}.contains({other.type_name}): Method is not implemented"
+        )
 
     @property
-    def name(self) -> str:
+    def type_name(self) -> str:
         return "object"
 
 
 class Void(Object):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, name=None):
+        super(Void, self).__init__(name)
 
     def contains_value(self, value) -> bool:
         return False
 
     @property
-    def name(self) -> str:
+    def type_name(self) -> str:
         return "void"
 
 
 class Float(Object):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, name=None):
+        super(Float, self).__init__(name)
 
     def contains_value(self, value) -> bool:
         return isinstance(value, (float, int))
 
     @property
-    def name(self) -> str:
+    def type_name(self) -> str:
         return "float"
 
 
 class Int(Object):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, name=None):
+        super(Int, self).__init__(name)
 
     def contains_value(self, value) -> bool:
         return isinstance(value, int)
 
     @property
-    def name(self) -> str:
+    def type_name(self) -> str:
         return "int"
 
 
 class Boolean(Object):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, name=None):
+        super(Boolean, self).__init__(name)
 
     def contains_value(self, value) -> bool:
         return isinstance(value, bool) or isinstance(value, int)
 
     @property
-    def name(self) -> str:
+    def type_name(self) -> str:
         return "boolean"
 
 
 class String(Object):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, name=None):
+        super(String, self).__init__(name)
 
     def contains_value(self, value) -> bool:
         return type(value) is str
 
     @property
-    def name(self) -> str:
+    def type_name(self) -> str:
         return "string"
 
 
 class Ndarray(Object):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, name=None):
+        super(Ndarray, self).__init__(name)
 
     def contains_value(self, value) -> bool:
         return isinstance(value, np.ndarray)
 
     @property
-    def name(self) -> str:
+    def type_name(self) -> str:
         return "ndarray"
 
 
 class List(Object):
-    def __init__(self, basic_type: Object):
-        super().__init__()
+    def __init__(self, basic_type: Object, name=None):
+        super(List, self).__init__(name)
         self.basic_type: Object = basic_type
 
     def contains_value(self, value) -> bool:
@@ -143,14 +145,15 @@ class List(Object):
         return True
 
     @property
-    def name(self) -> str:
-        return f"list({self.basic_type.name})"
+    def type_name(self) -> str:
+        return f"list({self.basic_type.type_name})"
 
 
 class Tuple(Object):
-    def __init__(self, *types):
-        super().__init__()
+    def __init__(self, *types, name=None):
+        super(Tuple, self).__init__(name)
         self.item_types: list = list(types)
+        self.arg_names = []
 
     @property
     def type_count(self) -> int:
@@ -178,8 +181,8 @@ class Tuple(Object):
         return True
 
     @property
-    def name(self) -> str:
-        return f'tuple({", ".join([x.name for x in self.item_types])})'
+    def type_name(self) -> str:
+        return f'tuple({", ".join([x.type_name for x in self.item_types])})'
 
     def intersect(self, other) -> typing.Union[Object, None]:
         if type(other) == Object:

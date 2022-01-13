@@ -6,7 +6,7 @@ from caracal import cara_types, Event, ExternalEvent, handler, Node, Property, S
 
 
 class TicksGen(Node):
-    tick = Event("tick", cara_types.Tuple(cara_types.Int()))
+    tick = Event("tick", (cara_types.Int(),))
 
     def run(self):
         for i in range(1, 5):
@@ -14,17 +14,17 @@ class TicksGen(Node):
 
 
 class DoSmth(Node):
-    output = Event("output", cara_types.Tuple(cara_types.Int()))
+    output = Event("output", (cara_types.Int(),))
 
-    @handler("input_numbers", cara_types.Tuple(cara_types.Int()))
+    @handler("input_numbers", (cara_types.Int(),))
     def input_numbers(self, msg):
         self.fire(self.output, msg.value, msg.id)
 
 
 class DoSmthWithErr(Node):
-    output = Event("output", cara_types.Tuple(cara_types.Int()))
+    output = Event("output", (cara_types.Int(),))
 
-    @handler("input_numbers", cara_types.Tuple(cara_types.Int()))
+    @handler("input_numbers", (cara_types.Int(),))
     def input_numbers(self, msg):
         if msg.value not in [2, 3]:
             self.fire(self.output, msg.value, msg.id)
@@ -36,7 +36,7 @@ class Summat(Node):
         default_value=0,
     )
 
-    @handler("input_numbers", cara_types.Tuple(cara_types.Object()), True)
+    @handler("input_numbers", (cara_types.Object(),), True)
     def input_numbers(self, msgs):
         print(f"{self.__class__.__name__} received")
         self.result += sum((msg.value for msg in msgs.value))
@@ -68,12 +68,8 @@ def second_worker(return_dict):
         summat = Summat(id_="Summator")
 
         gen_evt = ExternalEvent("tick", cara_types.Tuple(cara_types.Int()), node_id="Gen")
-        act1_evt = ExternalEvent(
-            "output", cara_types.Tuple(cara_types.Int()), node_id="action1"
-        )
-        act2_evt = ExternalEvent(
-            "output", cara_types.Tuple(cara_types.Int()), node_id="action2"
-        )
+        act1_evt = ExternalEvent("output", (cara_types.Int(),), node_id="action1")
+        act2_evt = ExternalEvent("output", (cara_types.Int(),), node_id="action2")
 
         action3.input_numbers.connect(gen_evt)
         summat.input_numbers.connect(act1_evt, act2_evt, action3.output)

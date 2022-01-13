@@ -8,7 +8,7 @@ from caracal.execution import Event, handler, Node, Property, Session
 
 class Node1(Node):
     threshold = Property(cara_types.Int(), default_value=10)
-    value = Event("value", cara_types.Int())
+    value = Event("value", (cara_types.Int("val"),))
 
     def run(self):
         self.fire(self.value, 10)
@@ -18,15 +18,15 @@ result = -1
 
 
 class Node2(Node):
-    result = Event("result", cara_types.Int())
+    result = Event("result", (cara_types.Int("val1"),))
 
-    @handler("handler1", cara_types.Int(), False, MetaInfo())
+    @handler("handler1", (cara_types.Int("val2"),), False, MetaInfo())
     def handler1(self, msg):
         self.fire(self.result, msg.value + 10)
 
 
 class ResultNode(Node):
-    @handler("result", cara_types.Int(), False, MetaInfo())
+    @handler("result", (cara_types.Int("val3"),), False, MetaInfo())
     def result(self, msg):
         global result
         result = msg.value

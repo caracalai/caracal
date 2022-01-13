@@ -73,7 +73,7 @@ class TypesParser:
             arg_names.append(argument.children[0].getText().lower())
             arg_types.append(self._handle_caracal_type(argument.children[2]))
         result = datatypes.Tuple(*arg_types)
-        result.names = arg_names
+        result.arg_names = arg_names
         return result
 
     def _handle_literal(self, literal_tree):

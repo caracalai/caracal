@@ -10,7 +10,7 @@ delay = 0.0
 
 
 class GeneratorFirst(Node):
-    value = Event("value", cara_types.Int())
+    value = Event("value", (cara_types.Int(),))
 
     def run(self):
         index = 0
@@ -25,7 +25,7 @@ class GeneratorFirst(Node):
 
 
 class GeneratorSecond(Node):
-    value = Event("value", cara_types.Int())
+    value = Event("value", (cara_types.Int(),))
 
     def run(self):
         index = 0
@@ -40,16 +40,16 @@ class GeneratorSecond(Node):
 
 
 class Summator(Node):
-    result = Event("result", cara_types.Int())
+    result = Event("result", (cara_types.Int(),))
     first_queue = collections.deque()
     second_queue = collections.deque()
 
-    @handler("on_first", cara_types.Int())
+    @handler("on_first", (cara_types.Int(),))
     def on_first(self, msg):
         self.first_queue.append(msg.value)
         self.process_queues()
 
-    @handler("on_second", cara_types.Int())
+    @handler("on_second", (cara_types.Int(),))
     def on_second(self, msg):
         self.second_queue.append(msg.value)
         self.process_queues()
@@ -67,7 +67,7 @@ class Summator(Node):
 class TestNode(Node):
     result = []
 
-    @handler("receive_result", cara_types.Int())
+    @handler("receive_result", (cara_types.Int(),))
     def receive_result(self, msg):
         self.result.append(msg.value)
         if len(self.result) == item_count:

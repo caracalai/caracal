@@ -13,32 +13,32 @@ result = list(map(lambda x: map_func(x), sent_array))
 
 
 class InitialList(Node):
-    values = Event("values", cara_types.List(cara_types.Int()))
+    values = Event("values", (cara_types.List(cara_types.Int()),))
 
     def run(self):
         self.fire(self.values, sent_array)
 
 
 class Exp(Node):
-    result = Event("result", cara_types.List(cara_types.Int()))
+    result = Event("result", (cara_types.List(cara_types.Int()),))
 
-    @handler("value", cara_types.List(cara_types.Int()))
+    @handler("value", (cara_types.List(cara_types.Int()),))
     def on_process_value(self, msg):
         self.fire(self.result, map_func(msg.value), msg.id)
 
 
 class Map(Node):
-    map_value = Event("map_value", cara_types.Object())
-    result = Event("result", cara_types.List(cara_types.Object()))
+    map_value = Event("map_value", (cara_types.Object(),))
+    result = Event("result", (cara_types.List(cara_types.Object()),))
     requests = {}
 
-    @handler("initial_values", cara_types.List(cara_types.Int()))
+    @handler("initial_values", (cara_types.List(cara_types.Int()),))
     def set_initial_values(self, msg):
         self.requests[msg.id] = {"result": [], "size": len(msg.value)}
         for item in msg.value:
             self.fire(self.map_value, item, msg_id=msg.id)
 
-    @handler("processed_value", cara_types.Object())
+    @handler("processed_value", (cara_types.Object(),))
     def process_value(self, msg):
         self.requests[msg.id]["result"].append(msg.value)
         if len(self.requests[msg.id]["result"]) == self.requests[msg.id]["size"]:
@@ -48,7 +48,7 @@ class Map(Node):
 
 
 class TestNode(Node):
-    @handler("receive_result", cara_types.Object())
+    @handler("receive_result", (cara_types.Object(),))
     def receive_result(self, msg):
         self.result = msg.value
         self.terminate()
