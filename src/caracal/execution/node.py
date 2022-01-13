@@ -265,7 +265,9 @@ class Node:
 
     def _message_id(self):
         self._message_id_socket.connect(self._server_endpoint)
-        self._message_id_socket.send(json.dumps({"command": "generate-next-message-index"}).encode("utf8"))
+        self._message_id_socket.send(
+            json.dumps({"command": "generate-next-message-index"}).encode("utf8")
+        )
         msg = json.loads(self._message_id_socket.recv())
         return int(msg["index"])
 
