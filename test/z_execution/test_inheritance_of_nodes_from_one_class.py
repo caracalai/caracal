@@ -6,26 +6,26 @@ from caracal import cara_types, Event, handler, MetaInfo, Node, Property, Sessio
 
 class Generator(Node):
     threshold = Property(cara_types.Int(), default_value=5)
-    value = Event("value", cara_types.Int())
+    value = Event("value", (cara_types.Int(),))
 
     def run(self):
         self.fire(self.value, self.threshold)
 
 
 class Summat(Node):
-    result = Event("result", cara_types.Int())
+    result = Event("result", (cara_types.Int(),))
 
     summa = 0
 
     a_queue = []
     b_queue = []
 
-    @handler("a", cara_types.Int(), False, MetaInfo())
+    @handler("a", (cara_types.Int(),), False, MetaInfo())
     def a(self, msg):
         self.a_queue.append(msg.value)
         self.run()
 
-    @handler("b", cara_types.Int(), False, MetaInfo())
+    @handler("b", (cara_types.Int(),), False, MetaInfo())
     def b(self, msg):
         self.b_queue.append(msg.value)
         self.run()

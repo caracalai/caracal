@@ -49,19 +49,27 @@ class PropertyDeclaration:
 
 
 class MethodDeclaration:
-    def __init__(self, name: str, data_type, info: typing.Union[MetaInfo, None] = None):
+    def __init__(
+        self, name: str, data_type: tuple, info: typing.Union[MetaInfo, None] = None
+    ):
         self.name: str = name
         self.info: typing.Union[MetaInfo, None] = info
-        if isinstance(data_type, caratypes.Tuple):
-            self.data_type = data_type
-        else:
-            self.data_type = caratypes.Tuple(data_type)
+        self.data_type = (
+            caratypes.Tuple(*data_type)
+            if not isinstance(data_type, caratypes.Tuple)
+            else data_type
+        )
+        if not self.data_type.arg_names:
+            self.data_type.arg_names = [
+                data_type.name for data_type in self.data_type.item_types
+            ]
 
     @property
     def argument_names(self):
-        if "names" in self.data_type.__dict__:
-            return self.data_type.names
-        return [f"value_{idx}" for idx in range(len(self.data_type.item_types))]
+        if all(self.data_type.arg_names):
+            return self.data_type.arg_names
+        else:
+            return [f"value_{idx}" for idx in range(len(self.data_type.item_types))]
 
     @property
     def argument_types(self):

@@ -23,7 +23,7 @@ test_node_result = None
 
 class Generator(Node):
     threshold = Property(cara_types.Int(), default_value=1)
-    processed_batch = Event("processedBatch", cara_types.List(cara_types.Int()))
+    processed_batch = Event("processedBatch", (cara_types.List(cara_types.Int()),))
 
     def run(self):
         self.fire(self.processed_batch, sent_array)
@@ -31,9 +31,9 @@ class Generator(Node):
 
 class Processor(Node):
     threshold = Property(cara_types.Int(), default_value=0)
-    result = Event("result", cara_types.Object())
+    result = Event("result", (cara_types.Object(),))
 
-    @handler("onProcessBatch", cara_types.List(cara_types.Int()), False, MetaInfo())
+    @handler("onProcessBatch", (cara_types.List(cara_types.Int()),), False, MetaInfo())
     def on_process_batch(self, msg):
         self.fire(self.result, list(filter(lambda x: x >= self.threshold, msg.value)))
 
@@ -41,7 +41,7 @@ class Processor(Node):
 class TestNode(Node):
     result = None
 
-    @handler("receive_result", cara_types.Object())
+    @handler("receive_result", (cara_types.Object(),))
     def receive_result(self, msg):
         self.result = msg.value
         print(msg.value)
@@ -63,7 +63,7 @@ def second_worker(return_dict):
 
         processor.threshold = 23
         processed_batch = ExternalEvent(
-            "processedBatch", cara_types.List(cara_types.Int()), node_id="generator"
+            "processedBatch", (cara_types.List(cara_types.Int()),), node_id="generator"
         )
         processor.on_process_batch.connect(processed_batch)
         test_node.receive_result.connect(processor.result)
