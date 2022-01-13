@@ -62,27 +62,9 @@ class Handler:
 
     def connect(self, *events):
         for event in events:
-            if isinstance(event, Event) or isinstance(event, ExternalEvent):
-                handler_data_type = self.declaration.data_type
-                event_data_type = event.declaration.data_type
-
-                handler_data_type = (
-                    handler_data_type
-                    if not isinstance(handler_data_type, cara_types.Tuple)
-                    else cara_types.Tuple(handler_data_type)
-                )
-
-                event_data_type = (
-                    event_data_type
-                    if not isinstance(event_data_type, cara_types.Tuple)
-                    else cara_types.Tuple(event_data_type)
-                )
-
-                if event_data_type.intersect(handler_data_type) is None:
-                    raise TypeError
-                self.connected_events.add(event)
-            else:
+            if event.declaration.data_type.intersect(self.declaration.data_type) is None:
                 raise TypeError
+            self.connected_events.add(event)
 
 
 def handler(
@@ -158,6 +140,7 @@ class Node:
         self._sub_socket = None
         self._pub_socket = None
         self._service_socket = None
+        self._message_id_socket = None
         self._event2handler = []
         self._port = ""
         self.handlers = {}
@@ -281,11 +264,11 @@ class Node:
         return "tcp://127.0.0.1:{port}".format(port=self.session.server_port)
 
     def _message_id(self):
-        sock = self._context.socket(zmq.REQ)
-        sock.connect(self._server_endpoint)
-        sock.send(json.dumps({"command": "generate-next-message-index"}).encode("utf8"))
-        msg = json.loads(sock.recv())
-        sock.close()
+        self._message_id_socket.connect(self._server_endpoint)
+        self._message_id_socket.send(
+            json.dumps({"command": "generate-next-message-index"}).encode("utf8")
+        )
+        msg = json.loads(self._message_id_socket.recv())
         return int(msg["index"])
 
     def fire(self, event, value, msg_id=None):
@@ -417,6 +400,9 @@ class Node:
         )
 
     def _initialize_sockets(self):
+        # step0: initialize message_id socket
+        self._message_id_socket = self._context.socket(zmq.REQ)
+
         # step1: initialize publisher socket
         self._pub_socket = self._context.socket(zmq.PUB)
         self._pub_port = self._pub_socket.bind_to_random_port("tcp://127.0.0.1")
@@ -452,7 +438,22 @@ class Node:
             )
         )
 
+    def _check_properties(self):
+        for prop in [
+            prop
+            for prop in self.properties.values()
+            if prop.declaration.default_value is None
+        ]:
+            if prop.value is None:
+                raise Exception(
+                    f'{self.__class__} property "{prop.declaration.name}" \
+is not set to a value'
+                )
+
     def _execute(self):
+        # step0: check properties
+        self._check_properties()
+
         # step1: initialize service socket
         self._initialize_sockets()
 
