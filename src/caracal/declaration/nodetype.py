@@ -1,6 +1,8 @@
 import typing
 import uuid
 
+import caracal.declaration.datatypes as caratypes
+
 
 class ProgrammingLanguage:
     Python = (0,)
@@ -49,12 +51,18 @@ class PropertyDeclaration:
 class MethodDeclaration:
     def __init__(self, name: str, data_type, info: typing.Union[MetaInfo, None] = None):
         self.name: str = name
-        self.data_type = data_type
         self.info: typing.Union[MetaInfo, None] = info
+        if isinstance(data_type, caratypes.Tuple):
+            self.data_type = data_type
+        else:
+            self.data_type = caratypes.Tuple(data_type)
 
     @property
     def argument_names(self):
-        return self.data_type.names
+        if "names" in self.data_type.__dict__:
+            return self.data_type.names
+        return [f"value_{idx}" for idx in range(len(self.data_type.item_types))]
+
 
     @property
     def argument_types(self):

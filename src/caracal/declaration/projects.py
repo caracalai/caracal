@@ -4,7 +4,6 @@ import uuid
 
 from caracal import typesparser
 from caracal.declaration import nodetype
-import caracal.declaration.datatypes as caratypes
 
 
 class SessionInfo:
@@ -97,27 +96,20 @@ class ProjectInfo:
         dest_node: NodeInfo,
         handler_name: str,
     ) -> bool:
-        if event_name not in self.nodes[source_node.uid].node_type.events:
+        if source_node.uid not in self.nodes:
             return False
 
-        if handler_name not in self.nodes[dest_node.uid].node_type.handlers:
+        if dest_node.uid not in self.nodes:
             return False
-        handler_data_type = dest_node.node_type.handlers[handler_name].data_type
-        event_data_type = source_node.node_type.events[event_name].data_type
 
-        handler_data_type = (
-            handler_data_type
-            if not isinstance(handler_data_type, caratypes.Tuple)
-            else caratypes.Tuple(handler_data_type)
-        )
+        if event_name not in source_node.node_type.events:
+            return False
 
-        event_data_type = (
-            event_data_type
-            if not isinstance(event_data_type, caratypes.Tuple)
-            else caratypes.Tuple(event_data_type)
-        )
+        if handler_name not in dest_node.node_type.handlers:
+            return False
 
-        if event_data_type.intersect(handler_data_type) is None:
+        if source_node.node_type.events[event_name].data_type.intersect(
+                dest_node.node_type.handlers[handler_name].data_type) is None:
             return False
 
         return True
