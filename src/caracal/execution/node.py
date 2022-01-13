@@ -434,7 +434,22 @@ class Node:
             )
         )
 
+    def _check_properties(self):
+        for prop in [
+            prop
+            for prop in self.properties.values()
+            if prop.declaration.default_value is None
+        ]:
+            if prop.value is None:
+                raise Exception(
+                    f'{self.__class__} property "{prop.declaration.name}" \
+is not set to a value'
+                )
+
     def _execute(self):
+        # step0: check properties
+        self._check_properties()
+
         # step1: initialize service socket
         self._initialize_sockets()
 

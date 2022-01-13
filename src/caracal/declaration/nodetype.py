@@ -63,7 +63,6 @@ class MethodDeclaration:
             return self.data_type.names
         return [f"value_{idx}" for idx in range(len(self.data_type.item_types))]
 
-
     @property
     def argument_types(self):
         return self.data_type.item_types
