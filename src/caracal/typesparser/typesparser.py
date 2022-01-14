@@ -74,6 +74,8 @@ class TypesParser:
             arg_types.append(self._handle_caracal_type(argument.children[2]))
         result = datatypes.Tuple(*arg_types)
         result.arg_names = arg_names
+        for arg, name in zip(result.item_types, result.arg_names):
+            arg.name = name
         return result
 
     def _handle_literal(self, literal_tree):
