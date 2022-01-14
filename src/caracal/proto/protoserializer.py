@@ -35,9 +35,9 @@ class ProtoSerializer:
             return value.value
         if isinstance(value, basictypes_pb2.NdarrayValue):
             shape = [self.deserialize_value(item) for item in value.shape]
-            data = np.frombuffer(value.data, np.__dict__[value.data_type])
-            data = np.reshape(data, shape)
-            return basictypes.Ndarray(data=data)
+            result = np.frombuffer(value.data, np.__dict__[value.data_type])
+            result = np.reshape(result, shape)
+            return result
         if isinstance(value, (basictypes_pb2.TupleValue, basictypes_pb2.ListValue)):
             items = [self.deserialize_value(item) for item in value.items]
             if isinstance(value, basictypes_pb2.TupleValue):
@@ -69,8 +69,8 @@ class ProtoSerializer:
             return result
         if isinstance(value, np.ndarray):
             result = basictypes_pb2.NdarrayValue()
-            result.data = np.ndarray.tobytes(value.data)
-            result.data_type = value.data_type
+            result.data = np.ndarray.tobytes(value)
+            result.data_type = str(value.dtype)
             for val in value.shape:
                 obj = result.shape.add()
                 obj.Pack(self.serialize_value(val))
