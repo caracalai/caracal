@@ -20,12 +20,12 @@ _Parent = collections.namedtuple("_Parent", ["uid"])
 
 class Handler:
     def __init__(
-            self,
-            name: str,
-            data_type: typing.List[cara_types.Object],
-            receives_multiple: bool,
-            info: typing.Union[node_type.MetaInfo, None],
-            function: typing.Callable,
+        self,
+        name: str,
+        data_type: typing.List[cara_types.Object],
+        receives_multiple: bool,
+        info: typing.Union[node_type.MetaInfo, None],
+        function: typing.Callable,
     ):
         self.declaration = node_type.HandlerDeclaration(
             name, data_type, receives_multiple, info
@@ -68,11 +68,11 @@ class Handler:
 
 
 def handler(
-        name: str,
-        data_type,
-        receives_multiple: bool = False,
-        info: node_type.MetaInfo = None,
-        function: typing.Callable = None,
+    name: str,
+    data_type,
+    receives_multiple: bool = False,
+    info: node_type.MetaInfo = None,
+    function: typing.Callable = None,
 ):
     if function:
         return Handler(name, data_type, receives_multiple, info, function)
@@ -203,7 +203,7 @@ class Node:
 
     def __setattr__(self, key, value):
         if key in self.__class__.__dict__ and isinstance(
-                self.__class__.__dict__[key], Property
+            self.__class__.__dict__[key], Property
         ):
             self.properties[key] = copy.copy(self.__class__.__dict__[key])
             self.__dict__[key] = value
@@ -223,7 +223,7 @@ class Node:
                 self.events[attr.declaration.name] = copy.copy(attr)
                 self.__dict__[attr_name] = self.events[attr.declaration.name]
             elif attr_name in self.__class__.__dict__ and isinstance(
-                    self.__class__.__dict__[attr_name], Property
+                self.__class__.__dict__[attr_name], Property
             ):
                 self.properties[attr_name] = copy.copy(self.__class__.__dict__[attr_name])
                 self.properties[attr_name].parent = self
@@ -501,7 +501,7 @@ is not set to a value'
                     index = msg.find(b" ")
                     source_id, event = msg[:index].decode("utf8").split("|")
                     binary_msg = basic_types_pb2.Message()
-                    binary_msg.ParseFromString(msg[index + 1:])
+                    binary_msg.ParseFromString(msg[index + 1 :])
 
                     (
                         msg_id,

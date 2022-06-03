@@ -5,7 +5,7 @@ from caracal import cara_types, Event, handler, Node, Session
 
 
 def map_func(value):
-    return value ** 2
+    return value**2
 
 
 sent_array = [54, 23]
